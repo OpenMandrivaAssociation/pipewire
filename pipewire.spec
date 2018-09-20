@@ -126,7 +126,7 @@ exit 0
 %{_bindir}/%{name}
 %{_libdir}/%{name}-%{api}/
 %{_libdir}/spa/
-%{_mandir}/man1/%{name}.1*
+#{_mandir}/man1/%{name}.1*
 
 %files -n %{libname}
 %license LICENSE GPL LGPL
