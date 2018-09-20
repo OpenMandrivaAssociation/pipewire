@@ -7,17 +7,16 @@
 Name:		pipewire
 Summary:	Media Sharing Server
 Version:	0.2.3
-Release:	
+Release:	1
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
 Source0:	https://github.com/PipeWire/pipewire/archive/%{version}/%{name}-%{version}.tar.gz
-## upstream patches
 
 BuildRequires:	doxygen
 BuildRequires:	gcc
 BuildRequires:	graphviz
-BuildRequires:	meson >= 0.35.0
+BuildRequires:	meson
 BuildRequires:	xmltoman
 BuildRequires:	pkgconfig(libudev)
 BuildRequires:	pkgconfig(dbus-1)
@@ -28,7 +27,7 @@ BuildRequires:	pkgconfig(gstreamer-base-1.0) >= 1.10.0
 BuildRequires:	pkgconfig(gstreamer-plugins-base-1.0) >= 1.10.0
 BuildRequires:	pkgconfig(gstreamer-net-1.0) >= 1.10.0
 BuildRequires:	pkgconfig(gstreamer-allocators-1.0) >= 1.10.0
-BuildRequires:	pkgconfig(systemd) >= 184
+BuildRequires:	pkgconfig(systemd)
 BuildRequires:	pkgconfig(alsa)
 BuildRequires:	pkgconfig(libavcodec)
 BuildRequires:	pkgconfig(libva)
