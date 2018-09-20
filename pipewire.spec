@@ -17,7 +17,7 @@ BuildRequires:	doxygen
 BuildRequires:	gcc
 BuildRequires:	graphviz
 BuildRequires:	meson
-BuildRequires:	xmltoman
+#BuildRequires:	xmltoman
 BuildRequires:	pkgconfig(libudev)
 BuildRequires:	pkgconfig(dbus-1)
 BuildRequires:	pkgconfig(glib-2.0) >= 2.32
