@@ -146,9 +146,9 @@ exit 0
 %files utils
 %{_bindir}/%{name}-monitor
 %{_bindir}/%{name}-cli
-%{_mandir}/man1/%{name}.conf.5*
-%{_mandir}/man1/%{name}-monitor.1*
-%{_mandir}/man1/%{name}-cli.1*
+#{_mandir}/man1/%{name}.conf.5*
+#{_mandir}/man1/%{name}-monitor.1*
+#{_mandir}/man1/%{name}-cli.1*
 %{_bindir}/spa-monitor
 %{_bindir}/spa-inspect
 
