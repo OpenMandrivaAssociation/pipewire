@@ -6,8 +6,8 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.2.3
-Release:	2
+Version:	0.2.5
+Release:	1
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -102,7 +102,7 @@ GStreamer 1.0 plugin for the PipeWire multimedia server.
 %setup -q -T -b0
 
 %build
-%meson -D docs=true -D man=true -D gstreamer=true -D systemd=true
+%meson -D docs=true -D man=true -D gstreamer=enabled -D systemd=true
 %meson_build
 
 %install
