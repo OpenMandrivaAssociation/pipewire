@@ -1,0 +1,12 @@
+diff -up pipewire-0.2.5/src/pipewire/utils.h.omv~ pipewire-0.2.5/src/pipewire/utils.h
+--- pipewire-0.2.5/src/pipewire/utils.h.omv~	2019-02-07 23:43:02.781880903 +0100
++++ pipewire-0.2.5/src/pipewire/utils.h	2019-02-07 23:43:36.749426264 +0100
+@@ -58,7 +58,7 @@ pw_spa_pod_copy(const struct spa_pod *po
+ 		return NULL;
+ 
+ 	size = SPA_POD_SIZE(pod);
+-	if ((c = malloc(size)) == NULL)
++	if ((c = (struct spa_pod*)malloc(size)) == NULL)
+ 		return NULL;
+ 
+ 	return (struct spa_pod *) memcpy(c, pod, size);

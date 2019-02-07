@@ -7,11 +7,12 @@
 Name:		pipewire
 Summary:	Media Sharing Server
 Version:	0.2.5
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
 Source0:	https://github.com/PipeWire/pipewire/archive/%{version}/%{name}-%{version}.tar.gz
+Patch0:		pipewire-0.2.5-c++.patch
 
 BuildRequires:	doxygen
 BuildRequires:	gcc
@@ -99,7 +100,7 @@ GStreamer 1.0 plugin for the PipeWire multimedia server.
 #------------------------------------------------
 
 %prep
-%setup -q -T -b0
+%autosetup -T -b0 -p1
 
 %build
 %meson -D docs=true -D man=true -D gstreamer=enabled -D systemd=true
