@@ -6,13 +6,12 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.2.5
-Release:	2
+Version:	0.2.6
+Release:	1
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
 Source0:	https://github.com/PipeWire/pipewire/archive/%{version}/%{name}-%{version}.tar.gz
-Patch0:		pipewire-0.2.5-c++.patch
 
 BuildRequires:	doxygen
 BuildRequires:	gcc
