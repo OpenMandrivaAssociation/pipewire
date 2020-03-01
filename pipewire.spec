@@ -36,6 +36,7 @@ BuildRequires:	pkgconfig(libv4l2)
 BuildRequires:	pkgconfig(sbc)
 BuildRequires:	pkgconfig(sdl2)
 BuildRequires:  pkgconfig(jack)
+BuildRequires:  pkgconfig(vulkan)
 
 Requires:	systemd >= 184
 Requires:	rtkit
