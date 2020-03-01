@@ -138,7 +138,7 @@ exit 0
 #{_libdir}/lib%{name}-%{api}.so.%{major}{,.*}
 
 %files -n %{devname}
-%{_includedir}/%{name}/
+#{_includedir}/%{name}/
 %{_includedir}/spa-%{spa_api}
 %{_libdir}/lib%{name}-%{api}.so
 %{_libdir}/pkgconfig/lib%{name}-%{api}.pc
