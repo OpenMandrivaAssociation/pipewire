@@ -148,8 +148,8 @@ exit 0
 %{_docdir}/%{name}/html/
 
 %files utils
-%{_bindir}/%{name}-monitor
-%{_bindir}/%{name}-cli
+#%{_bindir}/%{name}-monitor
+#%{_bindir}/%{name}-cli
 #{_mandir}/man1/%{name}.conf.5*
 #{_mandir}/man1/%{name}-monitor.1*
 #{_mandir}/man1/%{name}-cli.1*
