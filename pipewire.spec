@@ -101,6 +101,48 @@ Group:		System/Servers
 GStreamer 1.0 plugin for the PipeWire multimedia server.
 
 #------------------------------------------------
+%package alsa
+Summary:        PipeWire media server ALSA support
+License:        MIT
+Recommends:     %{name} = %{version}-%{release}
+
+%description alsa
+This package contains an ALSA plugin for the PipeWire media server.
+
+#------------------------------------------------
+
+%package libjack
+Summary:        PipeWire libjack library
+License:        MIT
+Recommends:     %{name} = %{version}-%{release}
+Obsoletes:      pipewire-jack < 0.2.96-2
+
+%description libjack
+This package contains a PipeWire replacement for JACK audio connection kit
+"libjack" library.
+
+#------------------------------------------------
+
+%package libpulse
+Summary:        PipeWire libpulse library
+License:        MIT
+Recommends:     %{name} = %{version}-%{release}
+Obsoletes:      pipewire-pulseaudio < 0.2.96-2
+
+%description libpulse
+This package contains a PipeWire replacement for PulseAudio "libpulse" library.
+
+#------------------------------------------------
+
+%package plugin-jack
+Summary:        PipeWire media server JACK support
+License:        MIT
+Recommends:     %{name} = %{version}-%{release}
+
+%description plugin-jack
+This package contains the PipeWire spa plugin to connect to a JACK server.
+
+#------------------------------------------------
 
 %prep
 %autosetup -T -b0 -p1
