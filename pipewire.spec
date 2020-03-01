@@ -102,7 +102,7 @@ GStreamer 1.0 plugin for the PipeWire multimedia server.
 %autosetup -T -b0 -p1
 
 %build
-%meson -D docs=true -D man=true -D gstreamer=enabled -D systemd=true
+%meson -D docs=true -D man=true -D gstreamer=true -D systemd=true
 %meson_build
 
 %install
