@@ -1,5 +1,5 @@
-%define spa_api	0.1
-%define api	0.2
+%define spa_api	0.2
+%define api	0.3
 %define major	1
 %define libname	%mklibname %{name} %{api} %{major}
 %define devname	%mklibname %{name} -d
@@ -122,14 +122,14 @@ getent passwd pipewire >/dev/null || \
 exit 0
 
 %files
-%license LICENSE GPL LGPL
-%doc README
+%license LICENSE
+%doc README.md
 %dir %{_sysconfdir}/%{name}
 %{_sysconfdir}/%{name}/%{name}.conf
 %{_userunitdir}/%{name}.*
 %{_bindir}/%{name}
 %{_libdir}/%{name}-%{api}/
-%{_libdir}/spa/
+%{_libdir}/spa-%{spa_api}
 #{_mandir}/man1/%{name}.1*
 
 %files -n %{libname}
@@ -139,7 +139,7 @@ exit 0
 
 %files -n %{devname}
 %{_includedir}/%{name}/
-%{_includedir}/spa/
+%{_includedir}/spa-%{spa_api}
 %{_libdir}/lib%{name}-%{api}.so
 %{_libdir}/pkgconfig/lib%{name}-%{api}.pc
 %{_libdir}/pkgconfig/libspa-%{spa_api}.pc
