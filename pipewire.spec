@@ -1,6 +1,6 @@
 %define spa_api	0.2
 %define api	0.3
-%define major	1
+%define major	0
 %define libname	%mklibname %{name} %{api} %{major}
 %define devname	%mklibname %{name} -d
 
@@ -128,6 +128,7 @@ exit 0
 %{_sysconfdir}/%{name}/%{name}.conf
 %{_userunitdir}/%{name}.*
 %{_bindir}/%{name}
+%{_bindir}/%{name}-media-session
 %{_libdir}/%{name}-%{api}/
 %{_libdir}/spa-%{spa_api}
 #{_mandir}/man1/%{name}.1*
@@ -135,10 +136,10 @@ exit 0
 %files -n %{libname}
 %license LICENSE
 %doc README.md
-#{_libdir}/lib%{name}-%{api}.so.%{major}{,.*}
+%{_libdir}/lib%{name}-%{api}.so.%{major}{,.*}
 
 %files -n %{devname}
-#{_includedir}/%{name}/
+%{_includedir}/%{name}-%{api}/%{name}*
 %{_includedir}/spa-%{spa_api}
 %{_libdir}/lib%{name}-%{api}.so
 %{_libdir}/pkgconfig/lib%{name}-%{api}.pc
@@ -155,6 +156,27 @@ exit 0
 #{_mandir}/man1/%{name}-cli.1*
 %{_bindir}/spa-monitor
 %{_bindir}/spa-inspect
+%{_bindir}/pw-mon
+%{_bindir}/pw-cli
+%{_bindir}/pw-dot
+#%{_bindir}/pw-cat
+#%{_bindir}/pw-play
+%{_bindir}/pw-profiler
+#%{_bindir}/pw-record
 
 %files -n gstreamer1.0-%{name}
 %{_libdir}/gstreamer-1.0/libgst%{name}.so
+
+%files alsa
+%{_libdir}/alsa-lib/libasound_module_pcm_pipewire.so
+
+%files libjack
+%{_libdir}/libjack-pw.so*
+
+%files libpulse
+%{_libdir}/libpulse-pw.so*
+%{_libdir}/libpulse-simple-pw.so*
+%{_libdir}/libpulse-mainloop-glib-pw.so*
+
+%files plugin-jack
+%{_libdir}/spa-%{spa_api}/jack/
