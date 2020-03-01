@@ -1,12 +1,12 @@
-%define spa_api	0.1
-%define api	0.2
-%define major	1
+%define spa_api	0.2
+%define api	0.3
+%define major	0
 %define libname	%mklibname %{name} %{api} %{major}
 %define devname	%mklibname %{name} -d
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.2.7
+Version:	0.3.0
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -18,6 +18,7 @@ BuildRequires:	gcc
 BuildRequires:	graphviz
 BuildRequires:	meson
 #BuildRequires:	xmltoman
+BuildRequires:  pkgconfig(bluez)
 BuildRequires:	pkgconfig(libudev)
 BuildRequires:	pkgconfig(dbus-1)
 BuildRequires:	pkgconfig(glib-2.0) >= 2.32
@@ -34,6 +35,9 @@ BuildRequires:	pkgconfig(libva)
 BuildRequires:	pkgconfig(libv4l2)
 BuildRequires:	pkgconfig(sbc)
 BuildRequires:	pkgconfig(sdl2)
+BuildRequires:  pkgconfig(jack)
+BuildRequires:  pkgconfig(vulkan)
+BuildRequires:  pkgconfig(libpulse)
 
 Requires:	systemd >= 184
 Requires:	rtkit
@@ -97,12 +101,54 @@ Group:		System/Servers
 GStreamer 1.0 plugin for the PipeWire multimedia server.
 
 #------------------------------------------------
+%package alsa
+Summary:        PipeWire media server ALSA support
+License:        MIT
+Recommends:     %{name} = %{version}-%{release}
+
+%description alsa
+This package contains an ALSA plugin for the PipeWire media server.
+
+#------------------------------------------------
+
+%package libjack
+Summary:        PipeWire libjack library
+License:        MIT
+Recommends:     %{name} = %{version}-%{release}
+Obsoletes:      pipewire-jack < 0.2.96-2
+
+%description libjack
+This package contains a PipeWire replacement for JACK audio connection kit
+"libjack" library.
+
+#------------------------------------------------
+
+%package libpulse
+Summary:        PipeWire libpulse library
+License:        MIT
+Recommends:     %{name} = %{version}-%{release}
+Obsoletes:      pipewire-pulseaudio < 0.2.96-2
+
+%description libpulse
+This package contains a PipeWire replacement for PulseAudio "libpulse" library.
+
+#------------------------------------------------
+
+%package plugin-jack
+Summary:        PipeWire media server JACK support
+License:        MIT
+Recommends:     %{name} = %{version}-%{release}
+
+%description plugin-jack
+This package contains the PipeWire spa plugin to connect to a JACK server.
+
+#------------------------------------------------
 
 %prep
 %autosetup -T -b0 -p1
 
 %build
-%meson -D docs=true -D man=true -D gstreamer=enabled -D systemd=true
+%meson -D docs=true -D man=true -D gstreamer=true -D systemd=true
 %meson_build
 
 %install
@@ -118,24 +164,25 @@ getent passwd pipewire >/dev/null || \
 exit 0
 
 %files
-%license LICENSE GPL LGPL
-%doc README
+%license LICENSE
+%doc README.md
 %dir %{_sysconfdir}/%{name}
 %{_sysconfdir}/%{name}/%{name}.conf
 %{_userunitdir}/%{name}.*
 %{_bindir}/%{name}
+%{_bindir}/%{name}-media-session
 %{_libdir}/%{name}-%{api}/
-%{_libdir}/spa/
+%{_libdir}/spa-%{spa_api}
 #{_mandir}/man1/%{name}.1*
 
 %files -n %{libname}
-%license LICENSE GPL LGPL
-%doc README
+%license LICENSE
+%doc README.md
 %{_libdir}/lib%{name}-%{api}.so.%{major}{,.*}
 
 %files -n %{devname}
-%{_includedir}/%{name}/
-%{_includedir}/spa/
+%{_includedir}/%{name}-%{api}/%{name}*
+%{_includedir}/spa-%{spa_api}
 %{_libdir}/lib%{name}-%{api}.so
 %{_libdir}/pkgconfig/lib%{name}-%{api}.pc
 %{_libdir}/pkgconfig/libspa-%{spa_api}.pc
@@ -144,13 +191,34 @@ exit 0
 %{_docdir}/%{name}/html/
 
 %files utils
-%{_bindir}/%{name}-monitor
-%{_bindir}/%{name}-cli
+#%{_bindir}/%{name}-monitor
+#%{_bindir}/%{name}-cli
 #{_mandir}/man1/%{name}.conf.5*
 #{_mandir}/man1/%{name}-monitor.1*
 #{_mandir}/man1/%{name}-cli.1*
 %{_bindir}/spa-monitor
 %{_bindir}/spa-inspect
+%{_bindir}/pw-mon
+%{_bindir}/pw-cli
+%{_bindir}/pw-dot
+#%{_bindir}/pw-cat
+#%{_bindir}/pw-play
+%{_bindir}/pw-profiler
+#%{_bindir}/pw-record
 
 %files -n gstreamer1.0-%{name}
 %{_libdir}/gstreamer-1.0/libgst%{name}.so
+
+%files alsa
+%{_libdir}/alsa-lib/libasound_module_pcm_pipewire.so
+
+%files libjack
+%{_libdir}/libjack-pw.so*
+
+%files libpulse
+%{_libdir}/libpulse-pw.so*
+%{_libdir}/libpulse-simple-pw.so*
+%{_libdir}/libpulse-mainloop-glib-pw.so*
+
+%files plugin-jack
+%{_libdir}/spa-%{spa_api}/jack/
