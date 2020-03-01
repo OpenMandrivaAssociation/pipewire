@@ -133,9 +133,9 @@ exit 0
 #{_mandir}/man1/%{name}.1*
 
 %files -n %{libname}
-%license LICENSE GPL LGPL
-%doc README
-%{_libdir}/lib%{name}-%{api}.so.%{major}{,.*}
+%license LICENSE
+%doc README.md
+#{_libdir}/lib%{name}-%{api}.so.%{major}{,.*}
 
 %files -n %{devname}
 %{_includedir}/%{name}/
