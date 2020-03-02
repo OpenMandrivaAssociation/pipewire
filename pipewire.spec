@@ -1,3 +1,8 @@
+%ifarch %{ix86}
+%define _disable_ld_no_undefined 1
+%define _disable_lto 1
+%endif
+
 %define spa_api	0.2
 %define api	0.3
 %define major	0
