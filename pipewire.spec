@@ -233,9 +233,9 @@ exit 0
 #{_libdir}/libjack-pw.so*
 
 %files libpulse
-%{_libdir}/libpulse-pw.so*
-%{_libdir}/libpulse-simple-pw.so*
-%{_libdir}/libpulse-mainloop-glib-pw.so*
+#{_libdir}/libpulse-pw.so*
+#{_libdir}/libpulse-simple-pw.so*
+#{_libdir}/libpulse-mainloop-glib-pw.so*
 
 %files plugin-jack
 %{_libdir}/spa-%{spa_api}/jack/
