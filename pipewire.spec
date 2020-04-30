@@ -230,7 +230,7 @@ exit 0
 %{_libdir}/alsa-lib/libasound_module_pcm_pipewire.so
 
 %files libjack
-%{_libdir}/libjack-pw.so*
+#{_libdir}/libjack-pw.so*
 
 %files libpulse
 %{_libdir}/libpulse-pw.so*
