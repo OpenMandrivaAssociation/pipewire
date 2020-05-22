@@ -11,7 +11,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.4
+Version:	0.3.5
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -191,6 +191,8 @@ exit 0
 %{_libdir}/%{name}-%{api}/
 %{_libdir}/spa-%{spa_api}
 #{_mandir}/man1/%{name}.1*
+%{_datadir}/alsa/alsa.conf.d/50-pipewire.conf
+%{_datadir}/alsa/alsa.conf.d/99-pipewire-default.conf
 
 %files -n %{libname}
 %license LICENSE
@@ -218,6 +220,10 @@ exit 0
 %{_bindir}/pw-mon
 %{_bindir}/pw-cli
 %{_bindir}/pw-dot
+%{_bindir}/pw-jack
+%{_bindir}/pw-metadata
+%{_bindir}/pw-mididump
+%{_bindir}/pw-pulse
 #%{_bindir}/pw-cat
 #%{_bindir}/pw-play
 %{_bindir}/pw-profiler
