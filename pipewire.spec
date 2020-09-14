@@ -168,8 +168,6 @@ export CXX=g++
 %install
 %meson_install
 
-ln -s pipewire-%{apiversion}/pulse/libpulse-simple.so.0 %{buildroot}%{_libdir}/libpulse-simple.so.0
-
 # upstream should use udev.pc
 mkdir -p %{buildroot}%{_prefix}/lib/udev/rules.d
 mv -fv %{buildroot}/lib/udev/rules.d/90-pipewire-alsa.rules %{buildroot}%{_prefix}/lib/udev/rules.d
