@@ -11,7 +11,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.7
+Version:	0.3.11
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -162,11 +162,15 @@ This package contains the PipeWire spa plugin to connect to a JACK server.
 export CC=gcc
 export CXX=g++
 %endif
-%meson -D docs=true -D man=true -D gstreamer=true -D systemd=true
+%meson -D docs=true -D man=true -D gstreamer=true -D systemd=true -D pipewire-pulseaudio=true -D jack=true -D pipewire-jack=true -D pipewire-pulseaudio=true -D vulkan=true -D pipewire-alsa=true
 %meson_build
 
 %install
 %meson_install
+
+# upstream should use udev.pc
+mkdir -p %{buildroot}%{_prefix}/lib/udev/rules.d
+mv -fv %{buildroot}/lib/udev/rules.d/90-pipewire-alsa.rules %{buildroot}%{_prefix}/lib/udev/rules.d
 
 # Test fail on ARMv7hnl
 %ifnarch %{arm}
@@ -193,6 +197,9 @@ exit 0
 #{_mandir}/man1/%{name}.1*
 %{_datadir}/alsa/alsa.conf.d/50-pipewire.conf
 %{_datadir}/alsa/alsa.conf.d/99-pipewire-default.conf
+%{_datadir}/alsa-card-profile/mixer/paths/*
+%{_datadir}/alsa-card-profile/mixer/profile-sets/
+%{_prefix}/lib/udev/rules.d/90-pipewire-alsa.rules
 
 %files -n %{libname}
 %license LICENSE
@@ -210,11 +217,6 @@ exit 0
 %{_docdir}/%{name}/html/
 
 %files utils
-#%{_bindir}/%{name}-monitor
-#%{_bindir}/%{name}-cli
-#{_mandir}/man1/%{name}.conf.5*
-#{_mandir}/man1/%{name}-monitor.1*
-#{_mandir}/man1/%{name}-cli.1*
 %{_bindir}/spa-monitor
 %{_bindir}/spa-inspect
 %{_bindir}/pw-mon
@@ -224,16 +226,15 @@ exit 0
 %{_bindir}/pw-metadata
 %{_bindir}/pw-mididump
 %{_bindir}/pw-pulse
-#%{_bindir}/pw-cat
-#%{_bindir}/pw-play
 %{_bindir}/pw-profiler
-#%{_bindir}/pw-record
+
 
 %files -n gstreamer1.0-%{name}
 %{_libdir}/gstreamer-1.0/libgst%{name}.so
 
 %files alsa
 %{_libdir}/alsa-lib/libasound_module_pcm_pipewire.so
+%{_libdir}/alsa-lib/libasound_module_ctl_pipewire.so
 
 %files libjack
 #{_libdir}/libjack-pw.so*
