@@ -192,9 +192,10 @@ exit 0
 %{_userunitdir}/%{name}.*
 %{_bindir}/%{name}
 %{_bindir}/%{name}-media-session
-%{_libdir}/%{name}-%{api}/
+%dir %{_libdir}/%{name}-%{api}/
+%{_libdir}/%{name}-%{api}/libpipewire-module-*.so
 %{_libdir}/spa-%{spa_api}
-#{_mandir}/man1/%{name}.1*
+%{_mandir}/man5/*.5*
 %{_datadir}/alsa/alsa.conf.d/50-pipewire.conf
 %{_datadir}/alsa/alsa.conf.d/99-pipewire-default.conf
 %{_datadir}/alsa-card-profile/mixer/paths/*
@@ -220,14 +221,17 @@ exit 0
 %{_bindir}/spa-monitor
 %{_bindir}/spa-inspect
 %{_bindir}/pw-mon
+%{_bindir}/pw-cat
 %{_bindir}/pw-cli
 %{_bindir}/pw-dot
-%{_bindir}/pw-jack
 %{_bindir}/pw-metadata
 %{_bindir}/pw-mididump
-%{_bindir}/pw-pulse
+%{_bindir}/pw-midiplay
+%{_bindir}/pw-midirecord
+%{_bindir}/pw-play
+%{_bindir}/pw-record
 %{_bindir}/pw-profiler
-
+%{_mandir}/man1/*.1*
 
 %files -n gstreamer1.0-%{name}
 %{_libdir}/gstreamer-1.0/libgst%{name}.so
@@ -237,12 +241,12 @@ exit 0
 %{_libdir}/alsa-lib/libasound_module_ctl_pipewire.so
 
 %files libjack
-#{_libdir}/libjack-pw.so*
+%{_bindir}/pw-jack
+%{_libdir}/pipewire-%{api}/jack
 
 %files libpulse
-#{_libdir}/libpulse-pw.so*
-#{_libdir}/libpulse-simple-pw.so*
-#{_libdir}/libpulse-mainloop-glib-pw.so*
+%{_bindir}/pw-pulse
+%{_libdir}/pipewire-%{api}/pulse
 
 %files plugin-jack
 %{_libdir}/spa-%{spa_api}/jack/
