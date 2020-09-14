@@ -193,6 +193,8 @@ exit 0
 #{_mandir}/man1/%{name}.1*
 %{_datadir}/alsa/alsa.conf.d/50-pipewire.conf
 %{_datadir}/alsa/alsa.conf.d/99-pipewire-default.conf
+%{_datadir}/alsa-card-profile/mixer/paths/*
+%{_datadir}/alsa-card-profile/mixer/profile-sets/
 
 %files -n %{libname}
 %license LICENSE
@@ -210,11 +212,6 @@ exit 0
 %{_docdir}/%{name}/html/
 
 %files utils
-#%{_bindir}/%{name}-monitor
-#%{_bindir}/%{name}-cli
-#{_mandir}/man1/%{name}.conf.5*
-#{_mandir}/man1/%{name}-monitor.1*
-#{_mandir}/man1/%{name}-cli.1*
 %{_bindir}/spa-monitor
 %{_bindir}/spa-inspect
 %{_bindir}/pw-mon
@@ -224,16 +221,15 @@ exit 0
 %{_bindir}/pw-metadata
 %{_bindir}/pw-mididump
 %{_bindir}/pw-pulse
-#%{_bindir}/pw-cat
-#%{_bindir}/pw-play
 %{_bindir}/pw-profiler
-#%{_bindir}/pw-record
+
 
 %files -n gstreamer1.0-%{name}
 %{_libdir}/gstreamer-1.0/libgst%{name}.so
 
 %files alsa
 %{_libdir}/alsa-lib/libasound_module_pcm_pipewire.so
+%{_libdir}/alsa-lib/libasound_module_ctl_pipewire.so
 
 %files libjack
 #{_libdir}/libjack-pw.so*
