@@ -43,6 +43,7 @@ BuildRequires:	pkgconfig(sdl2)
 BuildRequires:  pkgconfig(jack)
 BuildRequires:  pkgconfig(vulkan)
 BuildRequires:  pkgconfig(libpulse)
+BuildRequires:	xmltoman
 
 Requires:	systemd >= 184
 Requires:	rtkit
