@@ -162,11 +162,15 @@ This package contains the PipeWire spa plugin to connect to a JACK server.
 export CC=gcc
 export CXX=g++
 %endif
-%meson -D docs=true -D man=true -D gstreamer=true -D systemd=true
+%meson -D docs=true -D man=true -D gstreamer=true -D systemd=true -D pipewire-pulseaudio=true -D jack=true -D pipewire-jack=true -D pipewire-pulseaudio=true -D vulkan=true -D pipewire-alsa=true
 %meson_build
 
 %install
 %meson_install
+
+# upstream should use udev.pc
+mkdir -p %{buildroot}%{_prefix}/lib/udev/rules.d
+mv -fv %{buildroot}/lib/udev/rules.d/90-pipewire-alsa.rules %{buildroot}%{_prefix}/lib/udev/rules.d
 
 # Test fail on ARMv7hnl
 %ifnarch %{arm}
@@ -195,6 +199,7 @@ exit 0
 %{_datadir}/alsa/alsa.conf.d/99-pipewire-default.conf
 %{_datadir}/alsa-card-profile/mixer/paths/*
 %{_datadir}/alsa-card-profile/mixer/profile-sets/
+%{_prefix}/lib/udev/rules.d/90-pipewire-alsa.rules
 
 %files -n %{libname}
 %license LICENSE
