@@ -11,8 +11,8 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.11
-Release:	2
+Version:	0.3.13
+Release:	1
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -233,6 +233,9 @@ exit 0
 %{_bindir}/pw-play
 %{_bindir}/pw-record
 %{_bindir}/pw-profiler
+%{_bindir}/pw-reserve
+%{_bindir}/spa-acp-tool
+%{_bindir}/spa-resample
 %{_mandir}/man1/*.1*
 
 %files -n gstreamer1.0-%{name}
