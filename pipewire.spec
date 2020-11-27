@@ -11,7 +11,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.15
+Version:	0.3.17
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -194,6 +194,8 @@ exit 0
 %{_userunitdir}/%{name}.*
 %{_bindir}/%{name}
 %{_bindir}/%{name}-media-session
+%{_bindir}/pipewire-pulse
+%{_sysconfdir}/pipewire/media-session.d/*
 %dir %{_libdir}/%{name}-%{api}/
 %{_libdir}/%{name}-%{api}/libpipewire-module-*.so
 %{_libdir}/spa-%{spa_api}
@@ -202,6 +204,7 @@ exit 0
 %{_datadir}/alsa/alsa.conf.d/99-pipewire-default.conf
 %{_datadir}/alsa-card-profile/mixer/paths/*
 %{_datadir}/alsa-card-profile/mixer/profile-sets/
+%{_userunitdir}/pipewire-pulse.*
 %{_prefix}/lib/udev/rules.d/90-pipewire-alsa.rules
 
 %files -n %{libname}
