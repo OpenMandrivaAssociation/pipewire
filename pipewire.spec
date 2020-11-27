@@ -195,7 +195,7 @@ exit 0
 %{_bindir}/%{name}
 %{_bindir}/%{name}-media-session
 %{_bindir}/pipewire-pulse
-%dir %{_sysconfdir}/pipewire/media-session.d/
+%{_sysconfdir}/pipewire/media-session.d/*
 %dir %{_libdir}/%{name}-%{api}/
 %{_libdir}/%{name}-%{api}/libpipewire-module-*.so
 %{_libdir}/spa-%{spa_api}
