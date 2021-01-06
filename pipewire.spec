@@ -228,6 +228,7 @@ exit 0
 %{_bindir}/pw-record
 %{_bindir}/pw-profiler
 %{_bindir}/pw-reserve
+%{_bindir}/pw-top
 %{_bindir}/pw-dump
 %{_bindir}/spa-acp-tool
 %{_bindir}/spa-resample
