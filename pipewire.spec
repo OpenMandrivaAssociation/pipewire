@@ -130,17 +130,6 @@ This package contains a PipeWire replacement for JACK audio connection kit
 
 #------------------------------------------------
 
-%package libpulse
-Summary:        PipeWire libpulse library
-License:        MIT
-Recommends:     %{name} = %{version}-%{release}
-Obsoletes:      pipewire-pulseaudio < 0.2.96-2
-
-%description libpulse
-This package contains a PipeWire replacement for PulseAudio "libpulse" library.
-
-#------------------------------------------------
-
 %package plugin-jack
 Summary:        PipeWire media server JACK support
 License:        MIT
@@ -252,10 +241,6 @@ exit 0
 %files libjack
 %{_bindir}/pw-jack
 %{_libdir}/pipewire-%{api}/jack
-
-%files libpulse
-#{_bindir}/pw-pulse
-#{_libdir}/pipewire-%{api}/pulse
 
 %files plugin-jack
 %{_libdir}/spa-%{spa_api}/jack/
