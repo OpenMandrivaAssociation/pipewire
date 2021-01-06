@@ -254,8 +254,8 @@ exit 0
 %{_libdir}/pipewire-%{api}/jack
 
 %files libpulse
-%{_bindir}/pw-pulse
-%{_libdir}/pipewire-%{api}/pulse
+#{_bindir}/pw-pulse
+#{_libdir}/pipewire-%{api}/pulse
 
 %files plugin-jack
 %{_libdir}/spa-%{spa_api}/jack/
