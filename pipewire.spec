@@ -11,7 +11,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.18
+Version:	0.3.19
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -44,7 +44,9 @@ BuildRequires:  pkgconfig(jack)
 BuildRequires:  pkgconfig(vulkan)
 BuildRequires:  pkgconfig(libpulse)
 BuildRequires:	pkgconfig(sndfile)
+BuildRequires:  pkgconfig(ncurses)
 BuildRequires:	xmltoman
+BuildRequires:  llvm-devel
 
 Requires:	systemd >= 184
 Requires:	rtkit
@@ -127,17 +129,6 @@ Obsoletes:      pipewire-jack < 0.2.96-2
 %description libjack
 This package contains a PipeWire replacement for JACK audio connection kit
 "libjack" library.
-
-#------------------------------------------------
-
-%package libpulse
-Summary:        PipeWire libpulse library
-License:        MIT
-Recommends:     %{name} = %{version}-%{release}
-Obsoletes:      pipewire-pulseaudio < 0.2.96-2
-
-%description libpulse
-This package contains a PipeWire replacement for PulseAudio "libpulse" library.
 
 #------------------------------------------------
 
@@ -237,6 +228,7 @@ exit 0
 %{_bindir}/pw-record
 %{_bindir}/pw-profiler
 %{_bindir}/pw-reserve
+%{_bindir}/pw-top
 %{_bindir}/pw-dump
 %{_bindir}/spa-acp-tool
 %{_bindir}/spa-resample
@@ -252,10 +244,6 @@ exit 0
 %files libjack
 %{_bindir}/pw-jack
 %{_libdir}/pipewire-%{api}/jack
-
-%files libpulse
-%{_bindir}/pw-pulse
-%{_libdir}/pipewire-%{api}/pulse
 
 %files plugin-jack
 %{_libdir}/spa-%{spa_api}/jack/
