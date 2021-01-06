@@ -44,7 +44,9 @@ BuildRequires:  pkgconfig(jack)
 BuildRequires:  pkgconfig(vulkan)
 BuildRequires:  pkgconfig(libpulse)
 BuildRequires:	pkgconfig(sndfile)
+BuildRequires:  pkgconfig(ncurses)
 BuildRequires:	xmltoman
+BuildRequires:  llvm-devel
 
 Requires:	systemd >= 184
 Requires:	rtkit
