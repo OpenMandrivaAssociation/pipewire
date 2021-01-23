@@ -202,9 +202,8 @@ exit 0
 %systemd_user_post pipewire-pulse.socket
 %endif
 
-%find_lang %{name}
 
-%files -f %{name}.lang
+%files
 %license LICENSE
 %doc README.md
 %dir %{_sysconfdir}/%{name}
@@ -222,6 +221,7 @@ exit 0
 %{_datadir}/alsa/alsa.conf.d/99-pipewire-default.conf
 %{_datadir}/alsa-card-profile/mixer/paths/*
 %{_datadir}/alsa-card-profile/mixer/profile-sets/
+%{_datadir}/locale/*/LC_MESSAGES/pipewire.mo
 %{_userunitdir}/pipewire-pulse.*
 %{_prefix}/lib/udev/rules.d/90-pipewire-alsa.rules
 
