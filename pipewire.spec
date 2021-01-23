@@ -11,7 +11,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.19
+Version:	0.3.20
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
