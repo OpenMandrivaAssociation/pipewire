@@ -1,3 +1,9 @@
+# enable_by_default: Toggle if pipewire should be enabled by default and/or replace PulseAudio.
+#      0 = no
+#      1 = yes
+%define enable_by_default 0
+
+
 %ifarch %{ix86}
 %define _disable_ld_no_undefined 1
 %define _disable_lto 1
@@ -19,6 +25,7 @@ URL:		https://pipewire.org/
 Source0:	https://github.com/PipeWire/pipewire/archive/%{version}/%{name}-%{version}.tar.gz
 
 BuildRequires:	doxygen
+BuildRequires:  gettext
 BuildRequires:	gcc
 BuildRequires:	graphviz
 BuildRequires:	meson
@@ -177,7 +184,27 @@ getent passwd pipewire >/dev/null || \
     useradd -r -g pipewire -d /var/run/pipewire -s /sbin/nologin -c "PipeWire System Daemon" pipewire
 exit 0
 
-%files
+
+
+#              Attention! Achtung! Uwaga! Attenzione!                     #
+###########################################################################
+# PipeWire can replace (and probably will) PulseAudio and become default  #
+#        It is currently disabled, to activate it togle ON switch         #
+#             Don't do this without consulting with OMV Team.             #
+###########################################################################
+
+%if %enable_by_default
+%post
+%systemd_user_post pipewire.service
+%systemd_user_post pipewire.socket
+	
+%systemd_user_post pipewire-pulse.service
+%systemd_user_post pipewire-pulse.socket
+%endif
+
+%find_lang %{name}
+
+%files -f %{name}.lang
 %license LICENSE
 %doc README.md
 %dir %{_sysconfdir}/%{name}
