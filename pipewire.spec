@@ -207,12 +207,16 @@ exit 0
 %license LICENSE
 %doc README.md
 %dir %{_sysconfdir}/%{name}
-%{_sysconfdir}/%{name}/%{name}.conf
+%config(noreplace) %{_sysconfdir}/%{name}/%{name}.conf
+%config(noreplace) %{_sysconfdir}/pipewire/client.conf
+%config(noreplace) %{_sysconfdir}/pipewire/client-rt.conf
+%config(noreplace) %{_sysconfdir}/pipewire/jack.conf
+%config(noreplace) %{_sysconfdir}/pipewire/pipewire-pulse.conf
+%config(noreplace) %{_sysconfdir}/pipewire/media-session.d/*
 %{_userunitdir}/%{name}.*
 %{_bindir}/%{name}
 %{_bindir}/%{name}-media-session
 %{_bindir}/pipewire-pulse
-%{_sysconfdir}/pipewire/media-session.d/*
 %dir %{_libdir}/%{name}-%{api}/
 %{_libdir}/%{name}-%{api}/libpipewire-module-*.so
 %{_libdir}/spa-%{spa_api}
@@ -223,6 +227,7 @@ exit 0
 %{_datadir}/alsa-card-profile/mixer/profile-sets/
 %{_datadir}/locale/*/LC_MESSAGES/pipewire.mo
 %{_userunitdir}/pipewire-pulse.*
+%{_userunitdir}/pipewire-media-session.service
 %{_prefix}/lib/udev/rules.d/90-pipewire-alsa.rules
 
 %files -n %{libname}
@@ -243,6 +248,7 @@ exit 0
 %files utils
 %{_bindir}/spa-monitor
 %{_bindir}/spa-inspect
+%{_bindir}/spa-json-dump
 %{_bindir}/pw-mon
 %{_bindir}/pw-cat
 %{_bindir}/pw-cli
