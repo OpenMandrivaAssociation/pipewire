@@ -164,7 +164,7 @@ This package contains the PipeWire spa plugin to connect to a JACK server.
 export CC=gcc
 export CXX=g++
 %endif
-%meson -D docs=true -D man=true -D gstreamer=true -D systemd=true -D pipewire-pulseaudio=true -D jack=true -D pipewire-jack=true -D pipewire-pulseaudio=true -D vulkan=true -D pipewire-alsa=true
+%meson -D docs=enabled -D man=enabled -D gstreamer=enabled -D systemd=enabled -D pipewire-pulseaudio=enabled -D jack=enabled -D pipewire-jack=enabled -D pipewire-pulseaudio=enabled -D vulkan=enabled -D pipewire-alsa=enabled
 %meson_build
 
 %install
