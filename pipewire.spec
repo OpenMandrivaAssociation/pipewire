@@ -45,6 +45,7 @@ BuildRequires:	pkgconfig(gstreamer-allocators-1.0) >= 1.10.0
 BuildRequires:	pkgconfig(systemd)
 BuildRequires:	pkgconfig(alsa)
 BuildRequires:	pkgconfig(ldacBT-enc)
+BuildRequires:	pkgconfig(ldacBT-abr)
 BuildRequires:	pkgconfig(libavcodec)
 BuildRequires:	pkgconfig(libva)
 BuildRequires:	pkgconfig(libv4l2)
