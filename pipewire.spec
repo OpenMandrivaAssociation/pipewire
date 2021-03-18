@@ -17,12 +17,14 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.23
+Version:	0.3.24
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
 Source0:	https://github.com/PipeWire/pipewire/archive/%{version}/%{name}-%{version}.tar.gz
+
+Patch0:		0001-conf-start-media-session-through-pipewire.patch
 
 BuildRequires:	doxygen
 BuildRequires:  gettext
