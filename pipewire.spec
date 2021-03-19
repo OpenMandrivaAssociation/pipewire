@@ -17,12 +17,14 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.23
+Version:	0.3.24
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
 Source0:	https://github.com/PipeWire/pipewire/archive/%{version}/%{name}-%{version}.tar.gz
+
+Patch0:		0001-conf-start-media-session-through-pipewire.patch
 
 BuildRequires:	doxygen
 BuildRequires:  gettext
@@ -42,6 +44,9 @@ BuildRequires:	pkgconfig(gstreamer-net-1.0) >= 1.10.0
 BuildRequires:	pkgconfig(gstreamer-allocators-1.0) >= 1.10.0
 BuildRequires:	pkgconfig(systemd)
 BuildRequires:	pkgconfig(alsa)
+BuildRequires:	pkgconfig(ldacBT-enc)
+BuildRequires:	pkgconfig(ldacBT-abr)
+BuildRequires:	pkgconfig(libopenaptx)
 BuildRequires:	pkgconfig(libavcodec)
 BuildRequires:	pkgconfig(libva)
 BuildRequires:	pkgconfig(libv4l2)
@@ -162,7 +167,7 @@ This package contains the PipeWire spa plugin to connect to a JACK server.
 export CC=gcc
 export CXX=g++
 %endif
-%meson -D docs=true -D man=true -D gstreamer=true -D systemd=true -D pipewire-pulseaudio=true -D jack=true -D pipewire-jack=true -D pipewire-pulseaudio=true -D vulkan=true -D pipewire-alsa=true
+%meson -D docs=enabled -D man=enabled -D gstreamer=enabled -D systemd=enabled -D pipewire-pulseaudio=enabled -D jack=enabled -D pipewire-jack=enabled -D pipewire-pulseaudio=enabled -D vulkan=enabled -D pipewire-alsa=enabled -D bluez5-codec-aac=disabled -D libcamera=disabled -D ffmpeg=enabled --buildtype=release
 %meson_build
 
 %install
