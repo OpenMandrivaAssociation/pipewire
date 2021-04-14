@@ -57,6 +57,7 @@ BuildRequires:  pkgconfig(vulkan)
 BuildRequires:  pkgconfig(libpulse)
 BuildRequires:	pkgconfig(sndfile)
 BuildRequires:  pkgconfig(ncurses)
+BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	xmltoman
 BuildRequires:  llvm-devel
 
