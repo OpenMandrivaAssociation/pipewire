@@ -17,8 +17,8 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.24
-Release:	2
+Version:	0.3.25
+Release:	1
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -57,6 +57,8 @@ BuildRequires:  pkgconfig(vulkan)
 BuildRequires:  pkgconfig(libpulse)
 BuildRequires:	pkgconfig(sndfile)
 BuildRequires:  pkgconfig(ncurses)
+BuildRequires:	pkgconfig(vulkan)
+BuildRequires:	vulkan-headers
 BuildRequires:	xmltoman
 BuildRequires:  llvm-devel
 
@@ -258,6 +260,7 @@ exit 0
 %{_bindir}/pw-cat
 %{_bindir}/pw-cli
 %{_bindir}/pw-dot
+%{_bindir}/pw-loopback
 %{_bindir}/pw-metadata
 %{_bindir}/pw-mididump
 %{_bindir}/pw-midiplay
