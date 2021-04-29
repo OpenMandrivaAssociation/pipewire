@@ -260,6 +260,7 @@ exit 0
 %{_bindir}/pw-cat
 %{_bindir}/pw-cli
 %{_bindir}/pw-dot
+%{_bindir}/pw-link
 %{_bindir}/pw-loopback
 %{_bindir}/pw-metadata
 %{_bindir}/pw-mididump
