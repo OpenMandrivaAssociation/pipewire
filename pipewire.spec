@@ -32,6 +32,7 @@ BuildRequires:	gcc
 BuildRequires:	graphviz
 BuildRequires:	meson
 #BuildRequires:	xmltoman
+BuildRequires:	pkgconfig(avahi-client)
 BuildRequires:  pkgconfig(bluez)
 BuildRequires:	pkgconfig(libudev)
 BuildRequires:	pkgconfig(dbus-1)
