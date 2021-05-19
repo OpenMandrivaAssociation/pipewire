@@ -17,7 +17,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.27
+Version:	0.3.28
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -32,6 +32,7 @@ BuildRequires:	gcc
 BuildRequires:	graphviz
 BuildRequires:	meson
 #BuildRequires:	xmltoman
+BuildRequires:	pkgconfig(avahi-client)
 BuildRequires:  pkgconfig(bluez)
 BuildRequires:	pkgconfig(libudev)
 BuildRequires:	pkgconfig(dbus-1)
@@ -169,7 +170,7 @@ This package contains the PipeWire spa plugin to connect to a JACK server.
 export CC=gcc
 export CXX=g++
 %endif
-%meson -D docs=enabled -D man=enabled -D gstreamer=enabled -D systemd=enabled -D pipewire-pulseaudio=enabled -D jack=enabled -D pipewire-jack=enabled -D pipewire-pulseaudio=enabled -D vulkan=enabled -D pipewire-alsa=enabled -D bluez5-codec-aac=disabled -D libcamera=disabled -D ffmpeg=enabled --buildtype=release
+%meson -D docs=enabled -D man=enabled -D gstreamer=enabled -D systemd=enabled -D pipewire-pulseaudio=enabled -D jack=enabled -D pipewire-jack=enabled -D pipewire-pulseaudio=enabled -D vulkan=enabled -D pipewire-alsa=enabled -D bluez5-codec-aac=disabled -D bluez5-codec-aptx=disabled -D libcamera=disabled -D ffmpeg=enabled --buildtype=release
 %meson_build
 
 %install
@@ -213,13 +214,13 @@ exit 0
 %files
 %license LICENSE
 %doc README.md
-%dir %{_sysconfdir}/%{name}
-%config(noreplace) %{_sysconfdir}/%{name}/%{name}.conf
-%config(noreplace) %{_sysconfdir}/pipewire/client.conf
-%config(noreplace) %{_sysconfdir}/pipewire/client-rt.conf
-%config(noreplace) %{_sysconfdir}/pipewire/jack.conf
-%config(noreplace) %{_sysconfdir}/pipewire/pipewire-pulse.conf
-%config(noreplace) %{_sysconfdir}/pipewire/media-session.d/*
+%dir %{_datadir}/%{name}
+%{_datadir}/%{name}/%{name}.conf
+%{_datadir}/pipewire/client.conf
+%{_datadir}/pipewire/client-rt.conf
+%{_datadir}/pipewire/jack.conf
+%{_datadir}/pipewire/pipewire-pulse.conf
+%{_datadir}/pipewire/media-session.d/*
 %{_userunitdir}/%{name}.*
 %{_bindir}/%{name}
 %{_bindir}/%{name}-media-session
@@ -236,6 +237,7 @@ exit 0
 %{_userunitdir}/pipewire-pulse.*
 %{_userunitdir}/pipewire-media-session.service
 %{_prefix}/lib/udev/rules.d/90-pipewire-alsa.rules
+%{_datadir}/pipewire/filter-chain/*.conf
 
 %files -n %{libname}
 %license LICENSE
