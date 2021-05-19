@@ -237,6 +237,7 @@ exit 0
 %{_userunitdir}/pipewire-pulse.*
 %{_userunitdir}/pipewire-media-session.service
 %{_prefix}/lib/udev/rules.d/90-pipewire-alsa.rules
+%{_datadir}/pipewire/filter-chain/*.conf
 
 %files -n %{libname}
 %license LICENSE
