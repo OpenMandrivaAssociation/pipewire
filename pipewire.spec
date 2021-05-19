@@ -214,13 +214,13 @@ exit 0
 %files
 %license LICENSE
 %doc README.md
-%dir %{_sysconfdir}/%{name}
-%config(noreplace) %{_sysconfdir}/%{name}/%{name}.conf
-%config(noreplace) %{_sysconfdir}/pipewire/client.conf
-%config(noreplace) %{_sysconfdir}/pipewire/client-rt.conf
-%config(noreplace) %{_sysconfdir}/pipewire/jack.conf
-%config(noreplace) %{_sysconfdir}/pipewire/pipewire-pulse.conf
-%config(noreplace) %{_sysconfdir}/pipewire/media-session.d/*
+%dir %{_datadir}/%{name}
+%{_datadir}/%{name}/%{name}.conf
+%{_datadir}/pipewire/client.conf
+%{_datadir}/pipewire/client-rt.conf
+%{_datadir}/pipewire/jack.conf
+%{_datadir}/pipewire/pipewire-pulse.conf
+%{_datadir}/pipewire/media-session.d/*
 %{_userunitdir}/%{name}.*
 %{_bindir}/%{name}
 %{_bindir}/%{name}-media-session
