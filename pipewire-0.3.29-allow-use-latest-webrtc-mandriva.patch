@@ -1,0 +1,12 @@
+diff -uraN pipewire-0.3.29/meson.build omv-pipewire-0.3.29/meson.build
+--- pipewire-0.3.29/meson.build	2021-06-03 12:01:53.000000000 +0200
++++ omv-pipewire-0.3.29/meson.build	2021-06-03 20:43:04.031174303 +0200
+@@ -345,7 +345,7 @@
+ endif
+ 
+ webrtc_dep = dependency('webrtc-audio-processing',
+-  version : ['>= 0.2', '< 1.0'],
++  version : ['>= 1.0'],
+   required : get_option('echo-cancel-webrtc'))
+ 
+ if webrtc_dep.found()
