@@ -25,6 +25,7 @@ URL:		https://pipewire.org/
 Source0:	https://github.com/PipeWire/pipewire/archive/%{version}/%{name}-%{version}.tar.gz
 
 Patch0:		0001-conf-start-media-session-through-pipewire.patch
+Patch1:		pipewire-0.3.29-allow-use-latest-webrtc-mandriva.patch
 
 BuildRequires:	doxygen
 BuildRequires:  gettext
