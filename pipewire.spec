@@ -58,6 +58,7 @@ BuildRequires:  pkgconfig(vulkan)
 BuildRequires:  pkgconfig(libpulse)
 BuildRequires:	pkgconfig(sndfile)
 BuildRequires:  pkgconfig(ncurses)
+BuildRequires:  pkgconfig(webrtc-audio-processing)
 BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	vulkan-headers
 BuildRequires:	xmltoman
