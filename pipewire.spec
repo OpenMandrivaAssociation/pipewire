@@ -58,7 +58,7 @@ BuildRequires:  pkgconfig(vulkan)
 BuildRequires:  pkgconfig(libpulse)
 BuildRequires:	pkgconfig(sndfile)
 BuildRequires:  pkgconfig(ncurses)
-BuildRequires:  pkgconfig(webrtc-audio-processing-1)
+#BuildRequires:  pkgconfig(webrtc-audio-processing-1)
 BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	vulkan-headers
 BuildRequires:	xmltoman
@@ -171,7 +171,7 @@ This package contains the PipeWire spa plugin to connect to a JACK server.
 export CC=gcc
 export CXX=g++
 %endif
-%meson -D docs=enabled -D man=enabled -D gstreamer=enabled -D systemd=enabled -D pipewire-pulseaudio=enabled -D jack=enabled -D pipewire-jack=enabled -D pipewire-pulseaudio=enabled -D vulkan=enabled -D pipewire-alsa=enabled -D bluez5-codec-aac=disabled -D bluez5-codec-aptx=disabled -D libcamera=disabled -D ffmpeg=enabled --buildtype=release
+%meson -D docs=enabled -D man=enabled -D gstreamer=enabled -D systemd=enabled -D pipewire-pulseaudio=enabled -D jack=enabled -D pipewire-jack=enabled -D pipewire-pulseaudio=enabled -D vulkan=enabled -D pipewire-alsa=enabled -D bluez5-codec-aac=disabled -D bluez5-codec-aptx=disabled -D echo-cancel-webrtc=disabled -D libcamera=disabled -D ffmpeg=enabled --buildtype=release
 %meson_build
 
 %install
