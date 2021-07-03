@@ -1,7 +1,7 @@
 # enable_by_default: Toggle if pipewire should be enabled by default and/or replace PulseAudio.
 #      0 = no
 #      1 = yes
-%define enable_by_default 0
+%define enable_by_default 1
 
 
 %ifarch %{ix86}
@@ -18,17 +18,20 @@
 Name:		pipewire
 Summary:	Media Sharing Server
 Version:	0.3.31
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
 Source0:	https://github.com/PipeWire/pipewire/archive/%{version}/%{name}-%{version}.tar.gz
+Source1:	pipewire.sysusers
 
 Patch0:		0001-conf-start-media-session-through-pipewire.patch
 
 BuildRequires:	doxygen
 BuildRequires:  gettext
+%ifarch %{ix86}
 BuildRequires:	gcc
+%endif
 BuildRequires:	graphviz
 BuildRequires:	meson
 #BuildRequires:	xmltoman
@@ -64,10 +67,12 @@ BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	vulkan-headers
 BuildRequires:	xmltoman
 BuildRequires:  llvm-devel
+BuildRequires:	systemd-rpm-macros
 
 Requires:	systemd >= 184
 Requires:	rtkit
 Requires(pre):	shadow-utils
+%systemd_ordering
 
 %description
 PipeWire is a multimedia server for Linux and other Unix like operating
@@ -136,6 +141,16 @@ Recommends:     %{name} = %{version}-%{release}
 This package contains an ALSA plugin for the PipeWire media server.
 
 #------------------------------------------------
+%package pulse
+Summary:        PipeWire media server PulseAudio server support
+License:        MIT
+Requires:	%{name} = %{version}-%{release}
+
+%description pulse
+This package contains a PipeWire module for making PipeWire act
+as a PulseAudio server
+
+#------------------------------------------------
 
 %package libjack
 Summary:        PipeWire libjack library
@@ -182,6 +197,13 @@ export CXX=g++
 mkdir -p %{buildroot}%{_prefix}/lib/udev/rules.d
 mv -fv %{buildroot}/lib/udev/rules.d/90-pipewire-alsa.rules %{buildroot}%{_prefix}/lib/udev/rules.d
 
+# Switches that enable certain config fragments
+touch %{buildroot}%{_datadir}/pipewire/media-session.d/with-audio
+touch %{buildroot}%{_datadir}/pipewire/media-session.d/with-alsa
+
+# User creation
+install -D -p -m 0644 %{S:1} %{buildroot}%{_sysusersdir}/%{name}.conf
+
 # Test fail on ARMv7hnl
 %ifnarch %{arm}
 %check
@@ -189,27 +211,42 @@ mv -fv %{buildroot}/lib/udev/rules.d/90-pipewire-alsa.rules %{buildroot}%{_prefi
 %endif
 
 %pre
-getent group pipewire >/dev/null || groupadd -r pipewire
-getent passwd pipewire >/dev/null || \
-    useradd -r -g pipewire -d /var/run/pipewire -s /sbin/nologin -c "PipeWire System Daemon" pipewire
-exit 0
-
-
+%sysusers_create_package %{name} %{S:1}
 
 #              Attention! Achtung! Uwaga! Attenzione!                     #
 ###########################################################################
 # PipeWire can replace (and probably will) PulseAudio and become default  #
-#        It is currently disabled, to activate it togle ON switch         #
+#        It is currently enabled, to deactivate it togle ON switch        #
 #             Don't do this without consulting with OMV Team.             #
 ###########################################################################
 
 %if %enable_by_default
-%post
+%post pulse
 %systemd_user_post pipewire.service
 %systemd_user_post pipewire.socket
-	
+
 %systemd_user_post pipewire-pulse.service
 %systemd_user_post pipewire-pulse.socket
+
+%systemd_user_post pipewire-media-session.service
+
+%preun pulse
+%systemd_user_preun pipewire.service
+%systemd_user_preun pipewire.socket
+
+%systemd_user_preun pipewire-pulse.service
+%systemd_user_preun pipewire-pulse.socket
+
+%systemd_user_preun pipewire-media-session.service
+
+%postun pulse
+%systemd_user_postun pipewire.service
+%systemd_user_postun pipewire.socket
+
+%systemd_user_postun pipewire-pulse.service
+%systemd_user_postun pipewire-pulse.socket
+
+%systemd_user_postun pipewire-media-session.service
 %endif
 
 
@@ -221,12 +258,13 @@ exit 0
 %{_datadir}/pipewire/client.conf
 %{_datadir}/pipewire/client-rt.conf
 %{_datadir}/pipewire/jack.conf
-%{_datadir}/pipewire/pipewire-pulse.conf
-%{_datadir}/pipewire/media-session.d/*
+%dir %{_datadir}/pipewire/media-session.d
+%{_datadir}/pipewire/media-session.d/*.conf
+%{_datadir}/pipewire/media-session.d/with-audio
 %{_userunitdir}/%{name}.*
 %{_bindir}/%{name}
 %{_bindir}/%{name}-media-session
-%{_bindir}/pipewire-pulse
+%{_sysusersdir}/%{name}.conf
 %dir %{_libdir}/%{name}-%{api}/
 %{_libdir}/%{name}-%{api}/libpipewire-module-*.so
 %{_libdir}/spa-%{spa_api}
@@ -236,10 +274,16 @@ exit 0
 %{_datadir}/alsa-card-profile/mixer/paths/*
 %{_datadir}/alsa-card-profile/mixer/profile-sets/
 %{_datadir}/locale/*/LC_MESSAGES/pipewire.mo
-%{_userunitdir}/pipewire-pulse.*
 %{_userunitdir}/pipewire-media-session.service
 %{_prefix}/lib/udev/rules.d/90-pipewire-alsa.rules
 %{_datadir}/pipewire/filter-chain/*.conf
+
+%files pulse
+%{_bindir}/pipewire-pulse
+%{_datadir}/pipewire/pipewire-pulse.conf
+%{_userunitdir}/pipewire-pulse.*
+%{_datadir}/pipewire/media-session.d/with-alsa
+%{_datadir}/pipewire/media-session.d/with-pulseaudio
 
 %files -n %{libname}
 %license LICENSE
@@ -290,6 +334,7 @@ exit 0
 %files libjack
 %{_bindir}/pw-jack
 %{_libdir}/pipewire-%{api}/jack
+%{_datadir}/pipewire/media-session.d/with-jack
 
 %files plugin-jack
 %{_libdir}/spa-%{spa_api}/jack/
