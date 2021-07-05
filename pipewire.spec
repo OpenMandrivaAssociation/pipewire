@@ -9,9 +9,9 @@
 %define _disable_lto 1
 %endif
 
-%define spa_api	0.2
-%define api	0.3
-%define major	0
+%define spa_api 0.2
+%define api 0.3
+%define major 0
 %define libname	%mklibname %{name} %{api} %{major}
 %define devname	%mklibname %{name} -d
 
@@ -28,15 +28,16 @@ Source1:	pipewire.sysusers
 Patch0:		0001-conf-start-media-session-through-pipewire.patch
 
 BuildRequires:	doxygen
-BuildRequires:  gettext
+BuildRequires:	gettext
 %ifarch %{ix86}
 BuildRequires:	gcc
 %endif
 BuildRequires:	graphviz
 BuildRequires:	meson
 #BuildRequires:	xmltoman
+BuildRequires:	libcap-devel
 BuildRequires:	pkgconfig(avahi-client)
-BuildRequires:  pkgconfig(bluez)
+BuildRequires:	pkgconfig(bluez)
 BuildRequires:	pkgconfig(libudev)
 BuildRequires:	pkgconfig(dbus-1)
 BuildRequires:	pkgconfig(glib-2.0) >= 2.32
@@ -52,26 +53,25 @@ BuildRequires:	pkgconfig(ldacBT-enc)
 BuildRequires:	pkgconfig(ldacBT-abr)
 BuildRequires:	pkgconfig(libopenaptx)
 BuildRequires:	pkgconfig(libavcodec)
-BuildRequires:  pkgconfig(libpulse)
+BuildRequires:	pkgconfig(libpulse)
 BuildRequires:	pkgconfig(libusb-1.0)
 BuildRequires:	pkgconfig(libva)
 BuildRequires:	pkgconfig(libv4l2)
 BuildRequires:	pkgconfig(sbc)
 BuildRequires:	pkgconfig(sdl2)
-BuildRequires:  pkgconfig(jack)
-BuildRequires:  pkgconfig(vulkan)
+BuildRequires:	pkgconfig(jack)
+BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	pkgconfig(sndfile)
-BuildRequires:  pkgconfig(ncurses)
-#BuildRequires:  pkgconfig(webrtc-audio-processing-1)
+BuildRequires:	pkgconfig(ncurses)
+#BuildRequires:	pkgconfig(webrtc-audio-processing-1)
 BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	vulkan-headers
 BuildRequires:	xmltoman
-BuildRequires:  llvm-devel
+BuildRequires:	llvm-devel
 BuildRequires:	systemd-rpm-macros
 
-Requires:	systemd >= 184
 Requires:	rtkit
-Requires(pre):	shadow-utils
+Requires(pre):	systemd
 %systemd_ordering
 
 %description
@@ -80,70 +80,70 @@ systems.
 
 #------------------------------------------------
 
-%package -n	%{libname}
-Summary:        Libraries for PipeWire clients
+%package -n %{libname}
+Summary:	Libraries for PipeWire clients
 Group:		System/Libraries
 
-%description -n	%{libname}
+%description -n %{libname}
 This package contains the runtime libraries for any application that
 wishes to interface with a PipeWire media server.
 
 #------------------------------------------------
 
-%package -n	%{devname}
-Summary:        Headers and libraries for PipeWire client development
+%package -n %{devname}
+Summary:	Headers and libraries for PipeWire client development
 Group:		Development/C++
 Requires:	%{libname} = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	spa-devel = %{version}-%{release}
 
-%description -n	%{devname}
+%description -n %{devname}
 Headers and libraries for developing applications that can communicate
 with a PipeWire media server.
 
 #------------------------------------------------
 
-%package	doc
+%package doc
 Summary:	PipeWire media server documentation
 Group:		Documentation
 BuildArch:	noarch
 Requires:	%{name} >= %{version}-%{release}
 
-%description	doc
+%description doc
 This package contains documentation for the PipeWire media server.
 
 #------------------------------------------------
 
-%package	utils
+%package utils
 Summary:	PipeWire media server utilities
 Group:		System/Servers
 
-%description	utils
+%description utils
 This package contains command line utilities for the PipeWire
 media server.
 
 #------------------------------------------------
 
-%package -n	gstreamer1.0-%{name}
+%package -n gstreamer1.0-%{name}
 Summary:	GStreamer 1.0 plugin for the PipeWire multimedia server
 Group:		System/Servers
 
-%description -n	gstreamer1.0-%{name}
+%description -n gstreamer1.0-%{name}
 GStreamer 1.0 plugin for the PipeWire multimedia server.
 
 #------------------------------------------------
 %package alsa
-Summary:        PipeWire media server ALSA support
-License:        MIT
-Recommends:     %{name} = %{version}-%{release}
+Summary:	PipeWire media server ALSA support
+License:	MIT
+Recommends:	%{name} = %{version}-%{release}
 
 %description alsa
 This package contains an ALSA plugin for the PipeWire media server.
 
 #------------------------------------------------
 %package pulse
-Summary:        PipeWire media server PulseAudio server support
-License:        MIT
+Summary:	PipeWire media server PulseAudio server support
+License:	MIT
 Requires:	%{name} = %{version}-%{release}
 
 %description pulse
@@ -153,10 +153,10 @@ as a PulseAudio server
 #------------------------------------------------
 
 %package libjack
-Summary:        PipeWire libjack library
-License:        MIT
-Recommends:     %{name} = %{version}-%{release}
-Obsoletes:      pipewire-jack < 0.2.96-2
+Summary:	PipeWire libjack library
+License:	MIT
+Recommends:	%{name} = %{version}-%{release}
+Obsoletes:	pipewire-jack < 0.2.96-2
 
 %description libjack
 This package contains a PipeWire replacement for JACK audio connection kit
@@ -165,9 +165,9 @@ This package contains a PipeWire replacement for JACK audio connection kit
 #------------------------------------------------
 
 %package plugin-jack
-Summary:        PipeWire media server JACK support
-License:        MIT
-Recommends:     %{name} = %{version}-%{release}
+Summary:	PipeWire media server JACK support
+License:	MIT
+Recommends:	%{name} = %{version}-%{release}
 
 %description plugin-jack
 This package contains the PipeWire spa plugin to connect to a JACK server.
@@ -187,15 +187,30 @@ This package contains the PipeWire spa plugin to connect to a JACK server.
 export CC=gcc
 export CXX=g++
 %endif
-%meson -D docs=enabled -D man=enabled -D gstreamer=enabled -D systemd=enabled -D pipewire-pulseaudio=enabled -D jack=enabled -D pipewire-jack=enabled -D libpulse=enabled -D vulkan=enabled -D pipewire-alsa=enabled -D bluez5-codec-aac=disabled -D bluez5-codec-aptx=enabled -D echo-cancel-webrtc=disabled -D libcamera=disabled -D roc=disabled  -D ffmpeg=enabled --buildtype=release
+%meson \
+    -Dudevrulesdir="%{_udevrulesdir}" \
+    -Ddocs=enabled \
+    -Dman=enabled \
+    -Dgstreamer=enabled \
+    -Dsystemd=enabled \
+    -Dpipewire-pulseaudio=enabled \
+    -Djack=enabled \
+    -Dpipewire-jack=enabled \
+    -Dlibpulse=enabled \
+    -Dvulkan=enabled \
+    -Dpipewire-alsa=enabled \
+    -Dbluez5-codec-aac=disabled \
+    -Dbluez5-codec-aptx=enabled \
+    -Decho-cancel-webrtc=disabled \
+    -Dlibcamera=disabled \
+    -Droc=disabled \
+    -Dffmpeg=enabled \
+    --buildtype=release
+
 %meson_build
 
 %install
 %meson_install
-
-# upstream should use udev.pc
-mkdir -p %{buildroot}%{_prefix}/lib/udev/rules.d
-mv -fv %{buildroot}/lib/udev/rules.d/90-pipewire-alsa.rules %{buildroot}%{_prefix}/lib/udev/rules.d
 
 # Switches that enable certain config fragments
 touch %{buildroot}%{_datadir}/pipewire/media-session.d/with-audio
@@ -249,7 +264,6 @@ install -D -p -m 0644 %{S:1} %{buildroot}%{_sysusersdir}/%{name}.conf
 %systemd_user_postun pipewire-media-session.service
 %endif
 
-
 %files
 %license LICENSE
 %doc README.md
@@ -275,7 +289,7 @@ install -D -p -m 0644 %{S:1} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_datadir}/alsa-card-profile/mixer/profile-sets/
 %{_datadir}/locale/*/LC_MESSAGES/pipewire.mo
 %{_userunitdir}/pipewire-media-session.service
-%{_prefix}/lib/udev/rules.d/90-pipewire-alsa.rules
+%{_udevrulesdir}/90-pipewire-alsa.rules
 %{_datadir}/pipewire/filter-chain/*.conf
 
 %files pulse
