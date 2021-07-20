@@ -21,8 +21,8 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.31
-Release:	3
+Version:	0.3.32
+Release:	1
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -45,7 +45,7 @@ BuildRequires:	gcc
 BuildRequires:	graphviz
 BuildRequires:	meson
 #BuildRequires:	xmltoman
-BuildRequires:	libcap-devel
+BuildRequires:	pkgconfig(libpcap)
 BuildRequires:	pkgconfig(avahi-client)
 BuildRequires:	pkgconfig(bluez)
 BuildRequires:	pkgconfig(libudev)
