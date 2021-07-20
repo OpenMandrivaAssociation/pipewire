@@ -1,8 +1,7 @@
 # enable_by_default: Toggle if pipewire should be enabled by default and/or replace PulseAudio.
-#      0 = no
-#      1 = yes
+#  0 = no
+#  1 = yes
 %define enable_by_default 1
-
 
 %ifarch %{ix86}
 %define _disable_ld_no_undefined 1
@@ -11,6 +10,11 @@
 
 %define spa_api 0.2
 %define api 0.3
+# Set to a https://gitlab.freedesktop.org/pipewire/wireplumber version number
+# to build with wireplumber
+%define wpversion %{nil}
+# FIXME use system lua
+%define luaversion 5.4.3
 %define major 0
 %define libname	%mklibname %{name} %{api} %{major}
 %define devname	%mklibname %{name} -d
@@ -18,12 +22,18 @@
 Name:		pipewire
 Summary:	Media Sharing Server
 Version:	0.3.31
-Release:	2
+Release:	3
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
 Source0:	https://github.com/PipeWire/pipewire/archive/%{version}/%{name}-%{version}.tar.gz
-Source1:	pipewire.sysusers
+%if "%{wpversion}" != "%{nil}"
+Source1:	https://gitlab.freedesktop.org/pipewire/wireplumber/-/archive/%{wpversion}/wireplumber-%{wpversion}.tar.bz2
+Source2:	https://www.lua.org/ftp/lua-%{luaversion}.tar.gz
+# https://wrapdb.mesonbuild.com/v2/lua_5.4.3-1/get_patch
+Source3:	lua-mesonbuild.zip
+%endif
+Source10:	pipewire.sysusers
 
 Patch0:		0001-conf-start-media-session-through-pipewire.patch
 
@@ -69,6 +79,9 @@ BuildRequires:	vulkan-headers
 BuildRequires:	xmltoman
 BuildRequires:	llvm-devel
 BuildRequires:	systemd-rpm-macros
+%if "%{wpversion}" != "%{nil}"
+BuildRequires:	python3.9dist(breathe)
+%endif
 
 Requires:	rtkit
 Requires(pre):	systemd
@@ -176,6 +189,13 @@ This package contains the PipeWire spa plugin to connect to a JACK server.
 
 %prep
 %autosetup -T -b0 -p1
+%if "%{wpversion}" != "%{nil}"
+tar xf %{S:1}
+tar xf %{S:2}
+tar xf %{S:3}
+mv wireplumber-%{wpversion} subprojects/wireplumber
+mv lua-%{luaversion} subprojects/wireplumber/subprojects/lua
+%endif
 
 %build
 # Build failing on i686 with Clang with error:
@@ -188,24 +208,35 @@ export CC=gcc
 export CXX=g++
 %endif
 %meson \
-    -Dudevrulesdir="%{_udevrulesdir}" \
-    -Ddocs=enabled \
-    -Dman=enabled \
-    -Dgstreamer=enabled \
-    -Dsystemd=enabled \
-    -Dpipewire-pulseaudio=enabled \
-    -Djack=enabled \
-    -Dpipewire-jack=enabled \
-    -Dlibpulse=enabled \
-    -Dvulkan=enabled \
-    -Dpipewire-alsa=enabled \
-    -Dbluez5-codec-aac=disabled \
-    -Dbluez5-codec-aptx=enabled \
-    -Decho-cancel-webrtc=disabled \
-    -Dlibcamera=disabled \
-    -Droc=disabled \
-    -Dffmpeg=enabled \
-    --buildtype=release
+	-Dalsa=enabled \
+	-Dudev=enabled \
+	-Dudevrulesdir="%{_udevrulesdir}" \
+	-Ddocs=enabled \
+	-Dman=enabled \
+	-Dgstreamer=enabled \
+	-Dsystemd=enabled \
+	-Dsystemd-user-service=enabled \
+	-Dpipewire-pulseaudio=enabled \
+	-Djack=enabled \
+	-Dpipewire-alsa=enabled \
+	-Dpipewire-jack=enabled \
+	-Dlibpulse=enabled \
+	-Dvulkan=enabled \
+	-Dbluez5=enabled \
+	-Dbluez5-codec-aac=disabled \
+	-Dbluez5-codec-aptx=enabled \
+	-Decho-cancel-webrtc=disabled \
+	-Dlibcamera=disabled \
+	-Droc=disabled \
+	-Dffmpeg=enabled \
+%if "%{wpversion}" != "%{nil}"
+	-Dsession-managers=media-session,wireplumber \
+	-Ddefault-session-manager=wireplumber \
+%else
+	-Dsession-managers=media-session \
+	-Ddefault-session-manager=media-session \
+%endif
+	--buildtype=release
 
 %meson_build
 
@@ -217,7 +248,7 @@ touch %{buildroot}%{_datadir}/pipewire/media-session.d/with-audio
 touch %{buildroot}%{_datadir}/pipewire/media-session.d/with-alsa
 
 # User creation
-install -D -p -m 0644 %{S:1} %{buildroot}%{_sysusersdir}/%{name}.conf
+install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 
 # Test fail on ARMv7hnl
 %ifnarch %{arm}
@@ -226,13 +257,13 @@ install -D -p -m 0644 %{S:1} %{buildroot}%{_sysusersdir}/%{name}.conf
 %endif
 
 %pre
-%sysusers_create_package %{name} %{S:1}
+%sysusers_create_package %{name} %{S:10}
 
-#              Attention! Achtung! Uwaga! Attenzione!                     #
+#                 Attention! Achtung! Uwaga! Attenzione!                  #
 ###########################################################################
 # PipeWire can replace (and probably will) PulseAudio and become default  #
-#        It is currently enabled, to deactivate it togle ON switch        #
-#             Don't do this without consulting with OMV Team.             #
+#       It is currently enabled, to deactivate it togle ON switch         #
+#            Don't do this without consulting with OMV Team.              #
 ###########################################################################
 
 %if %enable_by_default
