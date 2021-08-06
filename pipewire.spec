@@ -21,7 +21,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.32
+Version:	0.3.33
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -46,6 +46,7 @@ BuildRequires:	graphviz
 BuildRequires:	meson
 #BuildRequires:	xmltoman
 BuildRequires:	pkgconfig(libpcap)
+BuildRequires:	pkgconfig(libcap)
 BuildRequires:	pkgconfig(avahi-client)
 BuildRequires:	pkgconfig(bluez)
 BuildRequires:	pkgconfig(libudev)
@@ -61,6 +62,7 @@ BuildRequires:	pkgconfig(systemd)
 BuildRequires:	pkgconfig(alsa)
 BuildRequires:	pkgconfig(ldacBT-enc)
 BuildRequires:	pkgconfig(ldacBT-abr)
+BuildRequires:	pkgconfig(libfreeaptx)
 BuildRequires:	pkgconfig(libopenaptx)
 BuildRequires:	pkgconfig(libavcodec)
 BuildRequires:	pkgconfig(libpulse)
@@ -73,6 +75,8 @@ BuildRequires:	pkgconfig(jack)
 BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	pkgconfig(sndfile)
 BuildRequires:	pkgconfig(ncurses)
+# PipeWire support for now only webrtc 0.3.1. So let's pull old version of this package. As soon as they add support for v1, let's use new.
+BuildRequires:	pkgconfig(webrtc-audio-processing)
 #BuildRequires:	pkgconfig(webrtc-audio-processing-1)
 BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	vulkan-headers
@@ -225,7 +229,7 @@ export CXX=g++
 	-Dbluez5=enabled \
 	-Dbluez5-codec-aac=disabled \
 	-Dbluez5-codec-aptx=enabled \
-	-Decho-cancel-webrtc=disabled \
+	-Decho-cancel-webrtc=enabled \
 	-Dlibcamera=disabled \
 	-Droc=disabled \
 	-Dffmpeg=enabled \
