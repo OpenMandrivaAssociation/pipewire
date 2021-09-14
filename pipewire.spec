@@ -21,7 +21,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.33
+Version:	0.3.35
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -35,7 +35,8 @@ Source3:	lua-mesonbuild.zip
 %endif
 Source10:	pipewire.sysusers
 
-Patch0:		0001-conf-start-media-session-through-pipewire.patch
+Patch0:		https://src.fedoraproject.org/rpms/pipewire/raw/rawhide/f/0001-media-session-only-check-passthrough-when-available.patch
+Patch1:		pipewire-0.3.35-tests-compile.patch
 
 BuildRequires:	doxygen
 BuildRequires:	gettext
@@ -84,7 +85,9 @@ BuildRequires:	xmltoman
 BuildRequires:	llvm-devel
 BuildRequires:	systemd-rpm-macros
 %if "%{wpversion}" != "%{nil}"
-BuildRequires:	python3.9dist(breathe)
+BuildRequires:	python3dist(breathe)
+BuildRequires:	python3dist(sphinx)
+BuildRequires:	python3dist(sphinx-rtd-theme)
 %endif
 
 Requires:	rtkit
@@ -233,6 +236,7 @@ export CXX=g++
 	-Dlibcamera=disabled \
 	-Droc=disabled \
 	-Dffmpeg=enabled \
+	-Dvolume=enabled \
 %if "%{wpversion}" != "%{nil}"
 	-Dsession-managers=media-session,wireplumber \
 	-Ddefault-session-manager=wireplumber \
@@ -242,7 +246,23 @@ export CXX=g++
 %endif
 	--buildtype=release
 
+%if "%{wpversion}" != "%{nil}"
+# stupid g-ir-scanner freaks out over docs
+%meson_build && {
+	echo "build succeeded without the wp-gtkdoc.h hack"
+	echo "apparently stuff has been fixed, please remove the hack"
+	echo "(workaround is where this message is plus just above %%install)"
+	exit 1
+}
+mv build/subprojects/wireplumber/docs/wp-gtkdoc.h .
+touch build/subprojects/wireplumber/docs/wp-gtkdoc.h
+%endif
 %meson_build
+
+%if "%{wpversion}" != "%{nil}"
+# g-ir-scanner workaround continued
+mv -f wp-gtkdoc.h build/subprojects/wireplumber/docs/
+%endif
 
 %install
 %meson_install
@@ -255,7 +275,7 @@ touch %{buildroot}%{_datadir}/pipewire/media-session.d/with-alsa
 install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 
 # Test fail on ARMv7hnl
-%ifnarch %{arm}
+%if 0
 %check
 %meson_test
 %endif
@@ -387,3 +407,49 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 
 %files plugin-jack
 %{_libdir}/spa-%{spa_api}/jack/
+
+%if "%{wpversion}" != "%{nil}"
+%files -n wireplumber
+%{_bindir}/wireplumber
+%{_bindir}/wpctl
+%{_bindir}/wpexec
+%{_prefix}/lib/systemd/user/wireplumber.service
+%{_prefix}/lib/systemd/user/wireplumber@.service
+%{_libdir}/wireplumber-0.4/libwireplumber-module-default-nodes-api.so
+%{_libdir}/wireplumber-0.4/libwireplumber-module-default-nodes.so
+%{_libdir}/wireplumber-0.4/libwireplumber-module-default-profile.so
+%{_libdir}/wireplumber-0.4/libwireplumber-module-device-activation.so
+%{_libdir}/wireplumber-0.4/libwireplumber-module-file-monitor-api.so
+%{_libdir}/wireplumber-0.4/libwireplumber-module-lua-scripting.so
+%{_libdir}/wireplumber-0.4/libwireplumber-module-metadata.so
+%{_libdir}/wireplumber-0.4/libwireplumber-module-mixer-api.so
+%{_libdir}/wireplumber-0.4/libwireplumber-module-portal-permissionstore.so
+%{_libdir}/wireplumber-0.4/libwireplumber-module-reserve-device.so
+%{_libdir}/wireplumber-0.4/libwireplumber-module-si-audio-adapter.so
+%{_libdir}/wireplumber-0.4/libwireplumber-module-si-audio-endpoint.so
+%{_libdir}/wireplumber-0.4/libwireplumber-module-si-node.so
+%{_libdir}/wireplumber-0.4/libwireplumber-module-si-standard-link.so
+%dir %{_datadir}/wireplumber
+%{_datadir}/wireplumber/bluetooth.conf
+%{_datadir}/wireplumber/bluetooth.lua.d
+%{_datadir}/wireplumber/common/00-functions.lua
+%{_datadir}/wireplumber/main.conf
+%{_datadir}/wireplumber/main.lua.d
+%{_datadir}/wireplumber/policy.conf
+%{_datadir}/wireplumber/policy.lua.d
+%{_datadir}/wireplumber/scripts
+%{_datadir}/wireplumber/wireplumber.conf
+
+%files -n %{wplib}
+%{_libdir}/libwireplumber.so.0*
+%{_libdir}/girepository-1.0/Wp-0.4.typelib
+%{_datadir}/gir-1.0/Wp-0.4.gir
+
+%files -n %{wpdev}
+%{_includedir}/wireplumber-0.4
+%{_libdir}/libwireplumber-0.4.so
+%{_libdir}/pkgconfig/wireplumber-0.4.pc
+
+%files -n wireplumber-doc
+%doc %{_docdir}/wireplumber
+%endif

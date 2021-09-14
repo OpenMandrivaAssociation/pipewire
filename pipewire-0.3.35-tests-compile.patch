@@ -1,0 +1,14 @@
+diff -up pipewire-0.3.35/test/pwtest.c.omv~ pipewire-0.3.35/test/pwtest.c
+--- pipewire-0.3.35/test/pwtest.c.omv~	2021-09-14 23:08:51.187648944 +0200
++++ pipewire-0.3.35/test/pwtest.c	2021-09-14 23:08:59.393707872 +0200
+@@ -465,8 +465,8 @@ void _pwtest_add(struct pwtest_context *
+ 	spa_list_append(&suite->tests, &t->link);
+ }
+ 
+-extern const struct pwtest_suite_decl __start_pwtest_suite_section;
+-extern const struct pwtest_suite_decl __stop_pwtest_suite_section;
++const struct pwtest_suite_decl __start_pwtest_suite_section;
++const struct pwtest_suite_decl __stop_pwtest_suite_section;
+ 
+ static void add_suite(struct pwtest_context *ctx,
+ 		      const struct pwtest_suite_decl *decl)
