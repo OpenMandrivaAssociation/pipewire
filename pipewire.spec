@@ -45,11 +45,11 @@ BuildRequires:	gcc
 %endif
 BuildRequires:	graphviz
 BuildRequires:	meson
-#BuildRequires:	xmltoman
 BuildRequires:	pkgconfig(libpcap)
 BuildRequires:	pkgconfig(libcap)
 BuildRequires:	pkgconfig(avahi-client)
 BuildRequires:	pkgconfig(bluez)
+BuildRequires:	python3dist(docutils)
 BuildRequires:	pkgconfig(libudev)
 BuildRequires:	pkgconfig(dbus-1)
 BuildRequires:	pkgconfig(glib-2.0) >= 2.32
