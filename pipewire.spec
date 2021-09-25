@@ -35,7 +35,7 @@ Source3:	lua-mesonbuild.zip
 %endif
 Source10:	pipewire.sysusers
 
-Patch0:		https://src.fedoraproject.org/rpms/pipewire/raw/rawhide/f/0001-media-session-only-check-passthrough-when-available.patch
+#Patch0:		https://src.fedoraproject.org/rpms/pipewire/raw/rawhide/f/0001-media-session-only-check-passthrough-when-available.patch
 Patch1:		pipewire-0.3.35-tests-compile.patch
 
 BuildRequires:	doxygen
