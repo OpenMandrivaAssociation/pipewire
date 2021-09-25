@@ -21,7 +21,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.35
+Version:	0.3.37
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -35,7 +35,7 @@ Source3:	lua-mesonbuild.zip
 %endif
 Source10:	pipewire.sysusers
 
-Patch0:		https://src.fedoraproject.org/rpms/pipewire/raw/rawhide/f/0001-media-session-only-check-passthrough-when-available.patch
+#Patch0:		https://src.fedoraproject.org/rpms/pipewire/raw/rawhide/f/0001-media-session-only-check-passthrough-when-available.patch
 Patch1:		pipewire-0.3.35-tests-compile.patch
 
 BuildRequires:	doxygen
@@ -337,6 +337,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %dir %{_libdir}/%{name}-%{api}/
 %{_libdir}/%{name}-%{api}/libpipewire-module-*.so
 %{_libdir}/spa-%{spa_api}
+%{_datadir}/spa-%{spa_api}/bluez5/bluez-hardware.conf
 %{_mandir}/man5/*.5*
 %{_datadir}/alsa/alsa.conf.d/50-pipewire.conf
 %{_datadir}/alsa/alsa.conf.d/99-pipewire-default.conf
@@ -373,6 +374,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_bindir}/spa-monitor
 %{_bindir}/spa-inspect
 %{_bindir}/spa-json-dump
+%{_bindir}/pw-dsdplay
 %{_bindir}/pw-mon
 %{_bindir}/pw-cat
 %{_bindir}/pw-cli
