@@ -77,6 +77,7 @@ BuildRequires:	pkgconfig(jack)
 BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	pkgconfig(sndfile)
 BuildRequires:	pkgconfig(ncurses)
+BuildRequires:	pkgconfig(readline)
 # PipeWire support for now only webrtc 0.3.1. So let's pull old version of this package. As soon as they add support for v1, let's use new.
 BuildRequires:	pkgconfig(webrtc-audio-processing)
 #BuildRequires:	pkgconfig(webrtc-audio-processing-1)
@@ -378,7 +379,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_bindir}/pw-dsdplay
 %{_bindir}/pw-mon
 %{_bindir}/pw-cat
-#{_bindir}/pw-cli
+%{_bindir}/pw-cli
 %{_bindir}/pw-dot
 %{_bindir}/pw-link
 %{_bindir}/pw-loopback
