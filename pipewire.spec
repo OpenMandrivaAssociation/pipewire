@@ -378,7 +378,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_bindir}/pw-dsdplay
 %{_bindir}/pw-mon
 %{_bindir}/pw-cat
-%{_bindir}/pw-cli
+#{_bindir}/pw-cli
 %{_bindir}/pw-dot
 %{_bindir}/pw-link
 %{_bindir}/pw-loopback
