@@ -66,7 +66,9 @@ BuildRequires:	pkgconfig(systemd)
 BuildRequires:	pkgconfig(alsa)
 BuildRequires:	pkgconfig(ldacBT-enc)
 BuildRequires:	pkgconfig(ldacBT-abr)
+%ifnarch %{ix86}
 BuildRequires:	pkgconfig(libcamera)
+%endif
 BuildRequires:	pkgconfig(libdrm)
 BuildRequires:	pkgconfig(libfreeaptx)
 BuildRequires:	pkgconfig(libopenaptx)
@@ -239,7 +241,9 @@ export CXX=g++
 	-Dbluez5-codec-aac=disabled \
 	-Dbluez5-codec-aptx=enabled \
 	-Decho-cancel-webrtc=enabled \
+%ifnarch %{ix86}
 	-Dlibcamera=enabled \
+%endif
 	-Droc=disabled \
 	-Dffmpeg=enabled \
 	-Dvolume=enabled \
