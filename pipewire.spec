@@ -21,7 +21,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.37
+Version:	0.3.38
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -35,7 +35,6 @@ Source3:	lua-mesonbuild.zip
 %endif
 Source10:	pipewire.sysusers
 
-#Patch0:		https://src.fedoraproject.org/rpms/pipewire/raw/rawhide/f/0001-media-session-only-check-passthrough-when-available.patch
 Patch1:		pipewire-0.3.35-tests-compile.patch
 
 BuildRequires:	doxygen
@@ -63,6 +62,8 @@ BuildRequires:	pkgconfig(systemd)
 BuildRequires:	pkgconfig(alsa)
 BuildRequires:	pkgconfig(ldacBT-enc)
 BuildRequires:	pkgconfig(ldacBT-abr)
+BuildRequires:	pkgconfig(libcamera)
+BuildRequires:	pkgconfig(libdrm)
 BuildRequires:	pkgconfig(libfreeaptx)
 BuildRequires:	pkgconfig(libopenaptx)
 BuildRequires:	pkgconfig(libavcodec)
@@ -76,6 +77,7 @@ BuildRequires:	pkgconfig(jack)
 BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	pkgconfig(sndfile)
 BuildRequires:	pkgconfig(ncurses)
+BuildRequires:	pkgconfig(readline)
 # PipeWire support for now only webrtc 0.3.1. So let's pull old version of this package. As soon as they add support for v1, let's use new.
 BuildRequires:	pkgconfig(webrtc-audio-processing)
 #BuildRequires:	pkgconfig(webrtc-audio-processing-1)
@@ -233,7 +235,7 @@ export CXX=g++
 	-Dbluez5-codec-aac=disabled \
 	-Dbluez5-codec-aptx=enabled \
 	-Decho-cancel-webrtc=enabled \
-	-Dlibcamera=disabled \
+	-Dlibcamera=enabled \
 	-Droc=disabled \
 	-Dffmpeg=enabled \
 	-Dvolume=enabled \
