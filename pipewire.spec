@@ -243,6 +243,8 @@ export CXX=g++
 	-Decho-cancel-webrtc=enabled \
 %ifnarch %{ix86}
 	-Dlibcamera=enabled \
+%else
+	-Dlibcamera=disabled \
 %endif
 	-Droc=disabled \
 	-Dffmpeg=enabled \
