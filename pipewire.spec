@@ -38,8 +38,6 @@ Source10:	pipewire.sysusers
 Patch1:		pipewire-0.3.35-tests-compile.patch
 
 # Upstream patches:
-# Fix compiling on aarch64
-Patch2:		0001-cpu-fix-compilation-on-ARM.patch
 
 BuildRequires:	doxygen
 BuildRequires:	gettext
