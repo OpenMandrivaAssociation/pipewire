@@ -339,7 +339,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 
 %find_lang %{name}
 
-%files %{name} -f %{name}.lang
+%files -f %{name}.lang
 %license LICENSE
 %doc README.md
 %dir %{_datadir}/%{name}
