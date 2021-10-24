@@ -1,5 +1,6 @@
 sources:
-  pipewire-0.3.38.tar.gz: 29d35eb538d89a57cd9e4bcf5f823e9cb7391a1f
-  wireplumber-0.4.2.tar.bz2: c3659a0cb8a7cab51170b014de761405860f4fc2
+  pipewire-0.3.39.tar.gz: 24438f0467b5d850f6f790df1c0b5ec49f5d947a
+  wireplumber-0.4.4.tar.bz2: dd492e16c34f49d7f534df937a764b2ace94d642
   lua-5.4.3.tar.gz: 1dda2ef23a9828492b4595c0197766de6e784bc7
   lua-mesonbuild.zip: 9c4aaf0db967d64f3d09b5600aa031131e7f7aec
+  media-session-0.4.0.tar.bz2: 6401f4c5b9fd321a003ef8a164ff6c4f36ea85ab

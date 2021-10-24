@@ -15,13 +15,18 @@
 %define wpversion %{nil}
 # FIXME use system lua
 %define luaversion 5.4.3
+%define media_session_ver 0.4.0
 %define major 0
 %define libname	%mklibname %{name} %{api} %{major}
 %define devname	%mklibname %{name} -d
+%if "%{wpversion}" != "%{nil}"
+%define wplib %mklibname wireplumber %{api} %{major}
+%define wpdev %mklibname wireplumber -d
+%endif
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.38
+Version:	0.3.39
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -32,14 +37,16 @@ Source1:	https://gitlab.freedesktop.org/pipewire/wireplumber/-/archive/%{wpversi
 Source2:	https://www.lua.org/ftp/lua-%{luaversion}.tar.gz
 # https://wrapdb.mesonbuild.com/v2/lua_5.4.3-1/get_patch
 Source3:	lua-mesonbuild.zip
+%else
+Source4:	https://gitlab.freedesktop.org/pipewire/media-session/-/archive/%{media_session_ver}/media-session-%{media_session_ver}.tar.bz2
 %endif
 Source10:	pipewire.sysusers
 
 Patch1:		pipewire-0.3.35-tests-compile.patch
 
 # Upstream patches:
-# Fix compiling on aarch64
-Patch2:		0001-cpu-fix-compilation-on-ARM.patch
+Patch100:	0001-cpu-fix-compilation-on-some-architectures.patch
+Patch101:	0001-Build-media-session-from-local-tarbal.patch
 
 BuildRequires:	doxygen
 BuildRequires:	gettext
@@ -100,6 +107,12 @@ BuildRequires:	python3dist(sphinx-rtd-theme)
 
 Requires:	rtkit
 Requires(pre):	systemd
+
+%if "%{wpversion}" != "%{nil}"
+Requires: %{name}-wireplumber = %{version}-%{release}
+%else
+Requires: %{name}-media-session = %{version}-%{release}
+%endif
 %systemd_ordering
 
 %description
@@ -202,6 +215,76 @@ This package contains the PipeWire spa plugin to connect to a JACK server.
 
 #------------------------------------------------
 
+%if "%{wpversion}" != "%{nil}"
+%package wireplumber
+Summary:        PipeWire WirePlumber Media Session
+License:        MIT
+Recommends:     %{name}%{?_isa} = %{version}-%{release}
+Requires:	%{wplib} = %{version}-%{release}
+ 
+%description wireplumber
+This package contains the reference WirePlumber Session Manager for the
+PipeWire media server.
+
+#------------------------------------------------
+
+%package %{wplib}
+Summary:        PipeWire WirePlumber Media Session library
+License:        MIT
+Recommends:     %{name}%{?_isa} = %{version}-%{release}
+Requires:	wireplumber = %{version}-%{release}
+
+ 
+%description %{wplib}
+This package contains library for WirePlumber Session Manager for the
+PipeWire media server.
+
+#------------------------------------------------
+
+%package %{wpdev}
+Summary:        PipeWire WirePlumber development files
+License:        MIT
+Recommends:     %{name}%{?_isa} = %{version}-%{release}
+Requires:	%{devname} = %{version}-%{release}
+Requires:	wireplumber = %{version}-%{release}
+Requires:	%{wplib} = %{version}-%{release}
+
+%description %{wpdev}
+This package contains development files for WirePlumber Session Manager for the
+PipeWire media server.
+#------------------------------------------------
+
+%package wireplumber-doc
+Summary:        PipeWire WirePlumber documentation files
+License:        MIT
+Recommends:     %{name}%{?_isa} = %{version}-%{release}
+Recommends:	wireplumber = %{version}-%{release}
+Recommends:	%{wplib} = %{version}-%{release}
+Recommends:	%{wpdev} = %{version}-%{release}
+
+%description wireplumber-doc
+This package contains documentation files for WirePlumber Session Manager for the
+PipeWire media server.
+
+#------------------------------------------------
+%else
+
+%package media-session
+Summary:        PipeWire Media Session
+License:        MIT
+Recommends:     %{name}%{?_isa} = %{version}-%{release}
+ 
+%description media-session
+This package contains the Media Session Manager for the
+PipeWire media server.
+
+%endif
+#------------------------------------------------
+
+
+
+#------------------------------------------------
+
 %prep
 %autosetup -T -b0 -p1
 %if "%{wpversion}" != "%{nil}"
@@ -210,6 +293,9 @@ tar xf %{S:2}
 tar xf %{S:3}
 mv wireplumber-%{wpversion} subprojects/wireplumber
 mv lua-%{luaversion} subprojects/wireplumber/subprojects/lua
+%else
+mkdir subprojects/packagefiles            
+cp %{SOURCE4} subprojects/packagefiles/
 %endif
 
 %build
@@ -331,6 +417,8 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %systemd_user_postun pipewire-media-session.service
 %endif
 
+%find_lang media-session
+
 %files
 %license LICENSE
 %doc README.md
@@ -349,6 +437,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %dir %{_libdir}/%{name}-%{api}/
 %{_libdir}/%{name}-%{api}/libpipewire-module-*.so
 %{_libdir}/spa-%{spa_api}
+%{_libdir}/%{name}-%{api}/v4l2/libpw-v4l2.so
 %{_datadir}/spa-%{spa_api}/bluez5/bluez-hardware.conf
 %{_mandir}/man5/*.5*
 %{_datadir}/alsa/alsa.conf.d/50-pipewire.conf
@@ -403,6 +492,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_bindir}/pw-reserve
 %{_bindir}/pw-top
 %{_bindir}/pw-dump
+%{_bindir}/pw-v4l2
 %{_bindir}/spa-acp-tool
 %{_bindir}/spa-resample
 %{_mandir}/man1/*.1*
@@ -466,4 +556,12 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 
 %files -n wireplumber-doc
 %doc %{_docdir}/wireplumber
+
+%else
+# For now only lang files. Let's add here all media-session files in next time
+
+#FIXME  No idea why this lang won't work. Let's use dirty workaround.
+#files media-session -f media-session.lang
+%files media-session
+%{_datadir}/locale/*/LC_MESSAGES/media-session.mo
 %endif
