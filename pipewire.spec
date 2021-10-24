@@ -19,6 +19,10 @@
 %define major 0
 %define libname	%mklibname %{name} %{api} %{major}
 %define devname	%mklibname %{name} -d
+%if "%{wpversion}" != "%{nil}"
+%define wplib %mklibname wireplumber %{api} %{major}
+%define wpdev %mklibname %{wireplumber} -d
+%endif
 
 Name:		pipewire
 Summary:	Media Sharing Server
@@ -103,6 +107,12 @@ BuildRequires:	python3dist(sphinx-rtd-theme)
 
 Requires:	rtkit
 Requires(pre):	systemd
+
+%if "%{wpversion}" != "%{nil}"
+Requires: wireplumber
+%else
+Requires: media-session
+%endif
 %systemd_ordering
 
 %description
@@ -203,6 +213,71 @@ Recommends:	%{name} = %{version}-%{release}
 %description plugin-jack
 This package contains the PipeWire spa plugin to connect to a JACK server.
 
+#------------------------------------------------
+
+%if "%{wpversion}" != "%{nil}"
+%package wireplumber
+Summary:        PipeWire WirePlumber Media Session
+License:        MIT
+Recommends:     %{name}%{?_isa} = %{version}-%{release}
+Requires:	%{wplib} = %{version}-%{release}
+ 
+%description wireplumber
+This package contains the reference WirePlumber Session Manager for the
+PipeWire media server.
+
+#------------------------------------------------
+
+%package %{wplib}
+Summary:        PipeWire WirePlumber Media Session library
+License:        MIT
+Recommends:     %{name}%{?_isa} = %{version}-%{release}
+Requires:	wireplumber = %{version}-%{release}
+
+ 
+%description %{wplib}
+This package contains library for WirePlumber Session Manager for the
+PipeWire media server.
+
+#------------------------------------------------
+
+%package %{wpdev}
+Summary:        PipeWire WirePlumber development files
+License:        MIT
+Recommends:     %{name}%{?_isa} = %{version}-%{release}
+Requires:	wireplumber = %{version}-%{release}
+Requires:	%{wplib} = %{version}-%{release}
+
+%description %{wpdev}
+This package contains development files for WirePlumber Session Manager for the
+PipeWire media server.
+#------------------------------------------------
+
+%package wireplumber-doc
+Summary:        PipeWire WirePlumber documentation files
+License:        MIT
+Recommends:     %{name}%{?_isa} = %{version}-%{release}
+Recommends:	wireplumber = %{version}-%{release}
+Recommends:	%{wplib} = %{version}-%{release}
+Recommends:	%{wpdev} = %{version}-%{release}
+
+%description wireplumber-doc
+This package contains documentation files for WirePlumber Session Manager for the
+PipeWire media server.
+
+#------------------------------------------------
+%else
+
+%package media-session
+Summary:        PipeWire Media Session
+License:        MIT
+Recommends:     %{name}%{?_isa} = %{version}-%{release}
+ 
+%description media-session
+This package contains the Media Session Manager for the
+PipeWire media server.
+
+%endif
 #------------------------------------------------
 
 %prep
@@ -337,9 +412,9 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %systemd_user_postun pipewire-media-session.service
 %endif
 
-%find_lang %{name}
+%find_lang media-session
 
-%files -f %{name}.lang
+%files
 %license LICENSE
 %doc README.md
 %dir %{_datadir}/%{name}
@@ -474,4 +549,8 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 
 %files -n wireplumber-doc
 %doc %{_docdir}/wireplumber
+
+%else
+# For now only lang files. Let's add here all media-session files in next time
+%files media-session -f media-session.lang
 %endif
