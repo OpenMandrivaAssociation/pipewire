@@ -337,9 +337,9 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %systemd_user_postun pipewire-media-session.service
 %endif
 
-%find_lang media-session
+%find_lang %{name}
 
-%files lang -f media-session.lang
+%files %{name} -f %{name}.lang
 %license LICENSE
 %doc README.md
 %dir %{_datadir}/%{name}
