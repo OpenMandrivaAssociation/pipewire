@@ -109,9 +109,9 @@ Requires:	rtkit
 Requires(pre):	systemd
 
 %if "%{wpversion}" != "%{nil}"
-Requires: wireplumber
+Requires: %{name}-wireplumber = %{version}-%{release}
 %else
-Requires: media-session
+Requires: %{name}-media-session = %{version}-%{release}
 %endif
 %systemd_ordering
 
