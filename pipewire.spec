@@ -15,6 +15,7 @@
 %define wpversion %{nil}
 # FIXME use system lua
 %define luaversion 5.4.3
+%define media_session_ver 0.4.0
 %define major 0
 %define libname	%mklibname %{name} %{api} %{major}
 %define devname	%mklibname %{name} -d
@@ -32,12 +33,16 @@ Source1:	https://gitlab.freedesktop.org/pipewire/wireplumber/-/archive/%{wpversi
 Source2:	https://www.lua.org/ftp/lua-%{luaversion}.tar.gz
 # https://wrapdb.mesonbuild.com/v2/lua_5.4.3-1/get_patch
 Source3:	lua-mesonbuild.zip
+%else
+Source4:	https://gitlab.freedesktop.org/pipewire/media-session/-/archive/%{media_session_ver}/media-session-%{media_session_ver}.tar.bz2
 %endif
 Source10:	pipewire.sysusers
 
 Patch1:		pipewire-0.3.35-tests-compile.patch
 
 # Upstream patches:
+Patch100:	0001-cpu-fix-compilation-on-some-architectures.patch
+Patch101:	0001-Build-media-session-from-local-tarbal.patch
 
 BuildRequires:	doxygen
 BuildRequires:	gettext
@@ -208,6 +213,9 @@ tar xf %{S:2}
 tar xf %{S:3}
 mv wireplumber-%{wpversion} subprojects/wireplumber
 mv lua-%{luaversion} subprojects/wireplumber/subprojects/lua
+%else
+mkdir subprojects/packagefiles            
+cp %{SOURCE4} subprojects/packagefiles/
 %endif
 
 %build
