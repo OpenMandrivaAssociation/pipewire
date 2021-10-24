@@ -281,6 +281,10 @@ PipeWire media server.
 %endif
 #------------------------------------------------
 
+
+
+#------------------------------------------------
+
 %prep
 %autosetup -T -b0 -p1
 %if "%{wpversion}" != "%{nil}"
@@ -433,6 +437,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %dir %{_libdir}/%{name}-%{api}/
 %{_libdir}/%{name}-%{api}/libpipewire-module-*.so
 %{_libdir}/spa-%{spa_api}
+%{_libdir}/%{name}-%{api}/v4l2/libpw-v4l2.so
 %{_datadir}/spa-%{spa_api}/bluez5/bluez-hardware.conf
 %{_mandir}/man5/*.5*
 %{_datadir}/alsa/alsa.conf.d/50-pipewire.conf
@@ -487,6 +492,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_bindir}/pw-reserve
 %{_bindir}/pw-top
 %{_bindir}/pw-dump
+%{_bindir}/pw-v4l2
 %{_bindir}/spa-acp-tool
 %{_bindir}/spa-resample
 %{_mandir}/man1/*.1*
@@ -558,5 +564,4 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 #files media-session -f media-session.lang
 %files media-session
 %{_datadir}/locale/*/LC_MESSAGES/media-session.mo
-
 %endif
