@@ -21,7 +21,7 @@
 %define devname	%mklibname %{name} -d
 %if "%{wpversion}" != "%{nil}"
 %define wplib %mklibname wireplumber %{api} %{major}
-%define wpdev %mklibname %{wireplumber} -d
+%define wpdev %mklibname wireplumber -d
 %endif
 
 Name:		pipewire
@@ -245,6 +245,7 @@ PipeWire media server.
 Summary:        PipeWire WirePlumber development files
 License:        MIT
 Recommends:     %{name}%{?_isa} = %{version}-%{release}
+Requires:	%{devname} = %{version}-%{release}
 Requires:	wireplumber = %{version}-%{release}
 Requires:	%{wplib} = %{version}-%{release}
 
