@@ -553,5 +553,5 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 
 %else
 # For now only lang files. Let's add here all media-session files in next time
-%files media-session -f media-session.lang
+%files -n media-session -f media-session.lang
 %endif
