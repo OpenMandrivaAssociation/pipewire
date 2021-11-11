@@ -45,7 +45,6 @@ Source10:	pipewire.sysusers
 Patch1:		pipewire-0.3.35-tests-compile.patch
 
 # Upstream patches:
-Patch100:	0001-cpu-fix-compilation-on-some-architectures.patch
 Patch101:	0001-Build-media-session-from-local-tarbal.patch
 
 BuildRequires:	doxygen
