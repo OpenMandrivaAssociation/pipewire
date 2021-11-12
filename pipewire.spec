@@ -15,7 +15,7 @@
 %define wpversion %{nil}
 # FIXME use system lua
 %define luaversion 5.4.3
-%define media_session_ver 0.4.0
+%define media_session_ver 0.4.1
 %define major 0
 %define libname	%mklibname %{name} %{api} %{major}
 %define devname	%mklibname %{name} -d
@@ -26,7 +26,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.39
+Version:	0.3.40
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -45,7 +45,6 @@ Source10:	pipewire.sysusers
 Patch1:		pipewire-0.3.35-tests-compile.patch
 
 # Upstream patches:
-Patch100:	0001-cpu-fix-compilation-on-some-architectures.patch
 Patch101:	0001-Build-media-session-from-local-tarbal.patch
 
 BuildRequires:	doxygen
