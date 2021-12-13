@@ -316,7 +316,6 @@ export CXX=g++
 	-Dgstreamer=enabled \
 	-Dsystemd=enabled \
 	-Dsystemd-user-service=enabled \
-	-Dpipewire-pulseaudio=enabled \
 	-Djack=enabled \
 	-Dpipewire-alsa=enabled \
 	-Dpipewire-jack=enabled \
@@ -339,7 +338,6 @@ export CXX=g++
 	-Ddefault-session-manager=wireplumber \
 %else
 	-Dsession-managers=media-session \
-	-Ddefault-session-manager=media-session \
 %endif
 	--buildtype=release
 
