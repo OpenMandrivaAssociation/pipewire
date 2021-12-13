@@ -26,7 +26,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.40
+Version:	0.3.41
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -83,8 +83,10 @@ BuildRequires:	pkgconfig(libpulse)
 BuildRequires:	pkgconfig(libusb-1.0)
 BuildRequires:	pkgconfig(libva)
 BuildRequires:	pkgconfig(libv4l2)
+BuildRequires:	pkgconfig(lilv-0)
 BuildRequires:	pkgconfig(sbc)
 BuildRequires:	pkgconfig(sdl2)
+BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(jack)
 BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	pkgconfig(sndfile)
@@ -316,7 +318,6 @@ export CXX=g++
 	-Dgstreamer=enabled \
 	-Dsystemd=enabled \
 	-Dsystemd-user-service=enabled \
-	-Dpipewire-pulseaudio=enabled \
 	-Djack=enabled \
 	-Dpipewire-alsa=enabled \
 	-Dpipewire-jack=enabled \
@@ -339,7 +340,6 @@ export CXX=g++
 	-Ddefault-session-manager=wireplumber \
 %else
 	-Dsession-managers=media-session \
-	-Ddefault-session-manager=media-session \
 %endif
 	--buildtype=release
 
