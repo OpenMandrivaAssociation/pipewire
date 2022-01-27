@@ -26,8 +26,8 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.43
-Release:	2
+Version:	0.3.44
+Release:	1
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -75,6 +75,7 @@ BuildRequires:	pkgconfig(ldacBT-abr)
 %ifnarch %{ix86}
 BuildRequires:	pkgconfig(libcamera)
 %endif
+BuildRequires:	pkgconfig(libcanberra)
 BuildRequires:	pkgconfig(libdrm)
 BuildRequires:	pkgconfig(libfreeaptx)
 BuildRequires:	pkgconfig(libopenaptx)
@@ -447,6 +448,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_userunitdir}/pipewire-media-session.service
 %{_udevrulesdir}/90-pipewire-alsa.rules
 %{_datadir}/pipewire/filter-chain/*.conf
+%{_datadir}/pipewire/minimal.conf
 
 %files pulse
 %{_bindir}/pipewire-pulse
