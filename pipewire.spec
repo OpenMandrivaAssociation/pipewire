@@ -75,6 +75,7 @@ BuildRequires:	pkgconfig(ldacBT-abr)
 %ifnarch %{ix86}
 BuildRequires:	pkgconfig(libcamera)
 %endif
+BuildRequires:	pkgconfig(libcanberra)
 BuildRequires:	pkgconfig(libdrm)
 BuildRequires:	pkgconfig(libfreeaptx)
 BuildRequires:	pkgconfig(libopenaptx)
