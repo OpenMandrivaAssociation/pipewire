@@ -26,12 +26,14 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.44
+Version:	0.3.45
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
-Source0:	https://github.com/PipeWire/pipewire/archive/%{version}/%{name}-%{version}.tar.gz
+Source0:	https://gitlab.freedesktop.org/pipewire/pipewire/-/archive/%{version}/%{name}-%{version}.tar.bz2
+# Mirror
+#Source0:	https://github.com/PipeWire/pipewire/archive/%{version}/%{name}-%{version}.tar.gz
 %if "%{wpversion}" != "%{nil}"
 Source1:	https://gitlab.freedesktop.org/pipewire/wireplumber/-/archive/%{wpversion}/wireplumber-%{wpversion}.tar.bz2
 Source2:	https://www.lua.org/ftp/lua-%{luaversion}.tar.gz
