@@ -1,0 +1,26 @@
+From a947faeaa0a9d69398d7fb6510d0ba9d28707701 Mon Sep 17 00:00:00 2001
+From: Wim Taymans <wtaymans@redhat.com>
+Date: Thu, 3 Feb 2022 16:30:06 +0100
+Subject: [PATCH] pw-link: clarify -L option
+
+-L is enabled by default, unless -m is specified.
+---
+ src/tools/pw-link.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/tools/pw-link.c b/src/tools/pw-link.c
+index 88b7e0732..80dcb2f28 100644
+--- a/src/tools/pw-link.c
++++ b/src/tools/pw-link.c
+@@ -567,7 +567,7 @@ static void show_help(struct data *data, const char *name)
+ 		"  -I, --id                              List IDs\n"
+ 		"  -v, --verbose                         Verbose port properties\n"
+ 		"Connect: %1$s [options] output input\n"
+-		"  -L, --linger                          Linger (for use without -m)\n"
++		"  -L, --linger                          Linger (default, unless -m is used)\n"
+ 		"  -P, --passive                         Passive link\n"
+ 		"  -p, --props=PROPS                     Properties as JSON object\n"
+ 		"Disconnect: %1$s -d [options] output input\n"
+-- 
+GitLab
+
