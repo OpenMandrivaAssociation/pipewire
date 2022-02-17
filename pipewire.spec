@@ -26,8 +26,8 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.45
-Release:	2
+Version:	0.3.46
+Release:	1
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -48,14 +48,7 @@ Patch1:		pipewire-0.3.35-tests-compile.patch
 
 # Upstream patches:
 Patch101:	0001-Build-media-session-from-local-tarbal.patch
-Patch110:	https://gitlab.freedesktop.org/pipewire/pipewire/-/commit/ee2e6412d37d012fbf8d25bd37271a5ee92b3ad4.patch
-Patch111:	https://gitlab.freedesktop.org/pipewire/pipewire/-/commit/7480d095899cd683d028c405b98076127b60a552.patch
-Patch112:	https://gitlab.freedesktop.org/pipewire/pipewire/-/commit/76417fd2a6c10a319ab8eb4cc3edde0034f9300a.patch
-Patch113:	https://gitlab.freedesktop.org/pipewire/pipewire/-/commit/b5cd6d02fd6090b797df718426c39b5aed475f3f.patch
-Patch114:	https://gitlab.freedesktop.org/pipewire/pipewire/-/commit/a947faeaa0a9d69398d7fb6510d0ba9d28707701.patch
-Patch115:	https://gitlab.freedesktop.org/pipewire/pipewire/-/commit/7ac809618ee4e5aea398d1cbbd8679db465f93f9.patch
-Patch116:	https://gitlab.freedesktop.org/pipewire/pipewire/-/commit/ae077a4967b468e0880ef56c4de74b5c1d9ccc59.patch
-Patch117:	https://gitlab.freedesktop.org/pipewire/pipewire/-/commit/97a5fe80c1d0fb0d8173a61a87051053cff7a5c2.patch
+
 
 BuildRequires:	doxygen
 BuildRequires:	gettext
