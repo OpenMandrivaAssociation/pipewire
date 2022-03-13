@@ -102,6 +102,7 @@ BuildRequires:	pkgconfig(webrtc-audio-processing)
 BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	vulkan-headers
 BuildRequires:	xmltoman
+BuildRequires:	pkgconfig(xfixes)
 BuildRequires:	llvm-devel
 BuildRequires:	systemd-rpm-macros
 %if "%{wpversion}" != "%{nil}"
