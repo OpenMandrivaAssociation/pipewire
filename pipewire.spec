@@ -27,7 +27,7 @@
 Name:		pipewire
 Summary:	Media Sharing Server
 Version:	0.3.50
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -48,6 +48,7 @@ Patch1:		pipewire-0.3.35-tests-compile.patch
 
 # Upstream patches:
 Patch101:	0001-Build-media-session-from-local-tarbal.patch
+Patch102:	https://gitlab.freedesktop.org/pipewire/pipewire/-/merge_requests/1210.patch
 
 
 BuildRequires:	doxygen
