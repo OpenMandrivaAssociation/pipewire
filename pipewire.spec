@@ -329,6 +329,7 @@ export CXX=g++
 	-Dlibpulse=enabled \
 	-Dvulkan=enabled \
 	-Dbluez5=enabled \
+	-Dbluez5-codec-lc3plus=disabled \
 	-Dbluez5-codec-aac=disabled \
 	-Dbluez5-codec-aptx=enabled \
 	-Decho-cancel-webrtc=enabled \
