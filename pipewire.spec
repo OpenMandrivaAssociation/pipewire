@@ -26,8 +26,8 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.47
-Release:	2
+Version:	0.3.51
+Release:	1
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -102,6 +102,7 @@ BuildRequires:	pkgconfig(webrtc-audio-processing)
 BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	vulkan-headers
 BuildRequires:	xmltoman
+BuildRequires:	pkgconfig(xfixes)
 BuildRequires:	llvm-devel
 BuildRequires:	systemd-rpm-macros
 %if "%{wpversion}" != "%{nil}"
