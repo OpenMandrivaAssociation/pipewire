@@ -104,6 +104,7 @@ BuildRequires:	vulkan-headers
 BuildRequires:	xmltoman
 BuildRequires:	pkgconfig(xfixes)
 BuildRequires:	llvm-devel
+BuildRequires:  glibc-static-devel
 BuildRequires:	systemd-rpm-macros
 %if "%{wpversion}" != "%{nil}"
 BuildRequires:	python3dist(breathe)
