@@ -26,7 +26,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.54
+Version:	0.3.55
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -48,6 +48,7 @@ Patch1:		pipewire-0.3.35-tests-compile.patch
 
 # Upstream patches:
 Patch101:	0001-Build-media-session-from-local-tarbal.patch
+Patch102:	0001-jack-only-mix-when-we-have-input-to-mix.patch
 
 
 BuildRequires:	doxygen
