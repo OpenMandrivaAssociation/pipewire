@@ -449,6 +449,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_userunitdir}/pipewire-media-session.service
 %{_udevrulesdir}/90-pipewire-alsa.rules
 %{_datadir}/pipewire/filter-chain/*.conf
+%{_datadir}/pipewire/filter-chain.conf
 %{_datadir}/pipewire/minimal.conf
 
 %files pulse
