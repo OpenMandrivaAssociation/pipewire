@@ -443,7 +443,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_libdir}/spa-%{spa_api}
 %{_libdir}/%{name}-%{api}/v4l2/libpw-v4l2.so
 %{_datadir}/spa-%{spa_api}/bluez5/bluez-hardware.conf
-%{_libdir}/spa-%{apa_api/avb/
+%{_libdir}/spa-%{apa_api}/avb/
 %doc %{_mandir}/man5/*.5*
 %{_datadir}/alsa/alsa.conf.d/50-pipewire.conf
 %{_datadir}/alsa/alsa.conf.d/99-pipewire-default.conf
