@@ -26,7 +26,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.55
+Version:	0.3.56
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -48,7 +48,9 @@ Patch1:		pipewire-0.3.35-tests-compile.patch
 
 # Upstream patches:
 Patch101:	0001-Build-media-session-from-local-tarbal.patch
-Patch102:	0001-jack-only-mix-when-we-have-input-to-mix.patch
+Patch102:	0001-avb-fix-compilation-on-big-endian.patch
+Patch103:	0002-avb-fix-compilation-on-big-endian.patch
+Patch104:	0003-avb-fix-compilation-on-big-endian.patch
 
 
 BuildRequires:	doxygen
@@ -433,6 +435,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_datadir}/pipewire/media-session.d/with-audio
 %{_userunitdir}/%{name}.*
 %{_bindir}/%{name}
+%{_bindir}/pipewire-avb
 %{_bindir}/%{name}-media-session
 %{_sysusersdir}/%{name}.conf
 %dir %{_libdir}/%{name}-%{api}/
@@ -440,6 +443,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_libdir}/spa-%{spa_api}
 %{_libdir}/%{name}-%{api}/v4l2/libpw-v4l2.so
 %{_datadir}/spa-%{spa_api}/bluez5/bluez-hardware.conf
+#{_libdir}/spa-%{spa_api}/avb/
 %doc %{_mandir}/man5/*.5*
 %{_datadir}/alsa/alsa.conf.d/50-pipewire.conf
 %{_datadir}/alsa/alsa.conf.d/99-pipewire-default.conf
@@ -450,6 +454,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_udevrulesdir}/90-pipewire-alsa.rules
 %{_datadir}/pipewire/filter-chain/*.conf
 %{_datadir}/pipewire/filter-chain.conf
+%{_datadir}/pipewire/pipewire-avb.conf
 %{_datadir}/pipewire/minimal.conf
 
 %files pulse
