@@ -27,7 +27,7 @@
 Name:		pipewire
 Summary:	Media Sharing Server
 Version:	0.3.56
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -375,6 +375,8 @@ touch %{buildroot}%{_datadir}/pipewire/media-session.d/with-alsa
 # User creation
 install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 
+%find_lang media-session
+
 # Test fail on ARMv7hnl
 %if 0
 %check
@@ -419,8 +421,6 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 
 %systemd_user_postun pipewire-media-session.service
 %endif
-
-%find_lang media-session
 
 %files
 %license LICENSE
