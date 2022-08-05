@@ -1,0 +1,224 @@
+From 89d5d51bb304c3c4a363c306e0923087abc817fb Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Barnab=C3=A1s=20P=C5=91cze?= <pobrn@protonmail.com>
+Date: Wed, 20 Jul 2022 03:11:58 +0200
+Subject: [PATCH 1/5] spa: libcamera: fix build error due to return type change
+
+libcamera commit 1c4d4801850559d6f919eef5c2ffbaf7675dbc46
+changed the return type of libcamera::ControlList::get()
+to be std::optional<T>. Adapt the code to this change.
+
+Fixes #2575
+---
+ spa/plugins/libcamera/libcamera-device.cpp | 29 ++++++++++------------
+ 1 file changed, 13 insertions(+), 16 deletions(-)
+
+diff --git a/spa/plugins/libcamera/libcamera-device.cpp b/spa/plugins/libcamera/libcamera-device.cpp
+index 7f006a0cc..dd7ebd041 100644
+--- a/spa/plugins/libcamera/libcamera-device.cpp
++++ b/spa/plugins/libcamera/libcamera-device.cpp
+@@ -81,32 +81,29 @@ struct impl {
+ std::string cameraModel(const Camera *camera)
+ {
+ 	const ControlList &props = camera->properties();
+-	std::string name;
+-	if (props.contains(properties::Model))
+-		name = props.get(properties::Model);
+-	else
+-		name = camera->id();
+-        return name;
++
++	if (auto model = props.get(properties::Model))
++		return std::move(model.value());
++
++	return camera->id();
+ }
+ 
+ std::string cameraLoc(const Camera *camera)
+ {
+ 	const ControlList &props = camera->properties();
+-	std::string location;
+-	if (props.contains(properties::Location)) {
+-		switch (props.get(properties::Location)) {
++
++	if (auto location = props.get(properties::Location)) {
++		switch (location.value()) {
+ 		case properties::CameraLocationFront:
+-			location = "front";
+-			break;
++			return "front";
+ 		case properties::CameraLocationBack:
+-			location = "back";
+-			break;
++			return "back";
+ 		case properties::CameraLocationExternal:
+-			location = "external";
+-			break;
++			return "external";
+ 		}
+ 	}
+-	return location;
++
++	return {};
+ }
+ 
+ static int emit_info(struct impl *impl, bool full)
+-- 
+GitLab
+
+
+From 237174b7f2a83a8017240730f97cf56bce412e78 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Barnab=C3=A1s=20P=C5=91cze?= <pobrn@protonmail.com>
+Date: Wed, 20 Jul 2022 03:14:20 +0200
+Subject: [PATCH 2/5] spa: libcamera: mark two functions `static`
+
+`cameraLoc()` and `cameraModel()` are only used in one
+translation unit.
+---
+ spa/plugins/libcamera/libcamera-device.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/spa/plugins/libcamera/libcamera-device.cpp b/spa/plugins/libcamera/libcamera-device.cpp
+index dd7ebd041..f670b81dd 100644
+--- a/spa/plugins/libcamera/libcamera-device.cpp
++++ b/spa/plugins/libcamera/libcamera-device.cpp
+@@ -78,7 +78,7 @@ struct impl {
+ 	std::shared_ptr<Camera> camera;
+ };
+ 
+-std::string cameraModel(const Camera *camera)
++static std::string cameraModel(const Camera *camera)
+ {
+ 	const ControlList &props = camera->properties();
+ 
+@@ -88,7 +88,7 @@ std::string cameraModel(const Camera *camera)
+ 	return camera->id();
+ }
+ 
+-std::string cameraLoc(const Camera *camera)
++static std::string cameraLoc(const Camera *camera)
+ {
+ 	const ControlList &props = camera->properties();
+ 
+-- 
+GitLab
+
+
+From 4072f63ab60c4cac7a6474ad2acf0d91efe5c48f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Barnab=C3=A1s=20P=C5=91cze?= <pobrn@protonmail.com>
+Date: Wed, 20 Jul 2022 03:15:54 +0200
+Subject: [PATCH 3/5] spa: libcamera: make `cameraLoc()` return a static string
+
+There is no compelling reason to use `std::string`.
+---
+ spa/plugins/libcamera/libcamera-device.cpp | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/spa/plugins/libcamera/libcamera-device.cpp b/spa/plugins/libcamera/libcamera-device.cpp
+index f670b81dd..d2679d219 100644
+--- a/spa/plugins/libcamera/libcamera-device.cpp
++++ b/spa/plugins/libcamera/libcamera-device.cpp
+@@ -88,7 +88,7 @@ static std::string cameraModel(const Camera *camera)
+ 	return camera->id();
+ }
+ 
+-static std::string cameraLoc(const Camera *camera)
++static const char *cameraLoc(const Camera *camera)
+ {
+ 	const ControlList &props = camera->properties();
+ 
+@@ -103,7 +103,7 @@ static std::string cameraLoc(const Camera *camera)
+ 		}
+ 	}
+ 
+-	return {};
++	return "";
+ }
+ 
+ static int emit_info(struct impl *impl, bool full)
+@@ -125,7 +125,7 @@ static int emit_info(struct impl *impl, bool full)
+ 	ADD_ITEM(SPA_KEY_DEVICE_API, "libcamera");
+ 	ADD_ITEM(SPA_KEY_MEDIA_CLASS, "Video/Device");
+ 	ADD_ITEM(SPA_KEY_API_LIBCAMERA_PATH, (char *)impl->props.device);
+-	snprintf(location, sizeof(location), "%s", cameraLoc(impl->camera.get()).c_str());
++	snprintf(location, sizeof(location), "%s", cameraLoc(impl->camera.get()));
+ 	ADD_ITEM(SPA_KEY_API_LIBCAMERA_LOCATION, location);
+ 	snprintf(model, sizeof(model), "%s", cameraModel(impl->camera.get()).c_str());
+ 	ADD_ITEM(SPA_KEY_DEVICE_PRODUCT_NAME, model);
+-- 
+GitLab
+
+
+From 8bccad3ade1ef9950ae1070f1415d1120f6621ed Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Barnab=C3=A1s=20P=C5=91cze?= <pobrn@protonmail.com>
+Date: Wed, 20 Jul 2022 03:19:11 +0200
+Subject: [PATCH 4/5] spa: libcamera: only add "api.libcamera.location"
+ property when available
+
+---
+ spa/plugins/libcamera/libcamera-device.cpp | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/spa/plugins/libcamera/libcamera-device.cpp b/spa/plugins/libcamera/libcamera-device.cpp
+index d2679d219..157d3ae83 100644
+--- a/spa/plugins/libcamera/libcamera-device.cpp
++++ b/spa/plugins/libcamera/libcamera-device.cpp
+@@ -103,7 +103,7 @@ static const char *cameraLoc(const Camera *camera)
+ 		}
+ 	}
+ 
+-	return "";
++	return nullptr;
+ }
+ 
+ static int emit_info(struct impl *impl, bool full)
+@@ -113,7 +113,7 @@ static int emit_info(struct impl *impl, bool full)
+ 	uint32_t n_items = 0;
+ 	struct spa_device_info info;
+ 	struct spa_param_info params[2];
+-	char path[256], location[10], model[256], name[256];
++	char path[256], model[256], name[256];
+ 
+ 	info = SPA_DEVICE_INFO_INIT();
+ 
+@@ -125,8 +125,10 @@ static int emit_info(struct impl *impl, bool full)
+ 	ADD_ITEM(SPA_KEY_DEVICE_API, "libcamera");
+ 	ADD_ITEM(SPA_KEY_MEDIA_CLASS, "Video/Device");
+ 	ADD_ITEM(SPA_KEY_API_LIBCAMERA_PATH, (char *)impl->props.device);
+-	snprintf(location, sizeof(location), "%s", cameraLoc(impl->camera.get()));
+-	ADD_ITEM(SPA_KEY_API_LIBCAMERA_LOCATION, location);
++
++	if (auto location = cameraLoc(impl->camera.get()))
++		ADD_ITEM(SPA_KEY_API_LIBCAMERA_LOCATION, location);
++
+ 	snprintf(model, sizeof(model), "%s", cameraModel(impl->camera.get()).c_str());
+ 	ADD_ITEM(SPA_KEY_DEVICE_PRODUCT_NAME, model);
+ 	ADD_ITEM(SPA_KEY_DEVICE_DESCRIPTION, model);
+-- 
+GitLab
+
+
+From 5cdf4d6c646c227d84ce84dd78910df94f2ac16c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Barnab=C3=A1s=20P=C5=91cze?= <pobrn@protonmail.com>
+Date: Wed, 20 Jul 2022 03:28:32 +0200
+Subject: [PATCH 5/5] spa: libcamera: remove unnecessary cast
+
+---
+ spa/plugins/libcamera/libcamera-device.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/spa/plugins/libcamera/libcamera-device.cpp b/spa/plugins/libcamera/libcamera-device.cpp
+index 157d3ae83..f2f10c017 100644
+--- a/spa/plugins/libcamera/libcamera-device.cpp
++++ b/spa/plugins/libcamera/libcamera-device.cpp
+@@ -124,7 +124,7 @@ static int emit_info(struct impl *impl, bool full)
+ 	ADD_ITEM(SPA_KEY_OBJECT_PATH, path);
+ 	ADD_ITEM(SPA_KEY_DEVICE_API, "libcamera");
+ 	ADD_ITEM(SPA_KEY_MEDIA_CLASS, "Video/Device");
+-	ADD_ITEM(SPA_KEY_API_LIBCAMERA_PATH, (char *)impl->props.device);
++	ADD_ITEM(SPA_KEY_API_LIBCAMERA_PATH, impl->props.device);
+ 
+ 	if (auto location = cameraLoc(impl->camera.get()))
+ 		ADD_ITEM(SPA_KEY_API_LIBCAMERA_LOCATION, location);
+-- 
+GitLab
+

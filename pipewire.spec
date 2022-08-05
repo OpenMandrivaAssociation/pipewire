@@ -10,38 +10,22 @@
 
 %define spa_api 0.2
 %define api 0.3
-# Set to a https://gitlab.freedesktop.org/pipewire/wireplumber version number
-# to build with wireplumber
-%define wpversion %{nil}
-# FIXME use system lua
-%define luaversion 5.4.3
 %define media_session_ver 0.4.1
 %define major 0
 %define libname %mklibname %{name} %{api} %{major}
 %define devname %mklibname %{name} -d
-%if "%{wpversion}" != "%{nil}"
-%define wplib %mklibname wireplumber %{api} %{major}
-%define wpdev %mklibname wireplumber -d
-%endif
 
 Name:		pipewire
 Summary:	Media Sharing Server
 Version:	0.3.56
-Release:	2
+Release:	3
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
 Source0:	https://gitlab.freedesktop.org/pipewire/pipewire/-/archive/%{version}/%{name}-%{version}.tar.bz2
 # Mirror
 #Source0:	https://github.com/PipeWire/pipewire/archive/%{version}/%{name}-%{version}.tar.gz
-%if "%{wpversion}" != "%{nil}"
-Source1:	https://gitlab.freedesktop.org/pipewire/wireplumber/-/archive/%{wpversion}/wireplumber-%{wpversion}.tar.bz2
-Source2:	https://www.lua.org/ftp/lua-%{luaversion}.tar.gz
-# https://wrapdb.mesonbuild.com/v2/lua_5.4.3-1/get_patch
-Source3:	lua-mesonbuild.zip
-%else
 Source4:	https://gitlab.freedesktop.org/pipewire/media-session/-/archive/%{media_session_ver}/media-session-%{media_session_ver}.tar.bz2
-%endif
 Source10:	pipewire.sysusers
 
 Patch1:		pipewire-0.3.35-tests-compile.patch
@@ -52,6 +36,8 @@ Patch102:	0001-avb-fix-compilation-on-big-endian.patch
 Patch103:	0002-avb-fix-compilation-on-big-endian.patch
 Patch104:	0003-avb-fix-compilation-on-big-endian.patch
 
+# Not yet accepted upstream patches
+Patch120:	https://gitlab.freedesktop.org/pipewire/pipewire/-/merge_requests/1325.patch
 
 BuildRequires:	doxygen
 BuildRequires:	gettext
@@ -107,20 +93,11 @@ BuildRequires:	vulkan-headers
 BuildRequires:	xmltoman
 BuildRequires:	pkgconfig(xfixes)
 BuildRequires:	systemd-rpm-macros
-%if "%{wpversion}" != "%{nil}"
-BuildRequires:	python3dist(breathe)
-BuildRequires:	python3dist(sphinx)
-BuildRequires:	python3dist(sphinx-rtd-theme)
-%endif
 
 Requires:	rtkit
 Requires(pre):	systemd
 
-%if "%{wpversion}" != "%{nil}"
-Requires: %{name}-wireplumber = %{version}-%{release}
-%else
-Requires: %{name}-media-session = %{version}-%{release}
-%endif
+Requires: ((%{name}-media-session = %{version}-%{release}) or wireplumber)
 %systemd_ordering
 
 %description
@@ -223,59 +200,6 @@ This package contains the PipeWire spa plugin to connect to a JACK server.
 
 #------------------------------------------------
 
-%if "%{wpversion}" != "%{nil}"
-%package wireplumber
-Summary:	PipeWire WirePlumber Media Session
-License:	MIT
-Recommends:	%{name}%{?_isa} = %{version}-%{release}
-Requires:	%{wplib} = %{version}-%{release}
-
-%description wireplumber
-This package contains the reference WirePlumber Session Manager for the
-PipeWire media server.
-
-#------------------------------------------------
-
-%package %{wplib}
-Summary:	PipeWire WirePlumber Media Session library
-License:	MIT
-Recommends:	%{name}%{?_isa} = %{version}-%{release}
-Requires:	wireplumber = %{version}-%{release}
-
-%description %{wplib}
-This package contains library for WirePlumber Session Manager for the
-PipeWire media server.
-
-#------------------------------------------------
-
-%package %{wpdev}
-Summary:	PipeWire WirePlumber development files
-License:	MIT
-Recommends:	%{name}%{?_isa} = %{version}-%{release}
-Requires:	%{devname} = %{version}-%{release}
-Requires:	wireplumber = %{version}-%{release}
-Requires:	%{wplib} = %{version}-%{release}
-
-%description %{wpdev}
-This package contains development files for WirePlumber Session Manager for the
-PipeWire media server.
-#------------------------------------------------
-
-%package wireplumber-doc
-Summary:	PipeWire WirePlumber documentation files
-License:	MIT
-Recommends:	%{name}%{?_isa} = %{version}-%{release}
-Recommends:	wireplumber = %{version}-%{release}
-Recommends:	%{wplib} = %{version}-%{release}
-Recommends:	%{wpdev} = %{version}-%{release}
-
-%description wireplumber-doc
-This package contains documentation files for WirePlumber Session Manager for the
-PipeWire media server.
-
-#------------------------------------------------
-%else
-
 %package media-session
 Summary:	PipeWire Media Session
 License:	MIT
@@ -285,22 +209,11 @@ Recommends:	%{name}%{?_isa} = %{version}-%{release}
 This package contains the Media Session Manager for the
 PipeWire media server.
 
-%endif
-#------------------------------------------------
-
 #------------------------------------------------
 %prep
 %autosetup -T -b0 -p1
-%if "%{wpversion}" != "%{nil}"
-tar xf %{S:1}
-tar xf %{S:2}
-tar xf %{S:3}
-mv wireplumber-%{wpversion} subprojects/wireplumber
-mv lua-%{luaversion} subprojects/wireplumber/subprojects/lua
-%else
 mkdir subprojects/packagefiles
 cp %{SOURCE4} subprojects/packagefiles/
-%endif
 
 %build
 # Build failing on i686 with Clang with error:
@@ -339,31 +252,10 @@ export CXX=g++
 	-Droc=disabled \
 	-Dffmpeg=enabled \
 	-Dvolume=enabled \
-%if "%{wpversion}" != "%{nil}"
-	-Dsession-managers=media-session,wireplumber \
-	-Ddefault-session-manager=wireplumber \
-%else
 	-Dsession-managers=media-session \
-%endif
 	--buildtype=release
 
-%if "%{wpversion}" != "%{nil}"
-# stupid g-ir-scanner freaks out over docs
-%meson_build && {
-	echo "build succeeded without the wp-gtkdoc.h hack"
-	echo "apparently stuff has been fixed, please remove the hack"
-	echo "(workaround is where this message is plus just above %%install)"
-	exit 1
-}
-mv build/subprojects/wireplumber/docs/wp-gtkdoc.h .
-touch build/subprojects/wireplumber/docs/wp-gtkdoc.h
-%endif
 %meson_build
-
-%if "%{wpversion}" != "%{nil}"
-# g-ir-scanner workaround continued
-mv -f wp-gtkdoc.h build/subprojects/wireplumber/docs/
-%endif
 
 %install
 %meson_install
@@ -520,56 +412,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %files plugin-jack
 %{_libdir}/spa-%{spa_api}/jack/
 
-%if "%{wpversion}" != "%{nil}"
-%files -n wireplumber
-%{_bindir}/wireplumber
-%{_bindir}/wpctl
-%{_bindir}/wpexec
-%{_prefix}/lib/systemd/user/wireplumber.service
-%{_prefix}/lib/systemd/user/wireplumber@.service
-%{_libdir}/wireplumber-0.4/libwireplumber-module-default-nodes-api.so
-%{_libdir}/wireplumber-0.4/libwireplumber-module-default-nodes.so
-%{_libdir}/wireplumber-0.4/libwireplumber-module-default-profile.so
-%{_libdir}/wireplumber-0.4/libwireplumber-module-device-activation.so
-%{_libdir}/wireplumber-0.4/libwireplumber-module-file-monitor-api.so
-%{_libdir}/wireplumber-0.4/libwireplumber-module-lua-scripting.so
-%{_libdir}/wireplumber-0.4/libwireplumber-module-metadata.so
-%{_libdir}/wireplumber-0.4/libwireplumber-module-mixer-api.so
-%{_libdir}/wireplumber-0.4/libwireplumber-module-portal-permissionstore.so
-%{_libdir}/wireplumber-0.4/libwireplumber-module-reserve-device.so
-%{_libdir}/wireplumber-0.4/libwireplumber-module-si-audio-adapter.so
-%{_libdir}/wireplumber-0.4/libwireplumber-module-si-audio-endpoint.so
-%{_libdir}/wireplumber-0.4/libwireplumber-module-si-node.so
-%{_libdir}/wireplumber-0.4/libwireplumber-module-si-standard-link.so
-%dir %{_datadir}/wireplumber
-%{_datadir}/wireplumber/bluetooth.conf
-%{_datadir}/wireplumber/bluetooth.lua.d
-%{_datadir}/wireplumber/common/00-functions.lua
-%{_datadir}/wireplumber/main.conf
-%{_datadir}/wireplumber/main.lua.d
-%{_datadir}/wireplumber/policy.conf
-%{_datadir}/wireplumber/policy.lua.d
-%{_datadir}/wireplumber/scripts
-%{_datadir}/wireplumber/wireplumber.conf
-
-%files -n %{wplib}
-%{_libdir}/libwireplumber.so.0*
-%{_libdir}/girepository-1.0/Wp-0.4.typelib
-%{_datadir}/gir-1.0/Wp-0.4.gir
-
-%files -n %{wpdev}
-%{_includedir}/wireplumber-0.4
-%{_libdir}/libwireplumber-0.4.so
-%{_libdir}/pkgconfig/wireplumber-0.4.pc
-
-%files -n wireplumber-doc
-%doc %{_docdir}/wireplumber
-
-%else
-# For now only lang files. Let's add here all media-session files in next time
-
 #FIXME  No idea why this lang won't work. Let's use dirty workaround.
 #files media-session -f media-session.lang
 %files media-session
 %{_datadir}/locale/*/LC_MESSAGES/media-session.mo
-%endif
