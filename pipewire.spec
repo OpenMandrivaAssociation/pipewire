@@ -18,7 +18,7 @@
 Name:		pipewire
 Summary:	Media Sharing Server
 Version:	0.3.56
-Release:	3
+Release:	4
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -171,6 +171,8 @@ This package contains an ALSA plugin for the PipeWire media server.
 Summary:	PipeWire media server PulseAudio server support
 License:	MIT
 Requires:	%{name} = %{version}-%{release}
+# (tpg) 2022-08-11 pipewire-pulse[79745]: pw.conf: execvp error 'pactl': No such file or directory
+Requires:	pulseaudio-utils
 
 %description pulse
 This package contains a PipeWire module for making PipeWire act
