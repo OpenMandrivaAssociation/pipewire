@@ -32,9 +32,6 @@ Patch1:		pipewire-0.3.35-tests-compile.patch
 
 # Upstream patches:
 Patch101:	0001-Build-media-session-from-local-tarbal.patch
-Patch102:	0001-avb-fix-compilation-on-big-endian.patch
-Patch103:	0002-avb-fix-compilation-on-big-endian.patch
-Patch104:	0003-avb-fix-compilation-on-big-endian.patch
 
 # Not yet accepted upstream patches
 Patch120:	https://gitlab.freedesktop.org/pipewire/pipewire/-/merge_requests/1325.patch
