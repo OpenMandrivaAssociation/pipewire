@@ -33,9 +33,6 @@ Patch1:		pipewire-0.3.35-tests-compile.patch
 # Upstream patches:
 Patch101:	0001-Build-media-session-from-local-tarbal.patch
 
-# Not yet accepted upstream patches
-Patch120:	https://gitlab.freedesktop.org/pipewire/pipewire/-/merge_requests/1325.patch
-
 BuildRequires:	doxygen
 BuildRequires:	gettext
 %ifarch %{ix86}
