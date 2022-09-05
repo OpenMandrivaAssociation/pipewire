@@ -339,6 +339,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_datadir}/alsa-card-profile/mixer/profile-sets/
 %{_datadir}/locale/*/LC_MESSAGES/pipewire.mo
 %{_userunitdir}/pipewire-media-session.service
+%{_userunitdir}/filter-chain.service
 %{_udevrulesdir}/90-pipewire-alsa.rules
 %{_datadir}/pipewire/filter-chain/*.conf
 %{_datadir}/pipewire/filter-chain.conf
