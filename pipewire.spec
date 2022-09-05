@@ -17,8 +17,8 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.56
-Release:	4
+Version:	0.3.57
+Release:	1
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -32,12 +32,6 @@ Patch1:		pipewire-0.3.35-tests-compile.patch
 
 # Upstream patches:
 Patch101:	0001-Build-media-session-from-local-tarbal.patch
-Patch102:	0001-avb-fix-compilation-on-big-endian.patch
-Patch103:	0002-avb-fix-compilation-on-big-endian.patch
-Patch104:	0003-avb-fix-compilation-on-big-endian.patch
-
-# Not yet accepted upstream patches
-Patch120:	https://gitlab.freedesktop.org/pipewire/pipewire/-/merge_requests/1325.patch
 
 BuildRequires:	doxygen
 BuildRequires:	gettext
@@ -345,6 +339,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_datadir}/alsa-card-profile/mixer/profile-sets/
 %{_datadir}/locale/*/LC_MESSAGES/pipewire.mo
 %{_userunitdir}/pipewire-media-session.service
+%{_userunitdir}/filter-chain.service
 %{_udevrulesdir}/90-pipewire-alsa.rules
 %{_datadir}/pipewire/filter-chain/*.conf
 %{_datadir}/pipewire/filter-chain.conf
