@@ -18,7 +18,7 @@
 Name:		pipewire
 Summary:	Media Sharing Server
 Version:	0.3.60
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -33,6 +33,11 @@ Patch1:		pipewire-0.3.35-tests-compile.patch
 # Upstream patches:
 Patch101:	0001-Build-media-session-from-local-tarbal.patch
 
+Patch0002:    0001-pulse-server-also-advance-read-pointer-in-underrun.patch
+Patch0003:    0002-audioadapter-perform-setup-again-after-a-PortConfig.patch
+Patch0004:    0003-acp-do-probing-in-44100-Hz-again.patch
+Patch0005:    0004-alsa-force-playback-start-when-buffer-is-full.patch
+
 BuildRequires:	doxygen
 BuildRequires:	gettext
 %ifarch %{ix86}
@@ -40,6 +45,7 @@ BuildRequires:	gcc
 %endif
 BuildRequires:	graphviz
 BuildRequires:	meson
+BuildRequires:  roc-toolkit-devel
 BuildRequires:	pkgconfig(libpcap)
 BuildRequires:	pkgconfig(libcap)
 BuildRequires:	pkgconfig(avahi-client)
@@ -245,7 +251,7 @@ export CXX=g++
 %else
 	-Dlibcamera=disabled \
 %endif
-	-Droc=disabled \
+	-Droc=enabled \
 	-Dffmpeg=enabled \
 	-Dvolume=enabled \
 	-Dsession-managers=media-session \
