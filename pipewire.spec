@@ -18,7 +18,7 @@
 Name:		pipewire
 Summary:	Media Sharing Server
 Version:	0.3.62
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -32,6 +32,7 @@ Patch1:		pipewire-0.3.35-tests-compile.patch
 
 # Upstream patches:
 Patch101:	0001-Build-media-session-from-local-tarbal.patch
+Patch102:	0001-audioconvert-fix-distorted-audio-on-AVX2.patch
 
 BuildRequires:	doxygen
 BuildRequires:	gettext
