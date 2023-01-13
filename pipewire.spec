@@ -41,7 +41,7 @@ BuildRequires:	gcc
 %endif
 BuildRequires:	graphviz
 BuildRequires:	meson
-BuildRequires:  roc-toolkit-devel
+BuildRequires:  roc-toolkit-devel >= 0.2.1
 BuildRequires:	openfec-devel
 BuildRequires:	pkgconfig(libpcap)
 BuildRequires:	pkgconfig(libcap)
@@ -83,6 +83,7 @@ BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	pkgconfig(sndfile)
 BuildRequires:	pkgconfig(sox)
 BuildRequires:	pkgconfig(speexdsp)
+BuildRequires:	pkgconfig(ModemManager)
 BuildRequires:	pkgconfig(ncurses)
 BuildRequires:	pkgconfig(readline)
 # PipeWire support for now only webrtc 0.3.1. So let's pull old version of this package. As soon as they add support for v1, let's use new.
@@ -93,6 +94,9 @@ BuildRequires:	vulkan-headers
 BuildRequires:	xmltoman
 BuildRequires:	pkgconfig(xfixes)
 BuildRequires:	systemd-rpm-macros
+# Tools
+BuildRequires:	openal
+BuildRequires:	pulseaudio-utils
 
 Requires:	rtkit
 Requires(pre):	systemd
@@ -173,6 +177,7 @@ License:	MIT
 Requires:	%{name} = %{version}-%{release}
 # (tpg) 2022-08-11 pipewire-pulse[79745]: pw.conf: execvp error 'pactl': No such file or directory
 Requires:	pulseaudio-utils
+Recommends:	openal
 
 %description pulse
 This package contains a PipeWire module for making PipeWire act
