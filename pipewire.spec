@@ -10,7 +10,8 @@
 
 %define spa_api 0.2
 %define api 0.3
-%define media_session_ver 0.4.1
+%define git-media-session 20230112
+%define media_session_ver master
 %define major 0
 %define libname %mklibname %{name} %{api} %{major}
 %define devname %mklibname %{name} -d
