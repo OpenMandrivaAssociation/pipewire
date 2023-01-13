@@ -42,6 +42,7 @@ BuildRequires:	gcc
 BuildRequires:	graphviz
 BuildRequires:	meson
 BuildRequires:  roc-toolkit-devel
+BuildRequires:	openfec-devel
 BuildRequires:	pkgconfig(libpcap)
 BuildRequires:	pkgconfig(libcap)
 BuildRequires:	pkgconfig(avahi-client)
@@ -70,6 +71,7 @@ BuildRequires:	pkgconfig(libopenaptx)
 BuildRequires:	pkgconfig(libavcodec)
 BuildRequires:	pkgconfig(libpulse)
 BuildRequires:	pkgconfig(libusb-1.0)
+BuildRequires:	pkgconfig(libuv)
 BuildRequires:	pkgconfig(libva)
 BuildRequires:	pkgconfig(libv4l2)
 BuildRequires:	pkgconfig(lilv-0)
@@ -79,6 +81,8 @@ BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(jack)
 BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	pkgconfig(sndfile)
+BuildRequires:	pkgconfig(sox)
+BuildRequires:	pkgconfig(speexdsp)
 BuildRequires:	pkgconfig(ncurses)
 BuildRequires:	pkgconfig(readline)
 # PipeWire support for now only webrtc 0.3.1. So let's pull old version of this package. As soon as they add support for v1, let's use new.
