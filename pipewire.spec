@@ -118,6 +118,7 @@ BuildRequires:	devel(libjack)
 BuildRequires:	devel(libdrm)
 BuildRequires:	devel(libreadline)
 BuildRequires:	devel(libncurses)
+BuildRequires:	devel(libavcodec)
 %endif
 
 Requires:	rtkit
