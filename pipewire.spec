@@ -119,6 +119,7 @@ BuildRequires:	devel(libdrm)
 BuildRequires:	devel(libreadline)
 BuildRequires:	devel(libncurses)
 BuildRequires:	devel(libavcodec)
+BuildRequires:	devel(libsndfile)
 %endif
 
 Requires:	rtkit
