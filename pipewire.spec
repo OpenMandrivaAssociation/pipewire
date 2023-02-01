@@ -8,6 +8,10 @@
 %define _disable_lto 1
 %endif
 
+%ifarch %{x86_64}
+%bcond_without compat32
+%endif
+
 %define spa_api 0.2
 %define api 0.3
 %define git-media-session 20230112
@@ -16,10 +20,13 @@
 %define libname %mklibname %{name} %{api} %{major}
 %define devname %mklibname %{name} -d
 
+%define lib32name %mklib32name %{name} %{api} %{major}
+%define dev32name %mklib32name %{name} -d
+
 Name:		pipewire
 Summary:	Media Sharing Server
 Version:	0.3.65
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -222,16 +229,36 @@ PipeWire media server.
 mkdir subprojects/packagefiles
 cp %{SOURCE4} subprojects/packagefiles/
 
-%build
-# Build failing on i686 with Clang with error:
-#ld: error: undefined symbol: __atomic_store_8
-#>>> referenced by pipewire-jack.c:3977 (../pipewire-jack/src/pipewire-jack.c:3977)
-#lto.tmp:(jack_set_sync_timeout)
 
-%ifarch %{ix86}
-export CC=gcc
-export CXX=g++
+%if %{with compat32}
+%meson32 \
+	-Dalsa=enabled \
+	-Dudev=enabled \
+	-Dudevrulesdir="%{_udevrulesdir}" \
+	-Ddocs=disabled \
+	-Dman=disabled \
+	-Dgstreamer=enabled \
+	-Dsystemd=enabled \
+	-Dsystemd-user-service=enabled \
+	-Djack=enabled \
+	-Dpipewire-alsa=enabled \
+	-Dpipewire-jack=enabled \
+	-Dlibpulse=enabled \
+	-Dvulkan=enabled \
+	-Dbluez5=enabled \
+	-Dbluez5-codec-lc3plus=disabled \
+	-Dbluez5-codec-aac=disabled \
+	-Dbluez5-codec-aptx=enabled \
+	-Decho-cancel-webrtc=enabled \
+	-Dlibcamera=disabled \
+	-Droc=disabled \
+	-Dffmpeg=enabled \
+	-Dvolume=enabled \
+	-Dsession-managers=media-session \
+	--buildtype=release
 %endif
+
+
 %meson \
 	-Dalsa=enabled \
 	-Dudev=enabled \
@@ -262,9 +289,18 @@ export CXX=g++
 	-Dsession-managers=media-session \
 	--buildtype=release
 
+%build
+%if %{with compat32}
+%ninja_build -C build32
+%endif
+
 %meson_build
 
 %install
+%if %{with compat32}
+%ninja_install -C build32
+%endif
+
 %meson_install
 
 # Switches that enable certain config fragments
