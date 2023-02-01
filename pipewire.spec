@@ -120,6 +120,7 @@ BuildRequires:	devel(libreadline)
 BuildRequires:	devel(libncurses)
 BuildRequires:	devel(libavcodec)
 BuildRequires:	devel(libsndfile)
+BuildRequires:	devel(libpulse)
 %endif
 
 Requires:	rtkit
