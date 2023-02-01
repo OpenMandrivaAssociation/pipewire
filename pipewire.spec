@@ -106,7 +106,7 @@ BuildRequires:	openal
 BuildRequires:	pulseaudio-utils
 
 %if %{with compat32}
-BuilcRequires:	libc6
+BuildRequires:	libc6
 %endif
 
 Requires:	rtkit
