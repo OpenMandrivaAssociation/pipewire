@@ -122,6 +122,7 @@ BuildRequires:	devel(libncursesw)
 BuildRequires:	devel(libavcodec)
 BuildRequires:	devel(libsndfile)
 BuildRequires:	devel(libpulse)
+BuildRequires:	devel(libavahi-client)
 %endif
 
 Requires:	rtkit
