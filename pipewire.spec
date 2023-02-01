@@ -107,9 +107,14 @@ BuildRequires:	pulseaudio-utils
 
 %if %{with compat32}
 BuildRequires:	libc6
+BuildRequires:	devel(libasound)
+BuildRequires:	devel(libbluetooth)
 BuildRequires:	devel(libsystemd)
 BuildRequires:	devel(libglib-2.0)
 BuildRequires:	devel(libgio-2.0)
+BuildRequires:	devel(libdbus-1)
+BuildRequires:	devel(libgstreamer-1.0)
+BuildRequires:	devel(libjack)
 %endif
 
 Requires:	rtkit
