@@ -115,6 +115,8 @@ BuildRequires:	devel(libgio-2.0)
 BuildRequires:	devel(libdbus-1)
 BuildRequires:	devel(libgstreamer-1.0)
 BuildRequires:	devel(libjack)
+BuildRequires:	devel(libdrm)
+BuildRequires:	devel(libreadline)
 %endif
 
 Requires:	rtkit
