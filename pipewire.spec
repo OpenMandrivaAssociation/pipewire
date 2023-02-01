@@ -117,6 +117,7 @@ BuildRequires:	devel(libgstreamer-1.0)
 BuildRequires:	devel(libjack)
 BuildRequires:	devel(libdrm)
 BuildRequires:	devel(libreadline)
+BuildRequires:	devel(libncurses)
 %endif
 
 Requires:	rtkit
