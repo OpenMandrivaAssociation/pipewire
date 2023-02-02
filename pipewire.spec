@@ -151,6 +151,7 @@ BuildRequires:	devel(libblkid)
 BuildRequires:	devel(libunwind)
 BuildRequires:	devel(libdw)
 BuildRequires:	libunwind-nongnu-devel
+BuildRequires:	devel(libgstaudio-1.0)
 %endif
 
 Requires:	rtkit
