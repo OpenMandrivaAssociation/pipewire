@@ -147,6 +147,7 @@ BuildRequires:	devel(libxcb-shm)
 BuildRequires:	devel(libxcb-render)
 BuildRequires:	devel(libpng16)
 BuildRequires:	devel(libusb-1.0)
+BuildRequires:	devel(libblkid)
 %endif
 
 Requires:	rtkit
