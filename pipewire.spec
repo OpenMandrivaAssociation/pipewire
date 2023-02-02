@@ -107,6 +107,7 @@ BuildRequires:	pulseaudio-utils
 
 %if %{with compat32}
 BuildRequires:	libc6
+BuildRequires:	libx11-xcb1
 BuildRequires:	devel(libasound)
 BuildRequires:	devel(libbluetooth)
 BuildRequires:	devel(libsystemd)
@@ -124,6 +125,27 @@ BuildRequires:	devel(libsndfile)
 BuildRequires:	devel(libpulse)
 BuildRequires:	devel(libavahi-client)
 BuildRequires:	devel(libX11-xcb)
+BuildRequires:	devel(libXcomposite)
+BuildRequires:	devel(libXcursor)
+BuildRequires:	devel(libXdamage)
+BuildRequires:	devel(libXext)
+BuildRequires:	devel(libXfixes)
+BuildRequires:	devel(libXi)
+BuildRequires:	devel(libXinerama)
+BuildRequires:	devel(libXrandr)
+BuildRequires:	devel(libxkbcommon)
+BuildRequires:	devel(libwayland-client)
+BuildRequires:	devel(libwayland-cursor)
+BuildRequires:	devel(libwayland-egl)
+BuildRequires:	devel(libXrender)
+BuildRequires:	devel(libXft)
+BuildRequires:	devel(libXau)
+BuildRequires:	devel(libXdmcp)
+BuildRequires:	devel(libffi)
+BuildRequires:	devel(libxcb)
+BuildRequires:	devel(libxcb-shm)
+BuildRequires:	devel(libxcb-render)
+BuildRequires:	devel(libpng16)
 %endif
 
 Requires:	rtkit
