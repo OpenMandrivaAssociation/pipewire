@@ -299,7 +299,7 @@ cp %{SOURCE4} subprojects/packagefiles/
 	-Dbluez5-codec-lc3plus=disabled \
 	-Dbluez5-codec-aac=disabled \
 	-Dbluez5-codec-aptx=enabled \
-	-Decho-cancel-webrtc=enabled \
+	-Decho-cancel-webrtc=disabled \
 	-Dlibcanberra=disabled \
 	-Dlibcamera=disabled \
 	-Droc=disabled \
