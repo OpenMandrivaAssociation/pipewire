@@ -123,6 +123,7 @@ BuildRequires:	devel(libavcodec)
 BuildRequires:	devel(libsndfile)
 BuildRequires:	devel(libpulse)
 BuildRequires:	devel(libavahi-client)
+BuildRequires:	devel(libX11-xcb)
 %endif
 
 Requires:	rtkit
