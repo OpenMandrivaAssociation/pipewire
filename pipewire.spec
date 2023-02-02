@@ -150,6 +150,7 @@ BuildRequires:	devel(libusb-1.0)
 BuildRequires:	devel(libblkid)
 BuildRequires:	devel(libunwind)
 BuildRequires:	devel(libdw)
+BuildRequires:	libunwind-nongnu-devel
 %endif
 
 Requires:	rtkit
