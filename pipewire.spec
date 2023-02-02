@@ -148,6 +148,8 @@ BuildRequires:	devel(libxcb-render)
 BuildRequires:	devel(libpng16)
 BuildRequires:	devel(libusb-1.0)
 BuildRequires:	devel(libblkid)
+BuildRequires:	devel(libunwind)
+BuildRequires:	devel(libdw)
 %endif
 
 Requires:	rtkit
