@@ -300,7 +300,7 @@ cp %{SOURCE4} subprojects/packagefiles/
 	-Dbluez5=enabled \
 	-Dbluez5-codec-lc3plus=disabled \
 	-Dbluez5-codec-aac=disabled \
-	-Dbluez5-codec-aptx=enabled \
+	-Dbluez5-codec-aptx=disabled \
 	-Decho-cancel-webrtc=disabled \
 	-Dlv2=disabled \
 	-Dlibcanberra=disabled \
