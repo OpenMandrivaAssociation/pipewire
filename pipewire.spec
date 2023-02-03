@@ -348,6 +348,8 @@ cp %{SOURCE4} subprojects/packagefiles/
 
 %build
 %if %{with compat32}
+export CC=gcc
+export CXX=g++
 %ninja_build -C build32
 %endif
 
