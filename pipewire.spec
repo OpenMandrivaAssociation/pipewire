@@ -294,6 +294,7 @@ cp %{SOURCE4} subprojects/packagefiles/
 	-Djack=enabled \
 	-Dpipewire-alsa=enabled \
 	-Dpipewire-jack=enabled \
+	-Dbluez5-codec-ldac=disabled \
 	-Dlibpulse=enabled \
 	-Dvulkan=enabled \
 	-Dbluez5=enabled \
