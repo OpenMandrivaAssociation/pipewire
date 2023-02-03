@@ -153,6 +153,7 @@ BuildRequires:	devel(libdw)
 BuildRequires:	libunwind-nongnu-devel
 BuildRequires:	devel(libgstaudio-1.0)
 BuildRequires:	devel(liborc-0.4)
+BuildRequires:	devel(libsbc)
 %endif
 
 Requires:	rtkit
