@@ -156,6 +156,7 @@ BuildRequires:	devel(liborc-0.4)
 BuildRequires:	devel(libsbc)
 BuildRequires:	devel(libopus)
 BuildRequires:	devel(libvulkan)
+BuildRequires:	devel(libudev)
 %endif
 
 Requires:	rtkit
