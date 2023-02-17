@@ -330,6 +330,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_datadir}/pipewire/client.conf
 %{_datadir}/pipewire/client-rt.conf
 %{_datadir}/pipewire/jack.conf
+%{_datadir}/pipewire/pipewire-aes67.conf
 %dir %{_datadir}/pipewire/media-session.d
 %{_datadir}/pipewire/media-session.d/*.conf
 %{_datadir}/pipewire/media-session.d/with-audio
@@ -337,7 +338,9 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_bindir}/%{name}
 %{_bindir}/pipewire-avb
 %{_bindir}/%{name}-media-session
+%{_bindir}/pipewire-aes67
 %{_sysusersdir}/%{name}.conf
+%config(noreplace) %{_sysconfdir}/security/limits.d/*.conf
 %dir %{_libdir}/%{name}-%{api}/
 %{_libdir}/%{name}-%{api}/libpipewire-module-*.so
 %{_libdir}/spa-%{spa_api}
