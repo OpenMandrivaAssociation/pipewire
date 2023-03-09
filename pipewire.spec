@@ -18,7 +18,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.66
+Version:	0.3.67
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -388,6 +388,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_bindir}/spa-inspect
 %{_bindir}/spa-json-dump
 %{_bindir}/pw-dsdplay
+%{_bindir}/pw-encplay
 %{_bindir}/pw-mon
 %{_bindir}/pw-cat
 %{_bindir}/pw-cli
