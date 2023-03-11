@@ -166,7 +166,7 @@ BuildRequires:	devel(libssl)
 Requires:	rtkit
 Requires(pre):	systemd
 
-Requires: ((%{name}-media-session = %{version}-%{release}) or wireplumber)
+Requires: ((%{name}-media-session = %{EVRD}) or wireplumber)
 %systemd_ordering
 
 %description
@@ -188,9 +188,9 @@ wishes to interface with a PipeWire media server.
 %package -n %{devname}
 Summary:	Headers and libraries for PipeWire client development
 Group:		Development/C++
-Requires:	%{libname} = %{version}-%{release}
-Provides:	%{name}-devel = %{version}-%{release}
-Provides:	spa-devel = %{version}-%{release}
+Requires:	%{libname} = %{EVRD}
+Provides:	%{name}-devel = %{EVRD}
+Provides:	spa-devel = %{EVRD}
 
 %description -n %{devname}
 Headers and libraries for developing applications that can communicate
@@ -198,11 +198,34 @@ with a PipeWire media server.
 
 #------------------------------------------------
 
+%package -n %{lib32name}
+Summary:	32-bit libraries for PipeWire clients
+Group:		System/Libraries
+
+%description -n %{lib32name}
+This package contains the 32-bit runtime libraries for any application that
+wishes to interface with a PipeWire media server.
+
+#------------------------------------------------
+
+%package -n %{dev32name}
+Summary:	Headers and libraries for 32-bit PipeWire client development
+Group:		Development/C++
+Requires:	%{lib32name} = %{EVRD}
+Requires:	%{devname} = %{EVRD}
+
+%description -n %{dev32name}
+Headers and libraries for developing 32-bit applications that can communicate
+with a PipeWire media server.
+
+
+#------------------------------------------------
+
 %package doc
 Summary:	PipeWire media server documentation
 Group:		Documentation
 BuildArch:	noarch
-Requires:	%{name} >= %{version}-%{release}
+Requires:	%{name} >= %{EVRD}
 
 %description doc
 This package contains documentation for the PipeWire media server.
@@ -230,7 +253,7 @@ GStreamer 1.0 plugin for the PipeWire multimedia server.
 %package alsa
 Summary:	PipeWire media server ALSA support
 License:	MIT
-Recommends:	%{name} = %{version}-%{release}
+Recommends:	%{name} = %{EVRD}
 
 %description alsa
 This package contains an ALSA plugin for the PipeWire media server.
@@ -239,7 +262,7 @@ This package contains an ALSA plugin for the PipeWire media server.
 %package pulse
 Summary:	PipeWire media server PulseAudio server support
 License:	MIT
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name} = %{EVRD}
 # (tpg) 2022-08-11 pipewire-pulse[79745]: pw.conf: execvp error 'pactl': No such file or directory
 Requires:	pulseaudio-utils
 Recommends:	openal
@@ -253,7 +276,7 @@ as a PulseAudio server
 %package libjack
 Summary:	PipeWire libjack library
 License:	MIT
-Recommends:	%{name} = %{version}-%{release}
+Recommends:	%{name} = %{EVRD}
 Obsoletes:	pipewire-jack < 0.2.96-2
 
 %description libjack
@@ -265,7 +288,7 @@ This package contains a PipeWire replacement for JACK audio connection kit
 %package plugin-jack
 Summary:	PipeWire media server JACK support
 License:	MIT
-Recommends:	%{name} = %{version}-%{release}
+Recommends:	%{name} = %{EVRD}
 
 %description plugin-jack
 This package contains the PipeWire spa plugin to connect to a JACK server.
@@ -275,7 +298,7 @@ This package contains the PipeWire spa plugin to connect to a JACK server.
 %package media-session
 Summary:	PipeWire Media Session
 License:	MIT
-Recommends:	%{name}%{?_isa} = %{version}-%{release}
+Recommends:	%{name}%{?_isa} = %{EVRD}
 
 %description media-session
 This package contains the Media Session Manager for the
@@ -478,6 +501,19 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_libdir}/lib%{name}-%{api}.so
 %{_libdir}/pkgconfig/lib%{name}-%{api}.pc
 %{_libdir}/pkgconfig/libspa-%{spa_api}.pc
+
+%if %{with compat32}
+%files -n %{lib32name}
+%{_prefix}/lib/alsa-lib/*
+%{_prefix}/lib/gstreamer-1.0/*
+%{_prefix}/lib/libpipewire-%{api}.so.*
+%{_prefix}/lib/pipewire-%{api}
+%{_prefix}/lib/spa-%{spa_api}
+
+%files -n %{dev32name}
+%{_prefix}/lib/libpipewire-%{api}.so
+%{_prefix}/lib/pkgconfig/*.pc
+%endif
 
 %files doc
 %{_docdir}/%{name}/html/
