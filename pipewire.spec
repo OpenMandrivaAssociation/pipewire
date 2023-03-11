@@ -159,6 +159,8 @@ BuildRequires:	devel(libopus)
 BuildRequires:	devel(libvulkan)
 BuildRequires:	devel(libudev)
 BuildRequires:	devel(libSDL2-2.0)
+BuildRequires:	devel(libcrypto)
+BuildRequires:	devel(libssl)
 %endif
 
 Requires:	rtkit
