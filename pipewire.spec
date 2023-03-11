@@ -309,6 +309,7 @@ cp %{SOURCE4} subprojects/packagefiles/
 	-Dlv2=disabled \
 	-Dlibcanberra=disabled \
 	-Dlibcamera=disabled \
+	-Dlibmysofa=disabled \
 	-Droc=disabled \
 	-Dffmpeg=enabled \
 	-Dvolume=enabled \
