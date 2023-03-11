@@ -158,6 +158,7 @@ BuildRequires:	devel(libsbc)
 BuildRequires:	devel(libopus)
 BuildRequires:	devel(libvulkan)
 BuildRequires:	devel(libudev)
+BuildRequires:	devel(libSDL2-2.0)
 %endif
 
 Requires:	rtkit
