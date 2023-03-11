@@ -25,7 +25,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.65
+Version:	0.3.67
 Release:	2
 License:	LGPLv2+
 Group:		System/Servers
@@ -82,6 +82,7 @@ BuildRequires:	pkgconfig(libuv)
 BuildRequires:	pkgconfig(libva)
 BuildRequires:	pkgconfig(libv4l2)
 BuildRequires:	pkgconfig(lilv-0)
+BuildRequires:	pkgconfig(libmysofa)
 BuildRequires:	pkgconfig(sbc)
 BuildRequires:	pkgconfig(sdl2)
 BuildRequires:	pkgconfig(openssl)
@@ -424,6 +425,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_datadir}/pipewire/client.conf
 %{_datadir}/pipewire/client-rt.conf
 %{_datadir}/pipewire/jack.conf
+%{_datadir}/pipewire/pipewire-aes67.conf
 %dir %{_datadir}/pipewire/media-session.d
 %{_datadir}/pipewire/media-session.d/*.conf
 %{_datadir}/pipewire/media-session.d/with-audio
@@ -431,7 +433,9 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_bindir}/%{name}
 %{_bindir}/pipewire-avb
 %{_bindir}/%{name}-media-session
+%{_bindir}/pipewire-aes67
 %{_sysusersdir}/%{name}.conf
+%config(noreplace) %{_sysconfdir}/security/limits.d/*.conf
 %dir %{_libdir}/%{name}-%{api}/
 %{_libdir}/%{name}-%{api}/libpipewire-module-*.so
 %{_libdir}/spa-%{spa_api}
@@ -479,6 +483,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_bindir}/spa-inspect
 %{_bindir}/spa-json-dump
 %{_bindir}/pw-dsdplay
+%{_bindir}/pw-encplay
 %{_bindir}/pw-mon
 %{_bindir}/pw-cat
 %{_bindir}/pw-cli
