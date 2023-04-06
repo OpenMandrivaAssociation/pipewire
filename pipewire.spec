@@ -450,6 +450,10 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/%{name}.conf
 %{_datadir}/pipewire/client.conf
+%{_datadir}/pipewire.conf.avail/10-rates.conf
+%{_datadir}/pipewire.conf.avail/20-upmix.conf
+%{_datadir}/pipewire/client.conf.avail/20-upmix.conf
+%{_datadir}/pipewire/client-rt.conf.avail/20-upmix.conf
 %{_datadir}/pipewire/client-rt.conf
 %{_datadir}/pipewire/jack.conf
 %{_datadir}/pipewire/pipewire-aes67.conf
@@ -486,6 +490,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %files pulse
 %{_bindir}/pipewire-pulse
 %{_datadir}/pipewire/pipewire-pulse.conf
+%{_datadir}/pipewire/pipewire-pulse.conf.avail/20-upmix.conf
 %{_userunitdir}/pipewire-pulse.*
 %{_datadir}/pipewire/media-session.d/with-alsa
 %{_datadir}/pipewire/media-session.d/with-pulseaudio
