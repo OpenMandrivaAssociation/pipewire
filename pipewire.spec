@@ -450,8 +450,8 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/%{name}.conf
 %{_datadir}/pipewire/client.conf
-%{_datadir}/pipewire.conf.avail/10-rates.conf
-%{_datadir}/pipewire.conf.avail/20-upmix.conf
+%{_datadir}/pipewire/pipewire.conf.avail/10-rates.conf
+%{_datadir}/pipewire/pipewire.conf.avail/20-upmix.conf
 %{_datadir}/pipewire/client.conf.avail/20-upmix.conf
 %{_datadir}/pipewire/client-rt.conf.avail/20-upmix.conf
 %{_datadir}/pipewire/client-rt.conf
