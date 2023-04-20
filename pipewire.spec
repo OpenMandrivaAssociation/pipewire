@@ -25,7 +25,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.69
+Version:	0.3.70
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -532,6 +532,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_bindir}/pw-mon
 %{_bindir}/pw-cat
 %{_bindir}/pw-cli
+%{_bindir}/pw-config
 %{_bindir}/pw-dot
 %{_bindir}/pw-link
 %{_bindir}/pw-loopback
