@@ -12,6 +12,8 @@
 %bcond_without compat32
 %endif
 
+%global optflags %{optflags} -O3
+
 %define spa_api 0.2
 %define api 0.3
 %define git-media-session 20230112
@@ -26,7 +28,7 @@
 Name:		pipewire
 Summary:	Media Sharing Server
 Version:	0.3.71
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -48,7 +50,7 @@ BuildRequires:	gcc
 %endif
 BuildRequires:	graphviz
 BuildRequires:	meson
-BuildRequires:  roc-toolkit-devel >= 0.2.1
+BuildRequires:	roc-toolkit-devel >= 0.2.1
 BuildRequires:	openfec-devel
 BuildRequires:	pkgconfig(libpcap)
 BuildRequires:	pkgconfig(libcap)
@@ -218,7 +220,6 @@ Requires:	%{devname} = %{EVRD}
 Headers and libraries for developing 32-bit applications that can communicate
 with a PipeWire media server.
 
-
 #------------------------------------------------
 
 %package doc
@@ -310,17 +311,18 @@ PipeWire media server.
 mkdir subprojects/packagefiles
 cp %{SOURCE4} subprojects/packagefiles/
 
-
 %if %{with compat32}
 %meson32 \
 	-Dalsa=enabled \
-	-Dudev=enabled \
+	-Dudev=disabled \
 	-Dudevrulesdir="%{_udevrulesdir}" \
 	-Ddocs=disabled \
 	-Dman=disabled \
+	-Dtests=disabled \
+	-Dexamples=disabled \
 	-Dgstreamer=enabled \
-	-Dsystemd=enabled \
-	-Dsystemd-user-service=enabled \
+	-Dsystemd=disabled \
+	-Dsystemd-user-service=disabled \
 	-Djack=enabled \
 	-Dpipewire-alsa=enabled \
 	-Dpipewire-jack=enabled \
@@ -342,7 +344,6 @@ cp %{SOURCE4} subprojects/packagefiles/
 	-Dsession-managers=media-session \
 	--buildtype=release
 %endif
-
 
 %meson \
 	-Dalsa=enabled \
@@ -376,9 +377,7 @@ cp %{SOURCE4} subprojects/packagefiles/
 
 %build
 %if %{with compat32}
-export CC=gcc
-export CXX=g++
-%ninja_build -C build32
+CC=gcc CXX=g++ %ninja_build -C build32
 %endif
 
 %meson_build
@@ -386,6 +385,7 @@ export CXX=g++
 %install
 %if %{with compat32}
 %ninja_install -C build32
+rm -rf %{buildroot}%{_includedir}/*
 %endif
 
 %meson_install
@@ -399,11 +399,8 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 
 %find_lang media-session
 
-# Test fail on ARMv7hnl
-%if 0
-%check
-%meson_test
-%endif
+#check
+#meson_test
 
 %pre
 %sysusers_create_package %{name} %{S:10}
