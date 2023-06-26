@@ -75,6 +75,7 @@ BuildRequires:	pkgconfig(libcamera)
 %endif
 BuildRequires:	pkgconfig(libcanberra)
 BuildRequires:	pkgconfig(libdrm)
+BuildRequires:	pkgconfig(libffado)
 BuildRequires:	pkgconfig(libfreeaptx)
 BuildRequires:	pkgconfig(libopenaptx)
 BuildRequires:	pkgconfig(libavcodec)
@@ -338,6 +339,7 @@ cp %{SOURCE4} subprojects/packagefiles/
 	-Dlibcanberra=disabled \
 	-Dlibcamera=disabled \
 	-Dlibmysofa=disabled \
+ 	-Dlibffado=disabled \
 	-Droc=disabled \
 	-Dffmpeg=enabled \
 	-Dvolume=enabled \
