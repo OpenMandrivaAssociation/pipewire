@@ -331,6 +331,7 @@ cp %{SOURCE4} subprojects/packagefiles/
 	-Dlibpulse=enabled \
 	-Dvulkan=enabled \
 	-Dbluez5=enabled \
+ 	-Dbluez5-codec-lc3=disabled \
 	-Dbluez5-codec-lc3plus=disabled \
 	-Dbluez5-codec-aac=disabled \
 	-Dbluez5-codec-aptx=disabled \
@@ -362,6 +363,7 @@ cp %{SOURCE4} subprojects/packagefiles/
 	-Dlibpulse=enabled \
 	-Dvulkan=enabled \
 	-Dbluez5=enabled \
+ 	-Dbluez5-codec-lc3=disabled \
 	-Dbluez5-codec-lc3plus=disabled \
 	-Dbluez5-codec-aac=disabled \
 	-Dbluez5-codec-aptx=enabled \
