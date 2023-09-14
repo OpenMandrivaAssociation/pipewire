@@ -27,7 +27,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.79
+Version:	0.3.80
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -97,9 +97,7 @@ BuildRequires:	pkgconfig(speexdsp)
 BuildRequires:	pkgconfig(ModemManager)
 BuildRequires:	pkgconfig(ncurses)
 BuildRequires:	pkgconfig(readline)
-# PipeWire support for now only webrtc 0.3.1. So let's pull old version of this package. As soon as they add support for v1, let's use new.
-BuildRequires:	pkgconfig(webrtc-audio-processing)
-#BuildRequires:	pkgconfig(webrtc-audio-processing-1)
+BuildRequires:	pkgconfig(webrtc-audio-processing-1)
 BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	vulkan-headers
 BuildRequires:	xmltoman
