@@ -27,7 +27,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.79
+Version:	0.3.80
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -81,6 +81,7 @@ BuildRequires:	pkgconfig(libopenaptx)
 BuildRequires:	pkgconfig(libavcodec)
 BuildRequires:	pkgconfig(libpulse)
 BuildRequires:	pkgconfig(libusb-1.0)
+BuildRequires:	pkgconfig(lc3)
 BuildRequires:	pkgconfig(libuv)
 BuildRequires:	pkgconfig(libva)
 BuildRequires:	pkgconfig(libv4l2)
@@ -97,9 +98,7 @@ BuildRequires:	pkgconfig(speexdsp)
 BuildRequires:	pkgconfig(ModemManager)
 BuildRequires:	pkgconfig(ncurses)
 BuildRequires:	pkgconfig(readline)
-# PipeWire support for now only webrtc 0.3.1. So let's pull old version of this package. As soon as they add support for v1, let's use new.
-BuildRequires:	pkgconfig(webrtc-audio-processing)
-#BuildRequires:	pkgconfig(webrtc-audio-processing-1)
+BuildRequires:	pkgconfig(webrtc-audio-processing-1)
 BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	vulkan-headers
 BuildRequires:	xmltoman
@@ -363,7 +362,7 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 	-Dlibpulse=enabled \
 	-Dvulkan=enabled \
 	-Dbluez5=enabled \
- 	-Dbluez5-codec-lc3=disabled \
+ 	-Dbluez5-codec-lc3=enabled \
 	-Dbluez5-codec-lc3plus=disabled \
 	-Dbluez5-codec-aac=disabled \
 	-Dbluez5-codec-aptx=enabled \
@@ -458,6 +457,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_datadir}/pipewire/client-rt.conf
 %{_datadir}/pipewire/jack.conf
 %{_datadir}/pipewire/pipewire-aes67.conf
+%{_datadir}/pipewire/pipewire-vulkan.conf
 %dir %{_datadir}/pipewire/media-session.d
 %{_datadir}/pipewire/media-session.d/*.conf
 %{_datadir}/pipewire/media-session.d/with-audio
@@ -466,6 +466,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_bindir}/pipewire-avb
 %{_bindir}/%{name}-media-session
 %{_bindir}/pipewire-aes67
+%{_bindir}/pipewire-vulkan
 %{_sysusersdir}/%{name}.conf
 %config(noreplace) %{_sysconfdir}/security/limits.d/*.conf
 %dir %{_libdir}/%{name}-%{api}/
