@@ -28,7 +28,7 @@
 Name:		pipewire
 Summary:	Media Sharing Server
 Version:	0.3.85
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -50,7 +50,7 @@ BuildRequires:	gcc
 %endif
 BuildRequires:	graphviz
 BuildRequires:	meson
-BuildRequires:	roc-toolkit-devel >= 0.2.1
+BuildRequires:	pkgconfig(roc) >= 0.3.0
 BuildRequires:	openfec-devel
 BuildRequires:	pkgconfig(libpcap)
 BuildRequires:	pkgconfig(libcap)
