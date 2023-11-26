@@ -182,7 +182,7 @@ systems.
 %package -n %{libname}
 Summary:	Libraries for PipeWire clients
 Group:		System/Libraries
-%rename %{libname}
+%rename %{oldlibname}
 
 %description -n %{libname}
 This package contains the runtime libraries for any application that
