@@ -16,19 +16,21 @@
 
 %define spa_api 0.2
 %define api 0.3
-%define git_media_session 20231020
+%define git_media_session 20231126
 %define media_session_ver master
 %define major 0
-%define libname %mklibname %{name} %{api} %{major}
-%define devname %mklibname %{name} -d
+%define oldlibname %mklibname pipewire 0.3 0
+%define libname %mklibname pipewire
+%define devname %mklibname pipewire -d
 
-%define lib32name %mklib32name %{name} %{api} %{major}
-%define dev32name %mklib32name %{name} -d
+%define oldlib32name %mklib32name pipewire 0.3 0
+%define lib32name %mklib32name pipewire
+%define dev32name %mklib32name pipewire -d
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	0.3.85
-Release:	2
+Version:	1.0.0
+Release:	1
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -42,7 +44,6 @@ Patch1:		pipewire-0.3.35-tests-compile.patch
 
 # Upstream patches:
 Patch101:	0001-Build-media-session-from-local-tarbal.patch
-Patch102:	https://gitlab.freedesktop.org/pipewire/pipewire/-/merge_requests/1787.patch
 
 BuildRequires:	doxygen
 BuildRequires:	gettext
@@ -181,6 +182,7 @@ systems.
 %package -n %{libname}
 Summary:	Libraries for PipeWire clients
 Group:		System/Libraries
+%rename %{libname}
 
 %description -n %{libname}
 This package contains the runtime libraries for any application that
@@ -204,6 +206,7 @@ with a PipeWire media server.
 %package -n %{lib32name}
 Summary:	32-bit libraries for PipeWire clients
 Group:		System/Libraries
+%rename %{oldlib32name}
 
 %description -n %{lib32name}
 This package contains the 32-bit runtime libraries for any application that
@@ -408,9 +411,6 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 #check
 #meson_test
 
-%pre
-%sysusers_create_package %{name} %{S:10}
-
 #                 Attention! Achtung! Uwaga! Attenzione!                  #
 ###########################################################################
 # PipeWire can replace (and probably will) PulseAudio and become default  #
@@ -527,6 +527,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 
 %files doc
 %{_docdir}/%{name}/html/
+%doc %{_mandir}/man7/*.7*
 
 %files utils
 %{_bindir}/spa-monitor
