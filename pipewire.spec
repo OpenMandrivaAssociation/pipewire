@@ -29,7 +29,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	1.0.1
+Version:	1.0.2
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -44,7 +44,6 @@ Patch1:		pipewire-0.3.35-tests-compile.patch
 
 # Upstream patches:
 Patch101:	0001-Build-media-session-from-local-tarbal.patch
-Patch002:    	0001-spa-libcamera-use-CameraConfiguration-orientation.patch
 
 BuildRequires:	doxygen
 BuildRequires:	gettext
