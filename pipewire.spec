@@ -1,4 +1,4 @@
-# enable_by_default: Toggle if pipewire should be enabled by default and/or replace PulseAudio.
+ # enable_by_default: Toggle if pipewire should be enabled by default and/or replace PulseAudio.
 #  0 = no
 #  1 = yes
 %define enable_by_default 1
@@ -30,7 +30,7 @@
 Name:		pipewire
 Summary:	Media Sharing Server
 Version:	1.0.4
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
