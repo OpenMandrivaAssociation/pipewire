@@ -30,7 +30,7 @@
 Name:		pipewire
 Summary:	Media Sharing Server
 Version:	1.0.4
-Release:	2
+Release:	3
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
