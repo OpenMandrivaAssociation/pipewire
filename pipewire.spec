@@ -53,6 +53,7 @@ BuildRequires:	gcc
 %endif
 BuildRequires:	graphviz
 BuildRequires:	meson
+BuildRequires:	atomic-devel
 BuildRequires:	pkgconfig(roc) >= 0.3.0
 BuildRequires:	openfec-devel
 BuildRequires:	pkgconfig(libpcap)
