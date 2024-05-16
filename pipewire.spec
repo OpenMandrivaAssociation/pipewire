@@ -41,6 +41,7 @@ Source4:	https://gitlab.freedesktop.org/pipewire/media-session/-/archive/%{media
 Source10:	pipewire.sysusers
 
 Patch1:		pipewire-0.3.35-tests-compile.patch
+Patch2:		fix-linkage.patch
 
 # Upstream patches:
 Patch101:	0001-Build-media-session-from-local-tarbal.patch
