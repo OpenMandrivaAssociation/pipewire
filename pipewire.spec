@@ -29,7 +29,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	1.0.6
+Version:	1.1.81
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -92,6 +92,7 @@ BuildRequires:	pkgconfig(libmysofa)
 BuildRequires:	pkgconfig(sbc)
 BuildRequires:	pkgconfig(sdl2)
 BuildRequires:	pkgconfig(openssl)
+BuildRequires:	pkgconfig(opus)
 BuildRequires:	pkgconfig(jack)
 BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	pkgconfig(sndfile)
