@@ -494,6 +494,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_datadir}/pipewire/filter-chain.conf
 %{_datadir}/pipewire/pipewire-avb.conf
 %{_datadir}/pipewire/minimal.conf
+%{_datadir}/glib-2.0/schemas/org.freedesktop.pulseaudio.gschema.xml
 
 %files pulse
 %{_bindir}/pipewire-pulse
@@ -536,6 +537,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_bindir}/spa-monitor
 %{_bindir}/spa-inspect
 %{_bindir}/spa-json-dump
+%{_bindir}/pw-container
 %{_bindir}/pw-dsdplay
 %{_bindir}/pw-encplay
 %{_bindir}/pw-mon
