@@ -29,7 +29,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	1.0.6
+Version:	1.1.81
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -41,6 +41,7 @@ Source4:	https://gitlab.freedesktop.org/pipewire/media-session/-/archive/%{media
 Source10:	pipewire.sysusers
 
 Patch1:		pipewire-0.3.35-tests-compile.patch
+Patch2:		fix-linkage.patch
 
 # Upstream patches:
 Patch101:	0001-Build-media-session-from-local-tarbal.patch
@@ -92,6 +93,7 @@ BuildRequires:	pkgconfig(libmysofa)
 BuildRequires:	pkgconfig(sbc)
 BuildRequires:	pkgconfig(sdl2)
 BuildRequires:	pkgconfig(openssl)
+BuildRequires:	pkgconfig(opus)
 BuildRequires:	pkgconfig(jack)
 BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	pkgconfig(sndfile)
@@ -112,6 +114,7 @@ BuildRequires:	pulseaudio-utils
 
 %if %{with compat32}
 BuildRequires:	libc6
+BuildRequires:	atomic-devel
 BuildRequires:	libx11-xcb1
 BuildRequires:	devel(libasound)
 BuildRequires:	devel(libbluetooth)
@@ -326,6 +329,7 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 	-Dexamples=disabled \
 	-Dgstreamer=enabled \
  	-Dselinux=disabled \
+  	-Dsnap=disabled \
 	-Dsystemd=disabled \
 	-Dsystemd-user-service=disabled \
 	-Djack=enabled \
@@ -360,6 +364,7 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 	-Dman=enabled \
 	-Dgstreamer=enabled \
  	-Dselinux=disabled \
+  	-Dsnap=disabled \
 	-Dsystemd=enabled \
 	-Dsystemd-user-service=enabled \
 	-Djack=enabled \
@@ -491,6 +496,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_datadir}/pipewire/filter-chain.conf
 %{_datadir}/pipewire/pipewire-avb.conf
 %{_datadir}/pipewire/minimal.conf
+%{_datadir}/glib-2.0/schemas/org.freedesktop.pulseaudio.gschema.xml
 
 %files pulse
 %{_bindir}/pipewire-pulse
@@ -533,6 +539,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_bindir}/spa-monitor
 %{_bindir}/spa-inspect
 %{_bindir}/spa-json-dump
+%{_bindir}/pw-container
 %{_bindir}/pw-dsdplay
 %{_bindir}/pw-encplay
 %{_bindir}/pw-mon

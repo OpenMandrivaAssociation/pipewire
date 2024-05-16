@@ -1,0 +1,12 @@
+diff -up pipewire-1.1.81/spa/plugins/bluez5/meson.build.omv~ pipewire-1.1.81/spa/plugins/bluez5/meson.build
+--- pipewire-1.1.81/spa/plugins/bluez5/meson.build.omv~	2024-05-16 16:46:57.667089186 +0200
++++ pipewire-1.1.81/spa/plugins/bluez5/meson.build	2024-05-16 16:47:33.907490089 +0200
+@@ -72,7 +72,7 @@ if get_option('bluez5-codec-lc3').allowe
+ endif
+ 
+ # The library uses GObject, and cannot be unloaded
+-bluez5_link_args = [ '-Wl,-z', '-Wl,nodelete' ]
++bluez5_link_args = [ '-Wl,-z', '-Wl,nodelete', '-latomic' ]
+ 
+ bluez5lib = shared_library('spa-bluez5',
+   bluez5_sources,
