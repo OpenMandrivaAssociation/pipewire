@@ -50,6 +50,7 @@ BuildRequires:	doxygen
 BuildRequires:	gettext
 %ifarch %{ix86}
 BuildRequires:	gcc
+BuildRequires:	atomic-devel
 %endif
 BuildRequires:	graphviz
 BuildRequires:	meson
