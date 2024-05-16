@@ -50,7 +50,6 @@ BuildRequires:	doxygen
 BuildRequires:	gettext
 %ifarch %{ix86}
 BuildRequires:	gcc
-BuildRequires:	atomic-devel
 %endif
 BuildRequires:	graphviz
 BuildRequires:	meson
@@ -115,6 +114,7 @@ BuildRequires:	pulseaudio-utils
 
 %if %{with compat32}
 BuildRequires:	libc6
+BuildRequires:	atomic-devel
 BuildRequires:	libx11-xcb1
 BuildRequires:	devel(libasound)
 BuildRequires:	devel(libbluetooth)
