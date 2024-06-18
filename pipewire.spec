@@ -29,8 +29,8 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	1.1.82
-Release:	3
+Version:	1.1.83
+Release:	1
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
