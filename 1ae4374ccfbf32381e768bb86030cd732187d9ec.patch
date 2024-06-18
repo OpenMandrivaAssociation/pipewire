@@ -1,0 +1,2081 @@
+From 1ae4374ccfbf32381e768bb86030cd732187d9ec Mon Sep 17 00:00:00 2001
+From: Wim Taymans <wtaymans@redhat.com>
+Date: Tue, 18 Jun 2024 12:17:56 +0200
+Subject: [PATCH] Fix compilation with -Werror=float-conversion
+
+Better make the conversions explicit so that we don't get any surprises.
+
+Fixes #4065
+---
+ meson.build                                   |  1 +
+ pipewire-jack/src/pipewire-jack.c             | 22 ++++++-------
+ spa/include/spa/pod/builder.h                 |  2 +-
+ spa/include/spa/utils/json-pod.h              |  8 ++---
+ spa/plugins/alsa/acp-tool.c                   |  6 ++--
+ spa/plugins/alsa/acp/acp.c                    |  4 +--
+ spa/plugins/alsa/acp/alsa-mixer.c             |  2 +-
+ spa/plugins/alsa/acp/alsa-ucm.c               |  4 +--
+ spa/plugins/alsa/alsa-pcm.c                   | 18 +++++------
+ spa/plugins/alsa/alsa-seq.c                   |  8 ++---
+ spa/plugins/alsa/test-timer.c                 | 12 +++----
+ spa/plugins/audioconvert/biquad.c             | 10 +++---
+ spa/plugins/audioconvert/channelmix-ops.c     |  4 +--
+ spa/plugins/audioconvert/fmt-ops-sse2.c       | 11 ++++---
+ spa/plugins/audioconvert/hilbert.h            |  8 ++---
+ .../audioconvert/resample-native-impl.h       | 10 +++---
+ spa/plugins/audioconvert/resample-native.c    | 10 +++---
+ spa/plugins/audioconvert/test-channelmix.c    | 12 +++----
+ spa/plugins/audioconvert/test-fmt-ops.c       |  2 +-
+ spa/plugins/audioconvert/test-peaks.c         |  2 +-
+ spa/plugins/audiotestsrc/render.c             | 16 +++++-----
+ spa/plugins/bluez5/backend-native.c           |  4 +--
+ spa/plugins/bluez5/bluez5-dbus.c              |  2 +-
+ spa/plugins/bluez5/bluez5-device.c            |  2 +-
+ spa/plugins/bluez5/decode-buffer.h            |  2 +-
+ spa/plugins/bluez5/media-sink.c               |  6 ++--
+ spa/plugins/bluez5/media-source.c             |  2 +-
+ spa/plugins/bluez5/midi-node.c                |  2 +-
+ spa/plugins/bluez5/sco-source.c               |  2 +-
+ spa/plugins/support/node-driver.c             |  6 ++--
+ src/examples/audio-capture.c                  |  2 +-
+ src/examples/audio-dsp-src.c                  | 14 ++++----
+ src/examples/audio-src.c                      | 14 ++++----
+ src/examples/export-sink.c                    | 12 +++----
+ src/examples/export-source.c                  | 30 ++++++++---------
+ src/examples/video-dsp-play.c                 |  8 ++---
+ src/examples/video-dsp-src.c                  | 14 ++++----
+ src/examples/video-play-pull.c                |  8 ++---
+ src/examples/video-play.c                     |  8 ++---
+ src/examples/video-src-alloc.c                | 14 ++++----
+ src/examples/video-src-fixate.c               | 14 ++++----
+ src/examples/video-src-reneg.c                | 14 ++++----
+ src/examples/video-src.c                      | 14 ++++----
+ src/modules/module-avb/maap.c                 |  8 ++---
+ src/modules/module-filter-chain.c             | 14 ++++----
+ src/modules/module-filter-chain/biquad.c      | 10 +++---
+ .../module-filter-chain/builtin_plugin.c      | 26 +++++++--------
+ src/modules/module-filter-chain/pffft.c       | 28 ++++++++--------
+ src/modules/module-loopback.c                 |  4 +--
+ src/modules/module-pipe-tunnel.c              |  6 ++--
+ src/modules/module-protocol-pulse/format.c    |  2 +-
+ src/modules/module-protocol-pulse/message.c   |  2 +-
+ .../module-protocol-pulse/pulse-server.c      |  2 +-
+ src/modules/module-protocol-pulse/volume.c    |  2 +-
+ src/modules/module-pulse-tunnel.c             |  4 +--
+ src/modules/module-raop-sink.c                |  2 +-
+ src/modules/module-rtp/audio.c                |  4 +--
+ src/modules/module-rtp/midi.c                 |  8 ++---
+ src/modules/module-rtp/opus.c                 |  2 +-
+ src/modules/module-rtp/stream.c               |  4 +--
+ src/modules/module-vban/audio.c               |  2 +-
+ src/modules/module-vban/stream.c              |  6 ++--
+ src/pipewire/stream.c                         | 10 +++---
+ src/tests/test-endpoint.c                     |  2 +-
+ src/tools/midifile.c                          |  2 +-
+ src/tools/pw-cat.c                            | 10 +++---
+ src/tools/pw-dump.c                           |  2 +-
+ src/tools/pw-loopback.c                       |  2 +-
+ src/tools/pw-profiler.c                       |  6 ++--
+ test/test-spa-json.c                          |  2 +-
+ test/test-spa-utils.c                         | 32 +++++++++----------
+ 71 files changed, 286 insertions(+), 284 deletions(-)
+
+diff --git a/meson.build b/meson.build
+index 72d2750868..a0688a4dc3 100644
+--- a/meson.build
++++ b/meson.build
+@@ -94,6 +94,7 @@ common_flags = [
+   '-Wdeprecated-declarations',
+   '-Wunused-result',
+   '-Werror=return-type',
++  '-Werror=float-conversion',
+ ]
+ 
+ cc_flags = common_flags + [
+diff --git a/pipewire-jack/src/pipewire-jack.c b/pipewire-jack/src/pipewire-jack.c
+index c5121b8602..9d7ce6acbd 100644
+--- a/pipewire-jack/src/pipewire-jack.c
++++ b/pipewire-jack/src/pipewire-jack.c
+@@ -1736,7 +1736,7 @@ static inline jack_transport_state_t position_to_jack(struct pw_node_activation
+ 		running = s->clock.position - s->offset;
+ 		if (running >= seg->start &&
+ 		    (seg->duration == 0 || running < seg->start + seg->duration))
+-			d->frame = (running - seg->start) * seg->rate + seg->position;
++			d->frame = (unsigned int)((running - seg->start) * seg->rate + seg->position);
+ 		else
+ 			d->frame = seg->position;
+ 	}
+@@ -1758,12 +1758,12 @@ static inline jack_transport_state_t position_to_jack(struct pw_node_activation
+ 
+ 		abs_beat = seg->bar.beat;
+ 
+-		d->bar = abs_beat / d->beats_per_bar;
+-		beats = d->bar * d->beats_per_bar;
++		d->bar = (int32_t) (abs_beat / d->beats_per_bar);
++		beats = (long int) (d->bar * d->beats_per_bar);
+ 		d->bar_start_tick = beats * d->ticks_per_beat;
+-		d->beat = abs_beat - beats;
++		d->beat = (int32_t) (abs_beat - beats);
+ 		beats += d->beat;
+-		d->tick = (abs_beat - beats) * d->ticks_per_beat;
++		d->tick = (int32_t) ((abs_beat - beats) * d->ticks_per_beat);
+ 		d->bar++;
+ 		d->beat++;
+ 	}
+@@ -6322,10 +6322,10 @@ void jack_port_get_latency_range (jack_port_t *port, jack_latency_callback_mode_
+ 	rate = jack_get_sample_rate((jack_client_t*)c);
+ 	info = &o->port.latency[direction];
+ 
+-	range->min = (info->min_quantum * nframes) +
+-		info->min_rate + (info->min_ns * rate) / SPA_NSEC_PER_SEC;
+-	range->max = (info->max_quantum * nframes) +
+-		info->max_rate + (info->max_ns * rate) / SPA_NSEC_PER_SEC;
++	range->min = (jack_nframes_t)((info->min_quantum * nframes) +
++		info->min_rate + (info->min_ns * rate) / SPA_NSEC_PER_SEC);
++	range->max = (jack_nframes_t)((info->max_quantum * nframes) +
++		info->max_rate + (info->max_ns * rate) / SPA_NSEC_PER_SEC);
+ 
+ 	pw_log_debug("%p: %s get %d latency range %d %d", c, o->port.name,
+ 			mode, range->min, range->max);
+@@ -6688,8 +6688,8 @@ int jack_get_cycle_times(const jack_client_t *client,
+ 
+ 	*current_frames = times.frames;
+ 	*next_usecs = times.next_nsec / SPA_NSEC_PER_USEC;
+-	*period_usecs = times.buffer_frames *
+-			(float)SPA_USEC_PER_SEC / (times.sample_rate * times.rate_diff);
++	*period_usecs = (float)(times.buffer_frames *
++			SPA_USEC_PER_SEC / (times.sample_rate * times.rate_diff));
+ 	*current_usecs = *next_usecs - (jack_time_t)*period_usecs;
+ 
+ 	pw_log_trace("%p: %d %"PRIu64" %"PRIu64" %f", c, *current_frames,
+diff --git a/spa/include/spa/pod/builder.h b/spa/include/spa/pod/builder.h
+index fdf9e93685..b0487bf483 100644
+--- a/spa/include/spa/pod/builder.h
++++ b/spa/include/spa/pod/builder.h
+@@ -481,7 +481,7 @@ do {										\
+ 		spa_pod_builder_long(builder, va_arg(args, int64_t));		\
+ 		break;								\
+ 	case 'f':								\
+-		spa_pod_builder_float(builder, va_arg(args, double));		\
++		spa_pod_builder_float(builder, (float)va_arg(args, double));	\
+ 		break;								\
+ 	case 'd':								\
+ 		spa_pod_builder_double(builder, va_arg(args, double));		\
+diff --git a/spa/include/spa/utils/json-pod.h b/spa/include/spa/utils/json-pod.h
+index 7c4078fb9a..bbd0ec7a95 100644
+--- a/spa/include/spa/utils/json-pod.h
++++ b/spa/include/spa/utils/json-pod.h
+@@ -77,17 +77,17 @@ static inline int spa_json_to_pod_part(struct spa_pod_builder *b, uint32_t flags
+ 			spa_pod_builder_bool(b, val >= 0.5f);
+ 			break;
+ 		case SPA_TYPE_Id:
+-			spa_pod_builder_id(b, val);
++			spa_pod_builder_id(b, (uint32_t)val);
+ 			break;
+ 		case SPA_TYPE_Int:
+-			spa_pod_builder_int(b, val);
++			spa_pod_builder_int(b, (int32_t)val);
+ 			break;
+ 		case SPA_TYPE_Long:
+-			spa_pod_builder_long(b, val);
++			spa_pod_builder_long(b, (int64_t)val);
+ 			break;
+ 		case SPA_TYPE_Struct:
+ 			if (spa_json_is_int(value, len))
+-				spa_pod_builder_int(b, val);
++				spa_pod_builder_int(b, (int32_t)val);
+ 			else
+ 				spa_pod_builder_float(b, val);
+ 			break;
+diff --git a/spa/plugins/alsa/acp-tool.c b/spa/plugins/alsa/acp-tool.c
+index 3f2fb24078..0f72a4b60f 100644
+--- a/spa/plugins/alsa/acp-tool.c
++++ b/spa/plugins/alsa/acp-tool.c
+@@ -388,7 +388,7 @@ static int cmd_set_volume(struct data *data, const struct command *cmd, int argc
+ 		return -EINVAL;
+ 	}
+ 	dev_id = atoi(argv[1]);
+-	vol = atof(argv[2]);
++	vol = (float)atof(argv[2]);
+ 
+ 	if (dev_id >= card->n_devices)
+ 		return -EINVAL;
+@@ -418,12 +418,12 @@ static int adjust_volume(struct data *data, const struct command *cmd, int argc,
+ 
+ static int cmd_inc_volume(struct data *data, const struct command *cmd, int argc, char *argv[])
+ {
+-	return adjust_volume(data, cmd, argc, argv, 0.2);
++	return adjust_volume(data, cmd, argc, argv, 0.2f);
+ }
+ 
+ static int cmd_dec_volume(struct data *data, const struct command *cmd, int argc, char *argv[])
+ {
+-	return adjust_volume(data, cmd, argc, argv, -0.2);
++	return adjust_volume(data, cmd, argc, argv, -0.2f);
+ }
+ 
+ static int cmd_get_mute(struct data *data, const struct command *cmd, int argc, char *argv[])
+diff --git a/spa/plugins/alsa/acp/acp.c b/spa/plugins/alsa/acp/acp.c
+index 93a68ab4cb..353896a224 100644
+--- a/spa/plugins/alsa/acp/acp.c
++++ b/spa/plugins/alsa/acp/acp.c
+@@ -1335,7 +1335,7 @@ static void mixer_volume_init(pa_card *impl, pa_alsa_device *dev)
+ 		pa_log_info("Using hardware volume control. Hardware dB scale %s.",
+ 				dev->mixer_path->has_dB ? "supported" : "not supported");
+ 	}
+-	dev->device.base_volume = pa_sw_volume_to_linear(dev->base_volume);
++	dev->device.base_volume = (float)pa_sw_volume_to_linear(dev->base_volume);
+ 	dev->device.volume_step = 1.0f / dev->n_volume_steps;
+ 
+ 	if (impl->soft_mixer || !dev->mixer_path || !dev->mixer_path->has_mute) {
+@@ -2022,7 +2022,7 @@ static int get_volume(pa_cvolume *v, float *volume, uint32_t n_volume)
+ 	if (v->channels == 0)
+ 		return -EIO;
+ 	for (i = 0; i < n_volume; i++)
+-		volume[i] = pa_sw_volume_to_linear(v->values[i % v->channels]);
++		volume[i] = (float)pa_sw_volume_to_linear(v->values[i % v->channels]);
+ 	return 0;
+ }
+ 
+diff --git a/spa/plugins/alsa/acp/alsa-mixer.c b/spa/plugins/alsa/acp/alsa-mixer.c
+index b2cff4733a..bd4942c7cf 100644
+--- a/spa/plugins/alsa/acp/alsa-mixer.c
++++ b/spa/plugins/alsa/acp/alsa-mixer.c
+@@ -1147,7 +1147,7 @@ static int element_set_volume(pa_alsa_element *e, snd_mixer_t *m, const pa_chann
+             int rounding;
+ 
+             if (e->volume_limit >= 0 && value > (e->max_dB * 100))
+-                value = e->max_dB * 100;
++                value = (long) (e->max_dB * 100);
+ 
+             if (e->direction == PA_ALSA_DIRECTION_OUTPUT) {
+                 /* If we call set_playback_volume() without checking first
+diff --git a/spa/plugins/alsa/acp/alsa-ucm.c b/spa/plugins/alsa/acp/alsa-ucm.c
+index 188e319ced..3d3f19bb2d 100644
+--- a/spa/plugins/alsa/acp/alsa-ucm.c
++++ b/spa/plugins/alsa/acp/alsa-ucm.c
+@@ -1206,7 +1206,7 @@ static unsigned devset_playback_priority(pa_idxset *devices, bool invert) {
+     }
+ 
+     if (priority > 0 && invert)
+-        return 1.0 / priority;
++        return (unsigned)(1.0 / priority);
+ 
+     return (unsigned) priority;
+ }
+@@ -1224,7 +1224,7 @@ static unsigned devset_capture_priority(pa_idxset *devices, bool invert) {
+     }
+ 
+     if (priority > 0 && invert)
+-        return 1.0 / priority;
++        return (unsigned)(1.0 / priority);
+ 
+     return (unsigned) priority;
+ }
+diff --git a/spa/plugins/alsa/alsa-pcm.c b/spa/plugins/alsa/alsa-pcm.c
+index 4201f19ddf..2e43383e81 100644
+--- a/spa/plugins/alsa/alsa-pcm.c
++++ b/spa/plugins/alsa/alsa-pcm.c
+@@ -2283,11 +2283,11 @@ int spa_alsa_update_rate_match(struct state *state)
+ 	 * means that to adjust the playback rate, we need to apply the inverse
+ 	 * of the given rate. */
+ 	if (state->stream == SND_PCM_STREAM_CAPTURE) {
+-		pitch = 1000000 * state->rate_match->rate;
+-		last_pitch = 1000000 * state->last_rate;
++		pitch = (uint64_t)(1000000 * state->rate_match->rate);
++		last_pitch = (uint64_t)(1000000 * state->last_rate);
+ 	} else {
+-		pitch = 1000000 / state->rate_match->rate;
+-		last_pitch = 1000000 / state->last_rate;
++		pitch = (uint64_t)(1000000 / state->rate_match->rate);
++		last_pitch = (uint64_t)(1000000 / state->last_rate);
+ 	}
+ 
+ 	/* The pitch adjustment is limited to 1 ppm */
+@@ -2727,7 +2727,7 @@ static int update_time(struct state *state, uint64_t current_time, snd_pcm_sfram
+ 		corr = 1.0;
+ 
+ 	if (diff < 0)
+-		state->next_time += diff / corr * 1e9 / state->rate;
++		state->next_time += (uint64_t)(diff / corr * 1e9 / state->rate);
+ 
+ 	if (SPA_UNLIKELY((state->next_time - state->base_time) > BW_PERIOD)) {
+ 		state->base_time = state->next_time;
+@@ -2751,7 +2751,7 @@ static int update_time(struct state *state, uint64_t current_time, snd_pcm_sfram
+ 			SPA_FLAG_UPDATE(state->rate_match->flags, SPA_IO_RATE_MATCH_FLAG_ACTIVE, state->matching);
+ 	}
+ 
+-	state->next_time += state->threshold / corr * 1e9 / state->rate;
++	state->next_time += (uint64_t)(state->threshold / corr * 1e9 / state->rate);
+ 
+ 	if (SPA_LIKELY(!follower && state->clock)) {
+ 		state->clock->nsec = current_time;
+@@ -2859,7 +2859,7 @@ static int alsa_write_sync(struct state *state, uint64_t current_time)
+ 
+ 	if (SPA_UNLIKELY((res = get_status(state, current_time, &avail, &delay, &target)) < 0)) {
+ 		spa_log_error(state->log, "get_status error: %s", spa_strerror(res));
+-		state->next_time += state->threshold * 1e9 / state->rate;
++		state->next_time += (uint64_t)(state->threshold * 1e9 / state->rate);
+ 		return res;
+ 	}
+ 
+@@ -3120,7 +3120,7 @@ static int alsa_read_sync(struct state *state, uint64_t current_time)
+ 
+ 	if (SPA_UNLIKELY((res = get_status(state, current_time, &avail, &delay, &target)) < 0)) {
+ 		spa_log_error(state->log, "get_status error: %s", spa_strerror(res));
+-		state->next_time += state->threshold * 1e9 / state->rate;
++		state->next_time += (uint64_t)(state->threshold * 1e9 / state->rate);
+ 		return res;
+ 	}
+ 
+@@ -3442,7 +3442,7 @@ static void alsa_timer_wakeup_event(struct spa_source *source)
+ 				state->next_time - current_time, state->threshold,
+ 				state->sample_count, suppressed);
+ 		}
+-		state->next_time = current_time + state->threshold * 1e9 / state->rate;
++		state->next_time = (uint64_t)(current_time + state->threshold * 1e9 / state->rate);
+ 	}
+ 	set_timeout(state, state->next_time);
+ }
+diff --git a/spa/plugins/alsa/alsa-seq.c b/spa/plugins/alsa/alsa-seq.c
+index f19b5720c1..95947dfc4d 100644
+--- a/spa/plugins/alsa/alsa-seq.c
++++ b/spa/plugins/alsa/alsa-seq.c
+@@ -797,9 +797,9 @@ static int update_time(struct seq_state *state, uint64_t nsec, bool follower)
+ 	 * use the rate correction, else we will use the rate correction only for the new
+ 	 * timeout. */
+ 	if (state->following)
+-		state->queue_next += state->threshold * corr * 1e9 / state->rate.denom;
++		state->queue_next += (uint64_t)(state->threshold * corr * 1e9 / state->rate.denom);
+ 	else
+-		state->queue_next += state->threshold * 1e9 / state->rate.denom;
++		state->queue_next += (uint64_t)(state->threshold * 1e9 / state->rate.denom);
+ 
+ 	if ((state->next_time - state->base_time) > BW_PERIOD) {
+ 		state->base_time = state->next_time;
+@@ -807,14 +807,14 @@ static int update_time(struct seq_state *state, uint64_t nsec, bool follower)
+ 				state, follower, corr, state->dll.bw, err,
+ 				state->dll.z1, state->dll.z2, state->dll.z3);
+ 	}
+-	state->next_time += state->threshold / corr * 1e9 / state->rate.denom;
++	state->next_time += (uint64_t)(state->threshold / corr * 1e9 / state->rate.denom);
+ 
+ 	if (!follower && state->clock) {
+ 		state->clock->nsec = nsec;
+ 		state->clock->rate = state->rate;
+ 		state->clock->position += state->clock->duration;
+ 		state->clock->duration = state->duration;
+-		state->clock->delay = state->duration * corr;
++		state->clock->delay = (int64_t)(state->duration * corr);
+ 		state->clock->rate_diff = corr;
+ 		state->clock->next_nsec = state->next_time;
+ 	}
+diff --git a/spa/plugins/alsa/test-timer.c b/spa/plugins/alsa/test-timer.c
+index 05f257bb60..283fe7cef0 100644
+--- a/spa/plugins/alsa/test-timer.c
++++ b/spa/plugins/alsa/test-timer.c
+@@ -16,7 +16,7 @@
+ 
+ #define DEFAULT_DEVICE	"hw:0"
+ 
+-#define M_PI_M2 (M_PI + M_PI)
++#define M_PI_M2f (M_PIf + M_PIf)
+ 
+ #define BW_PERIOD	(SPA_NSEC_PER_SEC * 3)
+ 
+@@ -63,10 +63,10 @@ static int set_timeout(struct state *state, uint64_t time)
+ 	type *samples, v;										\
+ 	samples = (type*)((uint8_t*)areas[0].addr + (areas[0].first + offset*areas[0].step) / 8);	\
+ 	for (i = 0; i < frames; i++) {									\
+-		state->accumulator += M_PI_M2 * 440 / state->rate;					\
+-		if (state->accumulator >= M_PI_M2)							\
+-			state->accumulator -= M_PI_M2;							\
+-		v = sin(state->accumulator) * scale;							\
++		state->accumulator += M_PI_M2f * 440.0f / state->rate;					\
++		if (state->accumulator >= M_PI_M2f)							\
++			state->accumulator -= M_PI_M2f;							\
++		v = (type)(sin(state->accumulator) * scale);						\
+ 		for (j = 0; j < state->channels; j++)							\
+ 			*samples++ = v;									\
+ 	}												\
+@@ -135,7 +135,7 @@ static int on_timer_wakeup(struct state *state)
+ 	/* set our new adjusted timeout. alternatively, this value can
+ 	 * instead be used to drive a resampler if this device is
+ 	 * slaved. */
+-	state->next_time += state->period / corr * 1e9 / state->rate;
++	state->next_time += (uint64_t)(state->period / corr * 1e9 / state->rate);
+ 	set_timeout(state, state->next_time);
+ 
+ 	if (state->next_time - state->prev_time > BW_PERIOD) {
+diff --git a/spa/plugins/audioconvert/biquad.c b/spa/plugins/audioconvert/biquad.c
+index 409b6734a8..9e8bae5f82 100644
+--- a/spa/plugins/audioconvert/biquad.c
++++ b/spa/plugins/audioconvert/biquad.c
+@@ -26,11 +26,11 @@ static void set_coefficient(struct biquad *bq, double b0, double b1, double b2,
+ 			    double a0, double a1, double a2)
+ {
+ 	double a0_inv = 1 / a0;
+-	bq->b0 = b0 * a0_inv;
+-	bq->b1 = b1 * a0_inv;
+-	bq->b2 = b2 * a0_inv;
+-	bq->a1 = a1 * a0_inv;
+-	bq->a2 = a2 * a0_inv;
++	bq->b0 = (float)(b0 * a0_inv);
++	bq->b1 = (float)(b1 * a0_inv);
++	bq->b2 = (float)(b2 * a0_inv);
++	bq->a1 = (float)(a1 * a0_inv);
++	bq->a2 = (float)(a2 * a0_inv);
+ }
+ 
+ static void biquad_lowpass(struct biquad *bq, double cutoff)
+diff --git a/spa/plugins/audioconvert/channelmix-ops.c b/spa/plugins/audioconvert/channelmix-ops.c
+index d4cb70de88..86cd049fbd 100644
+--- a/spa/plugins/audioconvert/channelmix-ops.c
++++ b/spa/plugins/audioconvert/channelmix-ops.c
+@@ -649,7 +649,7 @@ done:
+ 						spa_debug_type_find_short_name(spa_type_audio_channel, j + _SH));
+ 
+ 			mix->matrix_orig[ic][jc++] = matrix[i][j];
+-			sum += fabs(matrix[i][j]);
++			sum += fabsf(matrix[i][j]);
+ 
+ 			if (matrix[i][j] == 0.0f)
+ 				spa_strbuf_append(&sb1, "      ");
+@@ -772,7 +772,7 @@ int channelmix_init(struct channelmix *mix)
+ 	mix->process = info->process;
+ 	mix->set_volume = impl_channelmix_set_volume;
+ 	mix->cpu_flags = info->cpu_flags;
+-	mix->delay = mix->rear_delay * mix->freq / 1000.0f;
++	mix->delay = (uint32_t)(mix->rear_delay * mix->freq / 1000.0f);
+ 	mix->func_name = info->name;
+ 
+ 	spa_log_debug(mix->log, "selected %s delay:%d options:%08x", info->name, mix->delay,
+diff --git a/spa/plugins/audioconvert/fmt-ops-sse2.c b/spa/plugins/audioconvert/fmt-ops-sse2.c
+index d5f191cd06..4aca0e9cd7 100644
+--- a/spa/plugins/audioconvert/fmt-ops-sse2.c
++++ b/spa/plugins/audioconvert/fmt-ops-sse2.c
+@@ -969,7 +969,8 @@ conv_deinterleave_32s_1s_sse2(void *data, void * SPA_RESTRICT dst[], const void
+ 		s += 4*n_channels;
+ 	}
+ 	for(; n < n_samples; n++) {
+-		d0[n] = bswap_32(*s);
++		uint32_t *di = (uint32_t*)&d0[n], *si = (uint32_t*)s;
++		*di = bswap_32(*si);
+ 		s += n_channels;
+ 	}
+ }
+@@ -1011,10 +1012,10 @@ conv_deinterleave_32s_4s_sse2(void *data, void * SPA_RESTRICT dst[], const void
+ 		s += 4 * n_channels;
+ 	}
+ 	for(; n < n_samples; n++) {
+-		d0[n] = bswap_32(s[0]);
+-		d1[n] = bswap_32(s[1]);
+-		d2[n] = bswap_32(s[2]);
+-		d3[n] = bswap_32(s[3]);
++		*((uint32_t*)&d0[n]) = bswap_32(*((uint32_t*)&s[0]));
++		*((uint32_t*)&d1[n]) = bswap_32(*((uint32_t*)&s[1]));
++		*((uint32_t*)&d2[n]) = bswap_32(*((uint32_t*)&s[2]));
++		*((uint32_t*)&d3[n]) = bswap_32(*((uint32_t*)&s[3]));
+ 		s += n_channels;
+ 	}
+ }
+diff --git a/spa/plugins/audioconvert/hilbert.h b/spa/plugins/audioconvert/hilbert.h
+index 96023e2405..76218d90c9 100644
+--- a/spa/plugins/audioconvert/hilbert.h
++++ b/spa/plugins/audioconvert/hilbert.h
+@@ -17,9 +17,9 @@ static inline void blackman_window(float *taps, int n_taps)
+ {
+ 	int n;
+ 	for (n = 0; n < n_taps; n++) {
+-		float w = 2 * M_PI * n / (n_taps-1);
+-		taps[n] = 0.3635819 - 0.4891775 * cos(w)
+-			+ 0.1365995 * cos(2 * w) - 0.0106411 * cos(3 * w);
++		float w = 2.0f * M_PIf * n / (n_taps-1);
++		taps[n] = 0.3635819f - 0.4891775f * cosf(w)
++			+ 0.1365995f * cosf(2 * w) - 0.0106411f * cosf(3 * w);
+ 	}
+ }
+ 
+@@ -33,7 +33,7 @@ static inline int hilbert_generate(float *taps, int n_taps)
+ 	for (i = 0; i < n_taps; i++) {
+ 		int k = -(n_taps / 2) + i;
+ 		if (k & 1) {
+-			float pk = M_PI * k;
++			float pk = M_PIf * k;
+ 			taps[i] *= (1.0f - cosf(pk)) / pk;
+ 		} else {
+ 			taps[i] = 0.0f;
+diff --git a/spa/plugins/audioconvert/resample-native-impl.h b/spa/plugins/audioconvert/resample-native-impl.h
+index ddc5833c7d..0493aa819c 100644
+--- a/spa/plugins/audioconvert/resample-native-impl.h
++++ b/spa/plugins/audioconvert/resample-native-impl.h
+@@ -99,7 +99,7 @@ DEFINE_RESAMPLER(full,arch)							\
+ 		float *d = dst[c];						\
+ 										\
+ 		index = ioffs;							\
+-		phase = data->phase;						\
++		phase = (uint32_t)data->phase;					\
+ 										\
+ 		for (o = ooffs; o < olen && index + n_taps <= ilen; o++) {	\
+ 			inner_product_##arch(&d[o], &s[index],			\
+@@ -117,12 +117,12 @@ DEFINE_RESAMPLER(full,arch)							\
+ DEFINE_RESAMPLER(inter,arch)							\
+ {										\
+ 	struct native_data *data = r->data;					\
+-	uint32_t index, stride = data->filter_stride;			\
++	uint32_t index, stride = data->filter_stride;				\
+ 	uint32_t n_phases = data->n_phases, out_rate = data->out_rate;		\
+ 	uint32_t n_taps = data->n_taps;						\
+ 	uint32_t c, o, olen = *out_len, ilen = *in_len;				\
+ 	uint32_t inc = data->inc, frac = data->frac;				\
+-	float phase;												\
++	float phase;								\
+ 										\
+ 	if (r->channels == 0)							\
+ 		return;								\
+@@ -135,8 +135,8 @@ DEFINE_RESAMPLER(inter,arch)							\
+ 		phase = data->phase;						\
+ 										\
+ 		for (o = ooffs; o < olen && index + n_taps <= ilen; o++) {	\
+-			float ph = phase * n_phases / out_rate;					\
+-			uint32_t offset = floorf(ph);				\
++			float ph = phase * n_phases / out_rate;			\
++			uint32_t offset = (uint32_t)floorf(ph);			\
+ 			inner_product_ip_##arch(&d[o], &s[index],		\
+ 					&data->filter[(offset + 0) * stride],	\
+ 					&data->filter[(offset + 1) * stride],	\
+diff --git a/spa/plugins/audioconvert/resample-native.c b/spa/plugins/audioconvert/resample-native.c
+index 1fd27140f0..0183d3684b 100644
+--- a/spa/plugins/audioconvert/resample-native.c
++++ b/spa/plugins/audioconvert/resample-native.c
+@@ -72,8 +72,8 @@ static int build_filter(float *taps, uint32_t stride, uint32_t n_taps, uint32_t
+ 		for (j = 0; j < n_taps12; j++, t += 1.0) {
+ 			/* exploit symmetry in filter taps */
+ 			taps[(n_phases - i) * stride + n_taps12 + j] =
+-				taps[i * stride + (n_taps12 - j - 1)] =
+-					cutoff * sinc(t * cutoff) * window(t, n_taps);
++				taps[i * stride + (n_taps12 - j - 1)] = (float)
++					(cutoff * sinc(t * cutoff) * window(t, n_taps));
+ 		}
+ 	}
+ 	return 0;
+@@ -141,7 +141,7 @@ static void impl_native_update_rate(struct resample *r, double rate)
+ 		return;
+ 
+ 	old_out_rate = data->out_rate;
+-	in_rate = r->i_rate / rate;
++	in_rate = (uint32_t)(r->i_rate / rate);
+ 	out_rate = r->o_rate;
+ 	phase = data->phase;
+ 
+@@ -180,7 +180,7 @@ static uint32_t impl_native_in_len(struct resample *r, uint32_t out_len)
+ 	struct native_data *data = r->data;
+ 	uint32_t in_len;
+ 
+-	in_len = (data->phase + out_len * data->frac) / data->out_rate;
++	in_len = (uint32_t)((data->phase + out_len * data->frac) / data->out_rate);
+ 	in_len += out_len * data->inc +	(data->n_taps - data->hist);
+ 
+ 	spa_log_trace_fp(r->log, "native %p: hist:%d %d->%d", r, data->hist, out_len, in_len);
+@@ -194,7 +194,7 @@ static uint32_t impl_native_out_len(struct resample *r, uint32_t in_len)
+ 	uint32_t out_len;
+ 
+ 	in_len = in_len - SPA_MIN(in_len, (data->n_taps - data->hist) + 1);
+-	out_len = in_len * data->out_rate - data->phase;
++	out_len = (uint32_t)(in_len * data->out_rate - data->phase);
+ 	out_len = (out_len + data->in_rate - 1) / data->in_rate;
+ 
+ 	spa_log_trace_fp(r->log, "native %p: hist:%d %d->%d", r, data->hist, in_len, out_len);
+diff --git a/spa/plugins/audioconvert/test-channelmix.c b/spa/plugins/audioconvert/test-channelmix.c
+index f2962aed23..b68c956bf8 100644
+--- a/spa/plugins/audioconvert/test-channelmix.c
++++ b/spa/plugins/audioconvert/test-channelmix.c
+@@ -18,14 +18,14 @@ static uint32_t cpu_flags;
+ 
+ SPA_LOG_IMPL(logger);
+ 
+-#define MATRIX(...) (float[]) { __VA_ARGS__ }
++#define MATRIX(...) (double[]) { __VA_ARGS__ }
+ 
+ #include "test-helper.h"
+ #include "channelmix-ops.c"
+ 
+ #define CLOSE_ENOUGH(a,b)	(fabs((a)-(b)) < 0.000001f)
+ 
+-static void dump_matrix(struct channelmix *mix, float *coeff)
++static void dump_matrix(struct channelmix *mix, double *coeff)
+ {
+ 	uint32_t i, j;
+ 
+@@ -33,13 +33,13 @@ static void dump_matrix(struct channelmix *mix, float *coeff)
+ 		for (j = 0; j < mix->src_chan; j++) {
+ 			float v = mix->matrix[i][j];
+ 			spa_log_debug(mix->log, "%d %d: %f <-> %f", i, j, v, *coeff);
+-			spa_assert_se(CLOSE_ENOUGH(v, *coeff));
++			spa_assert_se(CLOSE_ENOUGH(v, (float)*coeff));
+ 			coeff++;
+ 		}
+ 	}
+ }
+ 
+-static void test_mix(uint32_t src_chan, uint32_t src_mask, uint32_t dst_chan, uint32_t dst_mask, uint32_t options, float *coeff)
++static void test_mix(uint32_t src_chan, uint32_t src_mask, uint32_t dst_chan, uint32_t dst_mask, uint32_t options, double *coeff)
+ {
+ 	struct channelmix mix;
+ 
+@@ -336,7 +336,7 @@ static void test_n_m_impl(void)
+ 
+ 	for (i = 0; i < 16; i++) {
+ 		for (j = 0; j < N_SAMPLES; j++)
+-			src_data[i][j] = (drand48() - 0.5f) * 2.5f;
++			src_data[i][j] = (float)((drand48() - 0.5f) * 2.5f);
+ 		src[i] = src_data[i];
+ 	}
+ 
+@@ -360,7 +360,7 @@ static void test_n_m_impl(void)
+ 	/* random matrix */
+ 	for (i = 0; i < mix.dst_chan; i++) {
+ 		for (j = 0; j < mix.src_chan; j++) {
+-			mix.matrix_orig[i][j] = drand48() - 0.5f;
++			mix.matrix_orig[i][j] = (float)(drand48() - 0.5f);
+ 		}
+ 	}
+ 	channelmix_set_volume(&mix, 1.0f, false, 0, NULL);
+diff --git a/spa/plugins/audioconvert/test-fmt-ops.c b/spa/plugins/audioconvert/test-fmt-ops.c
+index 06cddbe9c1..b14da3a58d 100644
+--- a/spa/plugins/audioconvert/test-fmt-ops.c
++++ b/spa/plugins/audioconvert/test-fmt-ops.c
+@@ -321,7 +321,7 @@ static void test_f32_s32(void)
+ static void test_s32_f32(void)
+ {
+ 	static const int32_t in[] = { 0, 0x7fffff00, 0x80000000, 0x40000000, 0xc0000000 };
+-	static const float out[] = { 0.0f, 0.999999880791, -1.0f, 0.5, -0.5, };
++	static const float out[] = { 0.0f, 0.999999880791f, -1.0f, 0.5, -0.5, };
+ 
+ 	run_test("test_s32_f32d", in, sizeof(in[0]), out, sizeof(out[0]), SPA_N_ELEMENTS(out),
+ 			true, false, conv_s32_to_f32d_c);
+diff --git a/spa/plugins/audioconvert/test-peaks.c b/spa/plugins/audioconvert/test-peaks.c
+index 426c29dbc1..9225bda3d5 100644
+--- a/spa/plugins/audioconvert/test-peaks.c
++++ b/spa/plugins/audioconvert/test-peaks.c
+@@ -30,7 +30,7 @@ static void test_impl(void)
+ 	float min[2] = { 0.0f, 0.0f }, max[2] = { 0.0f, 0.0f }, absmax[2] = { 0.0f, 0.0f };
+ 
+ 	for (i = 0; i < SPA_N_ELEMENTS(vals); i++)
+-		vals[i] = (drand48() - 0.5f) * 2.5f;
++		vals[i] = (float)((drand48() - 0.5f) * 2.5f);
+ 
+ 	peaks_min_max_c(&peaks, &vals[1], SPA_N_ELEMENTS(vals) - 1, &min[0], &max[0]);
+ 	printf("c peaks min:%f max:%f\n", min[0], max[0]);
+diff --git a/spa/plugins/audiotestsrc/render.c b/spa/plugins/audiotestsrc/render.c
+index bdc7feac2a..7ddcf28bc2 100644
+--- a/spa/plugins/audiotestsrc/render.c
++++ b/spa/plugins/audiotestsrc/render.c
+@@ -4,7 +4,7 @@
+ 
+ #include <math.h>
+ 
+-#define M_PI_M2 ( M_PI + M_PI )
++#define M_PI_M2f ( M_PIf + M_PIf )
+ 
+ #define DEFINE_SINE(type,scale)								\
+ static void										\
+@@ -17,24 +17,24 @@ audio_test_src_create_sine_##type (struct impl *this, type *samples, size_t n_sa
+ 	float volume = this->props.volume;						\
+ 											\
+ 	channels = this->port.current_format.info.raw.channels;				\
+-	step = M_PI_M2 * freq / this->port.current_format.info.raw.rate;		\
++	step = M_PI_M2f * freq / this->port.current_format.info.raw.rate;		\
+ 	amp = volume * scale;								\
+ 											\
+ 	for (i = 0; i < n_samples; i++) {						\
+ 		type val;								\
+ 		this->port.accumulator += step;						\
+-		if (this->port.accumulator >= M_PI_M2)					\
+-			this->port.accumulator -= M_PI_M2;				\
++		if (this->port.accumulator >= M_PI_M2f)					\
++			this->port.accumulator -= M_PI_M2f;				\
+ 		val = (type) (sin (this->port.accumulator) * amp);			\
+ 		for (c = 0; c < channels; ++c)						\
+ 			*samples++ = val;						\
+ 	}										\
+ }
+ 
+-DEFINE_SINE(int16_t, 32767.0);
+-DEFINE_SINE(int32_t, 2147483647.0);
+-DEFINE_SINE(float, 1.0);
+-DEFINE_SINE(double, 1.0);
++DEFINE_SINE(int16_t, 32767.0f);
++DEFINE_SINE(int32_t, 2147483647.0f);
++DEFINE_SINE(float, 1.0f);
++DEFINE_SINE(double, 1.0f);
+ 
+ static const render_func_t sine_funcs[] = {
+ 	(render_func_t) audio_test_src_create_sine_int16_t,
+diff --git a/spa/plugins/bluez5/backend-native.c b/spa/plugins/bluez5/backend-native.c
+index ee71448a2b..2f48b6f600 100644
+--- a/spa/plugins/bluez5/backend-native.c
++++ b/spa/plugins/bluez5/backend-native.c
+@@ -246,7 +246,7 @@ static int rfcomm_new_transport(struct rfcomm *rfcomm)
+ 		t->volumes[i].active = rfcomm->volumes[i].active;
+ 		t->volumes[i].hw_volume_max = SPA_BT_VOLUME_HS_MAX;
+ 		if (rfcomm->volumes[i].active && rfcomm->volumes[i].hw_volume != SPA_BT_VOLUME_INVALID)
+-			t->volumes[i].volume =
++			t->volumes[i].volume = (float)
+ 				spa_bt_volume_hw_to_linear(rfcomm->volumes[i].hw_volume, t->volumes[i].hw_volume_max);
+ 	}
+ 
+@@ -424,7 +424,7 @@ static void rfcomm_emit_volume_changed(struct rfcomm *rfcomm, int id, int hw_vol
+ 	for (int i = 0; i < SPA_BT_VOLUME_ID_TERM ; ++i) {
+ 		t_volume = &rfcomm->transport->volumes[i];
+ 		t_volume->active = rfcomm->volumes[i].active;
+-		t_volume->volume =
++		t_volume->volume = (float)
+ 			spa_bt_volume_hw_to_linear(rfcomm->volumes[i].hw_volume, t_volume->hw_volume_max);
+ 	}
+ 
+diff --git a/spa/plugins/bluez5/bluez5-dbus.c b/spa/plugins/bluez5/bluez5-dbus.c
+index 1ef1ad2e2c..fe288219f9 100644
+--- a/spa/plugins/bluez5/bluez5-dbus.c
++++ b/spa/plugins/bluez5/bluez5-dbus.c
+@@ -3172,7 +3172,7 @@ static void spa_bt_transport_volume_changed(struct spa_bt_transport *transport)
+ 
+ 	if (t_volume->hw_volume != t_volume->new_hw_volume) {
+ 		t_volume->hw_volume = t_volume->new_hw_volume;
+-		t_volume->volume = spa_bt_volume_hw_to_linear(t_volume->hw_volume,
++		t_volume->volume = (float)spa_bt_volume_hw_to_linear(t_volume->hw_volume,
+ 					t_volume->hw_volume_max);
+ 		spa_log_debug(monitor->log, "transport %p: volume changed %d(%f) ",
+ 			transport, t_volume->new_hw_volume, t_volume->volume);
+diff --git a/spa/plugins/bluez5/bluez5-device.c b/spa/plugins/bluez5/bluez5-device.c
+index dc1a265e10..009d1586bc 100644
+--- a/spa/plugins/bluez5/bluez5-device.c
++++ b/spa/plugins/bluez5/bluez5-device.c
+@@ -581,7 +581,7 @@ static void emit_device_set_node(struct impl *this, uint32_t id)
+ 
+ 	for (i = 0; i < node->n_channels; ++i) {
+ 		/* Session manager will override this, so put in some safe number */
+-		node->volumes[i] = node->soft_volumes[i] = 0.064;
++		node->volumes[i] = node->soft_volumes[i] = 0.064f;
+ 	}
+ 
+ 	/* Produce member info json */
+diff --git a/spa/plugins/bluez5/decode-buffer.h b/spa/plugins/bluez5/decode-buffer.h
+index 3b73994e29..2eab464531 100644
+--- a/spa/plugins/bluez5/decode-buffer.h
++++ b/spa/plugins/bluez5/decode-buffer.h
+@@ -253,7 +253,7 @@ static void spa_bt_decode_buffer_process(struct spa_bt_decode_buffer *this, uint
+ 		level = SPA_MAX(level, -max_level);
+ 		this->prev_consumed = SPA_MIN(this->prev_consumed, avg_period);
+ 
+-		spa_bt_ptp_update(&this->spike, this->ctl.avg - level, this->prev_consumed);
++		spa_bt_ptp_update(&this->spike, (int32_t)(this->ctl.avg - level), this->prev_consumed);
+ 
+ 		/* Update target level */
+ 		if (this->target)
+diff --git a/spa/plugins/bluez5/media-sink.c b/spa/plugins/bluez5/media-sink.c
+index 2d4fc1bd4b..3a178f4765 100644
+--- a/spa/plugins/bluez5/media-sink.c
++++ b/spa/plugins/bluez5/media-sink.c
+@@ -1045,7 +1045,7 @@ static void media_iso_pull(struct spa_bt_iso_io *iso_io)
+ 	max_err = iso_io->duration;
+ 
+ 	if (iso_io->resync && err >= 0) {
+-		unsigned int req = err * port->current_format.info.raw.rate / SPA_NSEC_PER_SEC;
++		unsigned int req = (unsigned int)(err * port->current_format.info.raw.rate / SPA_NSEC_PER_SEC);
+ 
+ 		if (req > 0) {
+ 			spa_bt_rate_control_init(&port->ratectl, 0);
+@@ -1053,7 +1053,7 @@ static void media_iso_pull(struct spa_bt_iso_io *iso_io)
+ 		}
+ 		spa_log_debug(this->log, "%p: ISO sync skip frames:%u", this, req);
+ 	} else if (iso_io->resync && -err >= 0) {
+-		unsigned int req = -err * port->current_format.info.raw.rate / SPA_NSEC_PER_SEC;
++		unsigned int req = (unsigned int)(-err * port->current_format.info.raw.rate / SPA_NSEC_PER_SEC);
+ 		static const uint8_t empty[8192] = {0};
+ 
+ 		if (req > 0) {
+@@ -1172,7 +1172,7 @@ static void media_on_timeout(struct spa_source *source)
+ 
+ 	setup_matching(this);
+ 
+-	this->next_time = now_time + duration * SPA_NSEC_PER_SEC / rate * port->ratectl.corr;
++	this->next_time = (uint64_t)(now_time + duration * SPA_NSEC_PER_SEC / rate * port->ratectl.corr);
+ 
+ 	if (SPA_LIKELY(this->clock)) {
+ 		this->clock->nsec = now_time;
+diff --git a/spa/plugins/bluez5/media-source.c b/spa/plugins/bluez5/media-source.c
+index 12bcf5b8fe..488cf49757 100644
+--- a/spa/plugins/bluez5/media-source.c
++++ b/spa/plugins/bluez5/media-source.c
+@@ -620,7 +620,7 @@ static void media_on_timeout(struct spa_source *source)
+ 
+ 	setup_matching(this);
+ 
+-	this->next_time = now_time + duration * SPA_NSEC_PER_SEC / port->buffer.corr / rate;
++	this->next_time = (uint64_t)(now_time + duration * SPA_NSEC_PER_SEC / port->buffer.corr / rate);
+ 
+ 	if (SPA_LIKELY(this->clock)) {
+ 		this->clock->nsec = now_time;
+diff --git a/spa/plugins/bluez5/midi-node.c b/spa/plugins/bluez5/midi-node.c
+index 88a929b2eb..242bd47c5b 100644
+--- a/spa/plugins/bluez5/midi-node.c
++++ b/spa/plugins/bluez5/midi-node.c
+@@ -598,7 +598,7 @@ again:
+ 				-SPA_CLAMP(err_nsec, -20*SPA_NSEC_PER_MSEC, 20*SPA_NSEC_PER_MSEC)
+ 				* this->rate / SPA_NSEC_PER_SEC);
+ 		tcorr = SPA_MIN(device_elapsed, SPA_NSEC_PER_SEC) * (corr - 1);
+-		sync->device_time += tcorr;
++		sync->device_time += (uint64_t)tcorr;
+ 
+ 		/* reset if too much off */
+ 		if (err_nsec < -50 * SPA_NSEC_PER_MSEC ||
+diff --git a/spa/plugins/bluez5/sco-source.c b/spa/plugins/bluez5/sco-source.c
+index e7f98738aa..71725e4927 100644
+--- a/spa/plugins/bluez5/sco-source.c
++++ b/spa/plugins/bluez5/sco-source.c
+@@ -667,7 +667,7 @@ static void sco_on_timeout(struct spa_source *source)
+ 
+ 	setup_matching(this);
+ 
+-	this->next_time = now_time + duration * SPA_NSEC_PER_SEC / port->buffer.corr / rate;
++	this->next_time = (uint64_t)(now_time + duration * SPA_NSEC_PER_SEC / port->buffer.corr / rate);
+ 
+ 	if (SPA_LIKELY(this->clock)) {
+ 		this->clock->nsec = now_time;
+diff --git a/spa/plugins/support/node-driver.c b/spa/plugins/support/node-driver.c
+index 1513f2e9db..468e9ab7d0 100644
+--- a/spa/plugins/support/node-driver.c
++++ b/spa/plugins/support/node-driver.c
+@@ -318,7 +318,7 @@ static inline uint64_t scale_u64(uint64_t val, uint32_t num, uint32_t denom)
+ #if 0
+ 	return ((__uint128_t)val * num) / denom;
+ #else
+-	return (double)val / denom * num;
++	return (uint64_t)((double)val / denom * num);
+ #endif
+ }
+ 
+@@ -390,7 +390,7 @@ static void on_timeout(struct spa_source *source)
+ 			}
+ 		}
+ 		corr = spa_dll_update(&this->dll, err);
+-		this->next_time = nsec + duration / corr * 1e9 / rate;
++		this->next_time = (uint64_t)(nsec + duration / corr * 1e9 / rate);
+ 	} else {
+ 		corr = 1.0;
+ 		this->next_time = scale_u64(position + duration, SPA_NSEC_PER_SEC, rate);
+@@ -710,7 +710,7 @@ impl_init(const struct spa_handle_factory *factory,
+ 		} else if (spa_streq(k, "freewheel.wait")) {
+ 			this->props.freewheel_wait = atoi(s);
+ 		} else if (spa_streq(k, "resync.ms")) {
+-			this->props.resync_ms = atof(s);
++			this->props.resync_ms = (float)atof(s);
+ 		}
+ 	}
+ 	if (this->props.clock_name[0] == '\0') {
+diff --git a/src/examples/audio-capture.c b/src/examples/audio-capture.c
+index 3a6658b9d4..f6a31dfa66 100644
+--- a/src/examples/audio-capture.c
++++ b/src/examples/audio-capture.c
+@@ -63,7 +63,7 @@ static void on_process(void *userdata)
+ 		for (n = c; n < n_samples; n += n_channels)
+ 			max = fmaxf(max, fabsf(samples[n]));
+ 
+-		peak = SPA_CLAMP(max * 30, 0, 39);
++		peak = (uint32_t)SPA_CLAMPF(max * 30, 0.f, 39.f);
+ 
+ 		fprintf(stdout, "channel %d: |%*s%*s| peak:%f\n",
+ 				c, peak+1, "*", 40 - peak, "", max);
+diff --git a/src/examples/audio-dsp-src.c b/src/examples/audio-dsp-src.c
+index f1f23702e9..0aa1c850f0 100644
+--- a/src/examples/audio-dsp-src.c
++++ b/src/examples/audio-dsp-src.c
+@@ -16,17 +16,17 @@
+ #include <pipewire/pipewire.h>
+ #include <pipewire/filter.h>
+ 
+-#define M_PI_M2 ( M_PI + M_PI )
++#define M_PI_M2f ( M_PIf + M_PIf )
+ 
+ #define DEFAULT_RATE		44100
+ #define DEFAULT_FREQ		440
+-#define DEFAULT_VOLUME		0.7
++#define DEFAULT_VOLUME		0.7f
+ 
+ struct data;
+ 
+ struct port {
+ 	struct data *data;
+-	double accumulator;
++	float accumulator;
+ };
+ 
+ struct data {
+@@ -61,11 +61,11 @@ static void on_process(void *userdata, struct spa_io_position *position)
+ 		return;
+ 
+ 	for (i = 0; i < n_samples; i++) {
+-		out_port->accumulator += M_PI_M2 * DEFAULT_FREQ / DEFAULT_RATE;
+-		if (out_port->accumulator >= M_PI_M2)
+-			out_port->accumulator -= M_PI_M2;
++		out_port->accumulator += M_PI_M2f * DEFAULT_FREQ / DEFAULT_RATE;
++		if (out_port->accumulator >= M_PI_M2f)
++			out_port->accumulator -= M_PI_M2f;
+ 
+-		*out++ = sin(out_port->accumulator) * DEFAULT_VOLUME;
++		*out++ = sinf(out_port->accumulator) * DEFAULT_VOLUME;
+ 	}
+ }
+ 
+diff --git a/src/examples/audio-src.c b/src/examples/audio-src.c
+index 22b6a581a1..d309b1083c 100644
+--- a/src/examples/audio-src.c
++++ b/src/examples/audio-src.c
+@@ -17,17 +17,17 @@
+ 
+ #include <pipewire/pipewire.h>
+ 
+-#define M_PI_M2 ( M_PI + M_PI )
++#define M_PI_M2f ( M_PIf + M_PIf )
+ 
+ #define DEFAULT_RATE		44100
+ #define DEFAULT_CHANNELS	2
+-#define DEFAULT_VOLUME		0.7
++#define DEFAULT_VOLUME		0.7f
+ 
+ struct data {
+ 	struct pw_main_loop *loop;
+ 	struct pw_stream *stream;
+ 
+-	double accumulator;
++	float accumulator;
+ };
+ 
+ static void fill_f32(struct data *d, void *dest, int n_frames)
+@@ -36,11 +36,11 @@ static void fill_f32(struct data *d, void *dest, int n_frames)
+ 	int i, c;
+ 
+         for (i = 0; i < n_frames; i++) {
+-                d->accumulator += M_PI_M2 * 440 / DEFAULT_RATE;
+-                if (d->accumulator >= M_PI_M2)
+-                        d->accumulator -= M_PI_M2;
++                d->accumulator += M_PI_M2f * 440 / DEFAULT_RATE;
++                if (d->accumulator >= M_PI_M2f)
++                        d->accumulator -= M_PI_M2f;
+ 
+-                val = sin(d->accumulator) * DEFAULT_VOLUME;
++                val = sinf(d->accumulator) * DEFAULT_VOLUME;
+                 for (c = 0; c < DEFAULT_CHANNELS; c++)
+                         *dst++ = val;
+         }
+diff --git a/src/examples/export-sink.c b/src/examples/export-sink.c
+index be1e396896..4bc3ed1960 100644
+--- a/src/examples/export-sink.c
++++ b/src/examples/export-sink.c
+@@ -29,7 +29,7 @@
+ 
+ #include "sdl.h"
+ 
+-#define M_PI_M2 ( M_PI + M_PI )
++#define M_PI_M2f ( M_PIf + M_PIf )
+ 
+ #define MAX_BUFFERS	64
+ 
+@@ -65,7 +65,7 @@ struct data {
+ 	struct spa_io_buffers *io;
+ 	struct spa_io_sequence *io_notify;
+ 	uint32_t io_notify_size;
+-	double param_accum;
++	float param_accum;
+ 
+ 	uint8_t buffer[1024];
+ 
+@@ -106,13 +106,13 @@ static void update_param(struct data *data)
+ 	spa_pod_builder_control(&b, 0, SPA_CONTROL_Properties);
+ 	spa_pod_builder_push_object(&b, &f[1], SPA_TYPE_OBJECT_Props, 0);
+ 	spa_pod_builder_prop(&b, SPA_PROP_contrast, 0);
+-	spa_pod_builder_float(&b, (sin(data->param_accum) * 127.0) + 127.0);
++	spa_pod_builder_float(&b, (sinf(data->param_accum) * 127.0f) + 127.0f);
+ 	spa_pod_builder_pop(&b, &f[1]);
+ 	spa_pod_builder_pop(&b, &f[0]);
+ 
+-        data->param_accum += M_PI_M2 / 30.0;
+-        if (data->param_accum >= M_PI_M2)
+-                data->param_accum -= M_PI_M2;
++        data->param_accum += M_PI_M2f / 30.0f;
++        if (data->param_accum >= M_PI_M2f)
++                data->param_accum -= M_PI_M2f;
+ }
+ 
+ static int impl_send_command(void *object, const struct spa_command *command)
+diff --git a/src/examples/export-source.c b/src/examples/export-source.c
+index 54e1fc332a..c94fdee08a 100644
+--- a/src/examples/export-source.c
++++ b/src/examples/export-source.c
+@@ -23,7 +23,7 @@
+ 
+ #include <pipewire/pipewire.h>
+ 
+-#define M_PI_M2 ( M_PI + M_PI )
++#define M_PI_M2f ( M_PIf + M_PIf )
+ 
+ #define BUFFER_SAMPLES	128
+ #define MAX_BUFFERS	32
+@@ -64,8 +64,8 @@ struct data {
+ 	uint32_t n_buffers;
+ 	struct spa_list empty;
+ 
+-	double accumulator;
+-	double volume_accum;
++	float accumulator;
++	float volume_accum;
+ };
+ 
+ static void update_volume(struct data *data)
+@@ -81,13 +81,13 @@ static void update_volume(struct data *data)
+ 	spa_pod_builder_control(&b, 0, SPA_CONTROL_Properties);
+ 	spa_pod_builder_push_object(&b, &f[1], SPA_TYPE_OBJECT_Props, 0);
+ 	spa_pod_builder_prop(&b, SPA_PROP_volume, 0);
+-	spa_pod_builder_float(&b, (sin(data->volume_accum) / 2.0) + 0.5);
++	spa_pod_builder_float(&b, (sinf(data->volume_accum) / 2.0f) + 0.5f);
+ 	spa_pod_builder_pop(&b, &f[1]);
+ 	spa_pod_builder_pop(&b, &f[0]);
+ 
+-        data->volume_accum += M_PI_M2 / 1000.0;
+-        if (data->volume_accum >= M_PI_M2)
+-                data->volume_accum -= M_PI_M2;
++        data->volume_accum += M_PI_M2f / 1000.0f;
++        if (data->volume_accum >= M_PI_M2f)
++                data->volume_accum -= M_PI_M2f;
+ }
+ 
+ static int impl_send_command(void *object, const struct spa_command *command)
+@@ -364,11 +364,11 @@ static void fill_f32(struct data *d, void *dest, int avail)
+         for (i = 0; i < n_samples; i++) {
+ 		float val;
+ 
+-                d->accumulator += M_PI_M2 * 440 / d->format.rate;
+-                if (d->accumulator >= M_PI_M2)
+-                        d->accumulator -= M_PI_M2;
++                d->accumulator += M_PI_M2f * 440 / d->format.rate;
++                if (d->accumulator >= M_PI_M2f)
++                        d->accumulator -= M_PI_M2f;
+ 
+-                val = sin(d->accumulator);
++                val = sinf(d->accumulator);
+ 
+                 for (c = 0; c < d->format.channels; c++)
+                         *dst++ = val;
+@@ -385,11 +385,11 @@ static void fill_s16(struct data *d, void *dest, int avail)
+         for (i = 0; i < n_samples; i++) {
+                 int16_t val;
+ 
+-                d->accumulator += M_PI_M2 * 440 / d->format.rate;
+-                if (d->accumulator >= M_PI_M2)
+-                        d->accumulator -= M_PI_M2;
++                d->accumulator += M_PI_M2f * 440 / d->format.rate;
++                if (d->accumulator >= M_PI_M2f)
++                        d->accumulator -= M_PI_M2f;
+ 
+-                val = (int16_t) (sin(d->accumulator) * 32767.0);
++                val = (int16_t) (sinf(d->accumulator) * 32767.0f);
+ 
+                 for (c = 0; c < d->format.channels; c++)
+                         *dst++ = val;
+diff --git a/src/examples/video-dsp-play.c b/src/examples/video-dsp-play.c
+index 9bd059c0fb..ad645d7a0d 100644
+--- a/src/examples/video-dsp-play.c
++++ b/src/examples/video-dsp-play.c
+@@ -128,10 +128,10 @@ on_process(void *_data, struct spa_io_position *position)
+ 	for (i = 0; i < data->position->video.size.height; i++) {
+ 		struct pixel *p = (struct pixel *) src;
+ 		for (j = 0; j < data->position->video.size.width; j++) {
+-			dst[j * 4 + 0] = SPA_CLAMP(p[j].r * 255.0f, 0, 255);
+-			dst[j * 4 + 1] = SPA_CLAMP(p[j].g * 255.0f, 0, 255);
+-			dst[j * 4 + 2] = SPA_CLAMP(p[j].b * 255.0f, 0, 255);
+-			dst[j * 4 + 3] = SPA_CLAMP(p[j].a * 255.0f, 0, 255);
++			dst[j * 4 + 0] = SPA_CLAMP((uint8_t)(p[j].r * 255.0f), 0, 255);
++			dst[j * 4 + 1] = SPA_CLAMP((uint8_t)(p[j].g * 255.0f), 0, 255);
++			dst[j * 4 + 2] = SPA_CLAMP((uint8_t)(p[j].b * 255.0f), 0, 255);
++			dst[j * 4 + 3] = SPA_CLAMP((uint8_t)(p[j].a * 255.0f), 0, 255);
+ 		}
+ 		src += sstride;
+ 		dst += dstride;
+diff --git a/src/examples/video-dsp-src.c b/src/examples/video-dsp-src.c
+index ca79917173..5992088e77 100644
+--- a/src/examples/video-dsp-src.c
++++ b/src/examples/video-dsp-src.c
+@@ -123,18 +123,18 @@ static void on_process(void *userdata)
+ 	}
+ 	if ((mc = spa_buffer_find_meta_data(buf, SPA_META_VideoCrop, sizeof(*mc)))) {
+ 		data->crop = (sin(data->accumulator) + 1.0) * 32.0;
+-		mc->region.position.x = data->crop;
+-		mc->region.position.y = data->crop;
+-		mc->region.size.width = data->position->video.size.width - data->crop*2;
+-		mc->region.size.height = data->position->video.size.height - data->crop*2;
++		mc->region.position.x = (int32_t)data->crop;
++		mc->region.position.y = (int32_t)data->crop;
++		mc->region.size.width = data->position->video.size.width - (int32_t)(data->crop*2);
++		mc->region.size.height = data->position->video.size.height - (int32_t)(data->crop*2);
+ 	}
+ 	if ((mcs = spa_buffer_find_meta_data(buf, SPA_META_Cursor, sizeof(*mcs)))) {
+ 		struct spa_meta_bitmap *mb;
+ 		uint32_t *bitmap, color;
+ 
+ 		mcs->id = 1;
+-		mcs->position.x = (sin(data->accumulator) + 1.0) * 160.0 + 80;
+-		mcs->position.y = (cos(data->accumulator) + 1.0) * 100.0 + 50;
++		mcs->position.x = (int32_t)((sin(data->accumulator) + 1.0) * 160.0 + 80);
++		mcs->position.y = (int32_t)((cos(data->accumulator) + 1.0) * 100.0 + 50);
+ 		mcs->hotspot.x = 0;
+ 		mcs->hotspot.y = 0;
+ 		mcs->bitmap_offset = sizeof(struct spa_meta_cursor);
+@@ -147,7 +147,7 @@ static void on_process(void *userdata)
+ 		mb->offset = sizeof(struct spa_meta_bitmap);
+ 
+ 		bitmap = SPA_PTROFF(mb, mb->offset, uint32_t);
+-		color = (cos(data->accumulator) + 1.0) * (1 << 23);
++		color = (uint32_t)((cos(data->accumulator) + 1.0) * (1 << 23));
+ 		color |= 0xff000000;
+ 
+ 		draw_elipse(bitmap, mb->size.width, mb->size.height, color);
+diff --git a/src/examples/video-play-pull.c b/src/examples/video-play-pull.c
+index bd5e3e59ab..2e685d06af 100644
+--- a/src/examples/video-play-pull.c
++++ b/src/examples/video-play-pull.c
+@@ -197,10 +197,10 @@ on_process(void *_data)
+ 			for (i = 0; i < data->size.height; i++) {
+ 				struct pixel *p = (struct pixel *) src;
+ 				for (j = 0; j < data->size.width; j++) {
+-					dst[j * 4 + 0] = SPA_CLAMP(p[j].r * 255.0f, 0, 255);
+-					dst[j * 4 + 1] = SPA_CLAMP(p[j].g * 255.0f, 0, 255);
+-					dst[j * 4 + 2] = SPA_CLAMP(p[j].b * 255.0f, 0, 255);
+-					dst[j * 4 + 3] = SPA_CLAMP(p[j].a * 255.0f, 0, 255);
++					dst[j * 4 + 0] = SPA_CLAMP((uint8_t)(p[j].r * 255.0f), 0u, 255u);
++					dst[j * 4 + 1] = SPA_CLAMP((uint8_t)(p[j].g * 255.0f), 0u, 255u);
++					dst[j * 4 + 2] = SPA_CLAMP((uint8_t)(p[j].b * 255.0f), 0u, 255u);
++					dst[j * 4 + 3] = SPA_CLAMP((uint8_t)(p[j].a * 255.0f), 0u, 255u);
+ 				}
+ 				src += sstride;
+ 				dst += dstride;
+diff --git a/src/examples/video-play.c b/src/examples/video-play.c
+index d169cec64b..53041f284d 100644
+--- a/src/examples/video-play.c
++++ b/src/examples/video-play.c
+@@ -205,10 +205,10 @@ on_process(void *_data)
+ 			for (i = 0; i < data->size.height; i++) {
+ 				struct pixel *p = (struct pixel *) src;
+ 				for (j = 0; j < data->size.width; j++) {
+-					dst[j * 4 + 0] = SPA_CLAMP(p[j].r * 255.0f, 0, 255);
+-					dst[j * 4 + 1] = SPA_CLAMP(p[j].g * 255.0f, 0, 255);
+-					dst[j * 4 + 2] = SPA_CLAMP(p[j].b * 255.0f, 0, 255);
+-					dst[j * 4 + 3] = SPA_CLAMP(p[j].a * 255.0f, 0, 255);
++					dst[j * 4 + 0] = SPA_CLAMP((uint8_t)(p[j].r * 255.0f), 0u, 255u);
++					dst[j * 4 + 1] = SPA_CLAMP((uint8_t)(p[j].g * 255.0f), 0u, 255u);
++					dst[j * 4 + 2] = SPA_CLAMP((uint8_t)(p[j].b * 255.0f), 0u, 255u);
++					dst[j * 4 + 3] = SPA_CLAMP((uint8_t)(p[j].a * 255.0f), 0u, 255u);
+ 				}
+ 				src += sstride;
+ 				dst += dstride;
+diff --git a/src/examples/video-src-alloc.c b/src/examples/video-src-alloc.c
+index a066495810..1165183c45 100644
+--- a/src/examples/video-src-alloc.c
++++ b/src/examples/video-src-alloc.c
+@@ -111,18 +111,18 @@ static void on_process(void *userdata)
+ 	}
+ 	if ((mc = spa_buffer_find_meta_data(buf, SPA_META_VideoCrop, sizeof(*mc)))) {
+ 		data->crop = (sin(data->accumulator) + 1.0) * 32.0;
+-		mc->region.position.x = data->crop;
+-		mc->region.position.y = data->crop;
+-		mc->region.size.width = data->format.size.width - data->crop*2;
+-		mc->region.size.height = data->format.size.height - data->crop*2;
++		mc->region.position.x = (int32_t)data->crop;
++		mc->region.position.y = (int32_t)data->crop;
++		mc->region.size.width = data->format.size.width - (int32_t)(data->crop*2);
++		mc->region.size.height = data->format.size.height - (int32_t)(data->crop*2);
+ 	}
+ 	if ((mcs = spa_buffer_find_meta_data(buf, SPA_META_Cursor, sizeof(*mcs)))) {
+ 		struct spa_meta_bitmap *mb;
+ 		uint32_t *bitmap, color;
+ 
+ 		mcs->id = 1;
+-		mcs->position.x = (sin(data->accumulator) + 1.0) * 160.0 + 80;
+-		mcs->position.y = (cos(data->accumulator) + 1.0) * 100.0 + 50;
++		mcs->position.x = (int32_t)((sin(data->accumulator) + 1.0) * 160.0 + 80);
++		mcs->position.y = (int32_t)((cos(data->accumulator) + 1.0) * 100.0 + 50);
+ 		mcs->hotspot.x = 0;
+ 		mcs->hotspot.y = 0;
+ 		mcs->bitmap_offset = sizeof(struct spa_meta_cursor);
+@@ -135,7 +135,7 @@ static void on_process(void *userdata)
+ 		mb->offset = sizeof(struct spa_meta_bitmap);
+ 
+ 		bitmap = SPA_PTROFF(mb, mb->offset, uint32_t);
+-		color = (cos(data->accumulator) + 1.0) * (1 << 23);
++		color = (uint32_t)((cos(data->accumulator) + 1.0) * (1 << 23));
+ 		color |= 0xff000000;
+ 
+ 		draw_elipse(bitmap, mb->size.width, mb->size.height, color);
+diff --git a/src/examples/video-src-fixate.c b/src/examples/video-src-fixate.c
+index 260234db45..724974a44d 100644
+--- a/src/examples/video-src-fixate.c
++++ b/src/examples/video-src-fixate.c
+@@ -185,18 +185,18 @@ static void on_process(void *userdata)
+ 	}
+ 	if ((mc = spa_buffer_find_meta_data(buf, SPA_META_VideoCrop, sizeof(*mc)))) {
+ 		data->crop = (sin(data->accumulator) + 1.0) * 32.0;
+-		mc->region.position.x = data->crop;
+-		mc->region.position.y = data->crop;
+-		mc->region.size.width = data->format.size.width - data->crop*2;
+-		mc->region.size.height = data->format.size.height - data->crop*2;
++		mc->region.position.x = (int32_t)data->crop;
++		mc->region.position.y = (int32_t)data->crop;
++		mc->region.size.width = data->format.size.width - (int32_t)(data->crop*2);
++		mc->region.size.height = data->format.size.height - (int32_t)(data->crop*2);
+ 	}
+ 	if ((mcs = spa_buffer_find_meta_data(buf, SPA_META_Cursor, sizeof(*mcs)))) {
+ 		struct spa_meta_bitmap *mb;
+ 		uint32_t *bitmap, color;
+ 
+ 		mcs->id = 1;
+-		mcs->position.x = (sin(data->accumulator) + 1.0) * 160.0 + 80;
+-		mcs->position.y = (cos(data->accumulator) + 1.0) * 100.0 + 50;
++		mcs->position.x = (int32_t)((sin(data->accumulator) + 1.0) * 160.0 + 80);
++		mcs->position.y = (int32_t)((cos(data->accumulator) + 1.0) * 100.0 + 50);
+ 		mcs->hotspot.x = 0;
+ 		mcs->hotspot.y = 0;
+ 		mcs->bitmap_offset = sizeof(struct spa_meta_cursor);
+@@ -209,7 +209,7 @@ static void on_process(void *userdata)
+ 		mb->offset = sizeof(struct spa_meta_bitmap);
+ 
+ 		bitmap = SPA_PTROFF(mb, mb->offset, uint32_t);
+-		color = (cos(data->accumulator) + 1.0) * (1 << 23);
++		color = (uint32_t)((cos(data->accumulator) + 1.0) * (1 << 23));
+ 		color |= 0xff000000;
+ 
+ 		draw_elipse(bitmap, mb->size.width, mb->size.height, color);
+diff --git a/src/examples/video-src-reneg.c b/src/examples/video-src-reneg.c
+index 8b36987f67..d9f6abf8b9 100644
+--- a/src/examples/video-src-reneg.c
++++ b/src/examples/video-src-reneg.c
+@@ -115,18 +115,18 @@ static void on_process(void *userdata)
+ 	}
+ 	if ((mc = spa_buffer_find_meta_data(buf, SPA_META_VideoCrop, sizeof(*mc)))) {
+ 		data->crop = (sin(data->accumulator) + 1.0) * 32.0;
+-		mc->region.position.x = data->crop;
+-		mc->region.position.y = data->crop;
+-		mc->region.size.width = data->format.size.width - data->crop*2;
+-		mc->region.size.height = data->format.size.height - data->crop*2;
++		mc->region.position.x = (int32_t)data->crop;
++		mc->region.position.y = (int32_t)data->crop;
++		mc->region.size.width = data->format.size.width - (int32_t)(data->crop*2);
++		mc->region.size.height = data->format.size.height - (int32_t)(data->crop*2);
+ 	}
+ 	if ((mcs = spa_buffer_find_meta_data(buf, SPA_META_Cursor, sizeof(*mcs)))) {
+ 		struct spa_meta_bitmap *mb;
+ 		uint32_t *bitmap, color;
+ 
+ 		mcs->id = 1;
+-		mcs->position.x = (sin(data->accumulator) + 1.0) * 160.0 + 80;
+-		mcs->position.y = (cos(data->accumulator) + 1.0) * 100.0 + 50;
++		mcs->position.x = (int32_t)((sin(data->accumulator) + 1.0) * 160.0 + 80);
++		mcs->position.y = (int32_t)((cos(data->accumulator) + 1.0) * 100.0 + 50);
+ 		mcs->hotspot.x = 0;
+ 		mcs->hotspot.y = 0;
+ 		mcs->bitmap_offset = sizeof(struct spa_meta_cursor);
+@@ -139,7 +139,7 @@ static void on_process(void *userdata)
+ 		mb->offset = sizeof(struct spa_meta_bitmap);
+ 
+ 		bitmap = SPA_PTROFF(mb, mb->offset, uint32_t);
+-		color = (cos(data->accumulator) + 1.0) * (1 << 23);
++		color = (uint32_t)((cos(data->accumulator) + 1.0) * (1 << 23));
+ 		color |= 0xff000000;
+ 
+ 		draw_elipse(bitmap, mb->size.width, mb->size.height, color);
+diff --git a/src/examples/video-src.c b/src/examples/video-src.c
+index ef266a7afa..fff3e620a4 100644
+--- a/src/examples/video-src.c
++++ b/src/examples/video-src.c
+@@ -111,18 +111,18 @@ static void on_process(void *userdata)
+ 	}
+ 	if ((mc = spa_buffer_find_meta_data(buf, SPA_META_VideoCrop, sizeof(*mc)))) {
+ 		data->crop = (sin(data->accumulator) + 1.0) * 32.0;
+-		mc->region.position.x = data->crop;
+-		mc->region.position.y = data->crop;
+-		mc->region.size.width = data->format.size.width - data->crop*2;
+-		mc->region.size.height = data->format.size.height - data->crop*2;
++		mc->region.position.x = (int32_t)data->crop;
++		mc->region.position.y = (int32_t)data->crop;
++		mc->region.size.width = data->format.size.width - (int32_t)(data->crop*2);
++		mc->region.size.height = data->format.size.height - (int32_t)(data->crop*2);
+ 	}
+ 	if ((mcs = spa_buffer_find_meta_data(buf, SPA_META_Cursor, sizeof(*mcs)))) {
+ 		struct spa_meta_bitmap *mb;
+ 		uint32_t *bitmap, color;
+ 
+ 		mcs->id = 1;
+-		mcs->position.x = (sin(data->accumulator) + 1.0) * 160.0 + 80;
+-		mcs->position.y = (cos(data->accumulator) + 1.0) * 100.0 + 50;
++		mcs->position.x = (int32_t)((sin(data->accumulator) + 1.0) * 160.0 + 80);
++		mcs->position.y = (int32_t)((cos(data->accumulator) + 1.0) * 100.0 + 50);
+ 		mcs->hotspot.x = 0;
+ 		mcs->hotspot.y = 0;
+ 		mcs->bitmap_offset = sizeof(struct spa_meta_cursor);
+@@ -135,7 +135,7 @@ static void on_process(void *userdata)
+ 		mb->offset = sizeof(struct spa_meta_bitmap);
+ 
+ 		bitmap = SPA_PTROFF(mb, mb->offset, uint32_t);
+-		color = (cos(data->accumulator) + 1.0) * (1 << 23);
++		color = (uint32_t)((cos(data->accumulator) + 1.0) * (1 << 23));
+ 		color |= 0xff000000;
+ 
+ 		draw_elipse(bitmap, mb->size.width, mb->size.height, color);
+diff --git a/src/modules/module-avb/maap.c b/src/modules/module-avb/maap.c
+index 2a78b30ba2..5dbe962eaa 100644
+--- a/src/modules/module-avb/maap.c
++++ b/src/modules/module-avb/maap.c
+@@ -78,10 +78,10 @@ static void maap_message_debug(struct maap *maap, const struct avb_packet_maap *
+ 	pw_log_info("  conflict-count: %d", AVB_PACKET_MAAP_GET_CONFLICT_COUNT(p));
+ }
+ 
+-#define PROBE_TIMEOUT(n) ((n) + (MAAP_PROBE_INTERVAL_MS + \
+-                        drand48() * MAAP_PROBE_INTERVAL_VAR_MS) * SPA_NSEC_PER_MSEC)
+-#define ANNOUNCE_TIMEOUT(n) ((n) + (MAAP_ANNOUNCE_INTERVAL_MS + \
+-                        drand48() * MAAP_ANNOUNCE_INTERVAL_VAR_MS) * SPA_NSEC_PER_MSEC)
++#define PROBE_TIMEOUT(n) (uint64_t)(((n) + (MAAP_PROBE_INTERVAL_MS + \
++                        drand48() * MAAP_PROBE_INTERVAL_VAR_MS) * SPA_NSEC_PER_MSEC))
++#define ANNOUNCE_TIMEOUT(n) (uint64_t)(((n) + (MAAP_ANNOUNCE_INTERVAL_MS + \
++                        drand48() * MAAP_ANNOUNCE_INTERVAL_VAR_MS) * SPA_NSEC_PER_MSEC))
+ 
+ static int make_new_address(struct maap *maap, uint64_t now, int range)
+ {
+diff --git a/src/modules/module-filter-chain.c b/src/modules/module-filter-chain.c
+index 5712ac525a..4572943215 100644
+--- a/src/modules/module-filter-chain.c
++++ b/src/modules/module-filter-chain.c
+@@ -1022,12 +1022,12 @@ static struct spa_pod *get_prop_info(struct graph *graph, struct spa_pod_builder
+ 		}
+ 	} else if (p->hint & FC_HINT_INTEGER) {
+ 		if (min == max) {
+-			spa_pod_builder_int(b, def);
++			spa_pod_builder_int(b, (int32_t)def);
+ 		} else {
+ 			spa_pod_builder_push_choice(b, &f[1], SPA_CHOICE_Range, 0);
+-			spa_pod_builder_int(b, def);
+-			spa_pod_builder_int(b, min);
+-			spa_pod_builder_int(b, max);
++			spa_pod_builder_int(b, (int32_t)def);
++			spa_pod_builder_int(b, (int32_t)min);
++			spa_pod_builder_int(b, (int32_t)max);
+ 			spa_pod_builder_pop(b, &f[1]);
+ 		}
+ 	} else {
+@@ -1073,7 +1073,7 @@ static struct spa_pod *get_props_param(struct graph *graph, struct spa_pod_build
+ 		if (p->hint & FC_HINT_BOOLEAN) {
+ 			spa_pod_builder_bool(b, port->control_data[0] <= 0.0f ? false : true);
+ 		} else if (p->hint & FC_HINT_INTEGER) {
+-			spa_pod_builder_int(b, port->control_data[0]);
++			spa_pod_builder_int(b, (int32_t)port->control_data[0]);
+ 		} else {
+ 			spa_pod_builder_float(b, port->control_data[0]);
+ 		}
+@@ -1140,7 +1140,7 @@ static int parse_params(struct graph *graph, const struct spa_pod *pod)
+ 		if (spa_pod_parser_get_float(&prs, &value) >= 0) {
+ 			val = &value;
+ 		} else if (spa_pod_parser_get_double(&prs, &dbl_val) >= 0) {
+-			value = dbl_val;
++			value = (float)dbl_val;
+ 			val = &value;
+ 		} else if (spa_pod_parser_get_int(&prs, &int_val) >= 0) {
+ 			value = int_val;
+@@ -1217,7 +1217,7 @@ static int sync_volume(struct graph *graph, struct volume *vol)
+ 		float v = vol->mute ? 0.0f : vol->volumes[i];
+ 		switch (vol->scale[n_port]) {
+ 		case SCALE_CUBIC:
+-			v = cbrt(v);
++			v = cbrtf(v);
+ 			break;
+ 		}
+ 		v = v * (vol->max[n_port] - vol->min[n_port]) + vol->min[n_port];
+diff --git a/src/modules/module-filter-chain/biquad.c b/src/modules/module-filter-chain/biquad.c
+index 58c8dd0b72..c11f76e0d8 100644
+--- a/src/modules/module-filter-chain/biquad.c
++++ b/src/modules/module-filter-chain/biquad.c
+@@ -19,11 +19,11 @@ static void set_coefficient(struct biquad *bq, double b0, double b1, double b2,
+ 			    double a0, double a1, double a2)
+ {
+ 	double a0_inv = 1 / a0;
+-	bq->b0 = b0 * a0_inv;
+-	bq->b1 = b1 * a0_inv;
+-	bq->b2 = b2 * a0_inv;
+-	bq->a1 = a1 * a0_inv;
+-	bq->a2 = a2 * a0_inv;
++	bq->b0 = (float)(b0 * a0_inv);
++	bq->b1 = (float)(b1 * a0_inv);
++	bq->b2 = (float)(b2 * a0_inv);
++	bq->a1 = (float)(a1 * a0_inv);
++	bq->a2 = (float)(a2 * a0_inv);
+ }
+ 
+ static void biquad_lowpass(struct biquad *bq, double cutoff, double resonance)
+diff --git a/src/modules/module-filter-chain/builtin_plugin.c b/src/modules/module-filter-chain/builtin_plugin.c
+index 6a862f748b..2901b80558 100644
+--- a/src/modules/module-filter-chain/builtin_plugin.c
++++ b/src/modules/module-filter-chain/builtin_plugin.c
+@@ -752,10 +752,10 @@ static float *create_hilbert(const char *filename, float gain, int delay, int of
+         if (samples == NULL)
+ 		return NULL;
+ 
+-	gain *= 2 / M_PI;
++	gain *= 2 / M_PIf;
+ 	h = length / 2;
+ 	for (i = 1; i < h; i += 2) {
+-		v = (gain / i) * (0.43f + 0.57f * cosf(i * M_PI / h));
++		v = (gain / i) * (0.43f + 0.57f * cosf(i * M_PIf / h));
+ 		samples[delay + h + i] = -v;
+ 		samples[delay + h - i] =  v;
+ 	}
+@@ -1134,7 +1134,7 @@ static void *delay_instantiate(const struct fc_descriptor * Descriptor,
+ 		return NULL;
+ 
+ 	impl->rate = SampleRate;
+-	impl->buffer_samples = max_delay * impl->rate;
++	impl->buffer_samples = (uint32_t)(max_delay * impl->rate);
+ 	pw_log_info("max-delay:%f seconds rate:%lu samples:%d", max_delay, impl->rate, impl->buffer_samples);
+ 
+ 	impl->buffer = calloc(impl->buffer_samples, sizeof(float));
+@@ -1163,7 +1163,7 @@ static void delay_run(void * Instance, unsigned long SampleCount)
+ 	uint32_t r, w;
+ 
+ 	if (delay != impl->delay) {
+-		impl->delay_samples = SPA_CLAMP(delay * impl->rate, 0, impl->buffer_samples-1);
++		impl->delay_samples = SPA_CLAMP((uint32_t)(delay * impl->rate), 0u, impl->buffer_samples-1);
+ 		impl->delay = delay;
+ 	}
+ 	r = impl->ptr;
+@@ -1453,7 +1453,7 @@ static struct fc_port exp_ports[] = {
+ 	{ .index = 4,
+ 	  .name = "Base",
+ 	  .flags = FC_PORT_INPUT | FC_PORT_CONTROL,
+-	  .def = M_E, .min = -10.0f, .max = 10.0f
++	  .def = M_Ef, .min = -10.0f, .max = 10.0f
+ 	},
+ };
+ 
+@@ -1510,7 +1510,7 @@ static struct fc_port log_ports[] = {
+ 	{ .index = 4,
+ 	  .name = "Base",
+ 	  .flags = FC_PORT_INPUT | FC_PORT_CONTROL,
+-	  .def = M_E, .min = 2.0f, .max = 100.0f
++	  .def = M_Ef, .min = 2.0f, .max = 100.0f
+ 	},
+ 	{ .index = 5,
+ 	  .name = "M1",
+@@ -1611,7 +1611,7 @@ static const struct fc_descriptor mult_desc = {
+ 	.cleanup = builtin_cleanup,
+ };
+ 
+-#define M_PI_M2 ( M_PI + M_PI )
++#define M_PI_M2f ( M_PIf + M_PIf )
+ 
+ /* sine */
+ static void sine_run(void * Instance, unsigned long SampleCount)
+@@ -1626,13 +1626,13 @@ static void sine_run(void * Instance, unsigned long SampleCount)
+ 
+ 	for (n = 0; n < SampleCount; n++) {
+ 		if (out != NULL)
+-			out[n] = sin(impl->accum) * ampl + offs;
++			out[n] = sinf(impl->accum) * ampl + offs;
+ 		if (notify != NULL && n == 0)
+-			notify[0] = sin(impl->accum) * ampl + offs;
++			notify[0] = sinf(impl->accum) * ampl + offs;
+ 
+-		impl->accum += M_PI_M2 * freq / impl->rate;
+-		if (impl->accum >= M_PI_M2)
+-			impl->accum -= M_PI_M2;
++		impl->accum += M_PI_M2f * freq / impl->rate;
++		if (impl->accum >= M_PI_M2f)
++			impl->accum -= M_PI_M2f;
+ 	}
+ }
+ 
+@@ -1658,7 +1658,7 @@ static struct fc_port sine_ports[] = {
+ 	{ .index = 4,
+ 	  .name = "Phase",
+ 	  .flags = FC_PORT_INPUT | FC_PORT_CONTROL,
+-	  .def = 0.0f, .min = -M_PI, .max = M_PI
++	  .def = 0.0f, .min = -M_PIf, .max = M_PIf
+ 	},
+ 	{ .index = 5,
+ 	  .name = "Offset",
+diff --git a/src/modules/module-filter-chain/pffft.c b/src/modules/module-filter-chain/pffft.c
+index 037019140b..64909a44aa 100644
+--- a/src/modules/module-filter-chain/pffft.c
++++ b/src/modules/module-filter-chain/pffft.c
+@@ -1273,7 +1273,7 @@ static void rffti1_ps(int n, float *wa, int *ifac)
+ 	int k1, j, ii;
+ 
+ 	int nf = decompose(n, ifac, ntryh);
+-	float argh = (2 * M_PI) / n;
++	float argh = (2 * M_PIf) / n;
+ 	int is = 0;
+ 	int nfm1 = nf - 1;
+ 	int l1 = 1;
+@@ -1291,8 +1291,8 @@ static void rffti1_ps(int n, float *wa, int *ifac)
+ 			for (ii = 3; ii <= ido; ii += 2) {
+ 				i += 2;
+ 				fi += 1;
+-				wa[i - 2] = cos(fi * argld);
+-				wa[i - 1] = sin(fi * argld);
++				wa[i - 2] = cosf(fi * argld);
++				wa[i - 1] = sinf(fi * argld);
+ 			}
+ 			is += ido;
+ 		}
+@@ -1306,7 +1306,7 @@ static void cffti1_ps(int n, float *wa, int *ifac)
+ 	int k1, j, ii;
+ 
+ 	int nf = decompose(n, ifac, ntryh);
+-	float argh = (2 * M_PI) / (float)n;
++	float argh = (2 * M_PIf) / (float)n;
+ 	int i = 1;
+ 	int l1 = 1;
+ 	for (k1 = 1; k1 <= nf; k1++) {
+@@ -1326,8 +1326,8 @@ static void cffti1_ps(int n, float *wa, int *ifac)
+ 			for (ii = 4; ii <= idot; ii += 2) {
+ 				i += 2;
+ 				fi += 1;
+-				wa[i - 1] = cos(fi * argld);
+-				wa[i] = sin(fi * argld);
++				wa[i - 1] = cosf(fi * argld);
++				wa[i] = sinf(fi * argld);
+ 			}
+ 			if (ip > 5) {
+ 				wa[i1 - 1] = wa[i - 1];
+@@ -1440,11 +1440,11 @@ static PFFFT_Setup *new_setup_simd(int N, pffft_transform_t transform)
+ 			int i = k / SIMD_SZ;
+ 			int j = k % SIMD_SZ;
+ 			for (m = 0; m < SIMD_SZ - 1; ++m) {
+-				float A = -2 * M_PI * (m + 1) * k / N;
++				float A = -2 * M_PIf * (m + 1) * k / N;
+ 				s->e[(2 * (i * 3 + m) + 0) * SIMD_SZ + j] =
+-				    cos(A);
++				    cosf(A);
+ 				s->e[(2 * (i * 3 + m) + 1) * SIMD_SZ + j] =
+-				    sin(A);
++				    sinf(A);
+ 			}
+ 		}
+ 		rffti1_ps(N / SIMD_SZ, s->twiddle, s->ifac);
+@@ -1453,11 +1453,11 @@ static PFFFT_Setup *new_setup_simd(int N, pffft_transform_t transform)
+ 			int i = k / SIMD_SZ;
+ 			int j = k % SIMD_SZ;
+ 			for (m = 0; m < SIMD_SZ - 1; ++m) {
+-				float A = -2 * M_PI * (m + 1) * k / N;
++				float A = -2 * M_PIf * (m + 1) * k / N;
+ 				s->e[(2 * (i * 3 + m) + 0) * SIMD_SZ + j] =
+-				    cos(A);
++				    cosf(A);
+ 				s->e[(2 * (i * 3 + m) + 1) * SIMD_SZ + j] =
+-				    sin(A);
++				    sinf(A);
+ 			}
+ 		}
+ 		cffti1_ps(N / SIMD_SZ, s->twiddle, s->ifac);
+@@ -1765,7 +1765,7 @@ static NEVER_INLINE(void) pffft_real_finalize(int Ncvec, const v4sf * in,
+ 	v4sf_union cr, ci, *uout = (v4sf_union *) out;
+ 	v4sf save = in[7], zero = VZERO();
+ 	float xr0, xi0, xr1, xi1, xr2, xi2, xr3, xi3;
+-	static const float s = M_SQRT2 / 2;
++	static const float s = M_SQRT2f / 2;
+ 
+ 	cr.v = in[0];
+ 	ci.v = in[Ncvec * 2 - 1];
+@@ -1871,7 +1871,7 @@ static NEVER_INLINE(void) pffft_real_preprocess(int Ncvec, const v4sf * in,
+ 
+ 	v4sf_union Xr, Xi, *uout = (v4sf_union *) out;
+ 	float cr0, ci0, cr1, ci1, cr2, ci2, cr3, ci3;
+-	static const float s = M_SQRT2;
++	static const float s = M_SQRT2f;
+ 	assert(in != out);
+ 	for (k = 0; k < 4; ++k) {
+ 		Xr.f[k] = ((float *)in)[8 * k];
+diff --git a/src/modules/module-loopback.c b/src/modules/module-loopback.c
+index 7944977c90..6933c0ee74 100644
+--- a/src/modules/module-loopback.c
++++ b/src/modules/module-loopback.c
+@@ -248,7 +248,7 @@ static void capture_destroy(void *d)
+ 
+ static void recalculate_delay(struct impl *impl)
+ {
+-	uint32_t target = impl->rate * impl->target_delay, cdelay, pdelay;
++	uint32_t target = (uint32_t)(impl->rate * impl->target_delay), cdelay, pdelay;
+ 	uint32_t delay, w;
+ 	struct pw_time pwt;
+ 
+@@ -435,7 +435,7 @@ static void param_format_changed(struct impl *impl, const struct spa_pod *param,
+ static void recalculate_buffer(struct impl *impl)
+ {
+ 	if (impl->target_delay > 0.0f && impl->channels > 0 && impl->rate > 0) {
+-		uint32_t delay = impl->rate * impl->target_delay;
++		uint32_t delay = (uint32_t)(impl->rate * impl->target_delay);
+ 		void *data;
+ 
+ 		impl->buffer_size = (delay + (1u<<15)) * 4;
+diff --git a/src/modules/module-pipe-tunnel.c b/src/modules/module-pipe-tunnel.c
+index d26d64b9d3..ee963357c1 100644
+--- a/src/modules/module-pipe-tunnel.c
++++ b/src/modules/module-pipe-tunnel.c
+@@ -199,7 +199,7 @@ struct impl {
+ 
+ 	struct spa_dll dll;
+ 	float max_error;
+-	float corr;
++	double corr;
+ 
+ 	uint64_t next_time;
+ 	unsigned int have_sync:1;
+@@ -244,7 +244,7 @@ static void on_timeout(void *d, uint64_t expirations)
+ 	pw_log_debug("timeout %"PRIu64, duration);
+ 
+ 	current_time = impl->next_time;
+-	impl->next_time += duration / impl->corr * 1e9 / rate;
++	impl->next_time += (uint64_t)(duration / impl->corr * 1e9 / rate);
+ 	avail = spa_ringbuffer_get_read_index(&impl->ring, &index);
+ 
+ 	if (SPA_LIKELY(pos)) {
+@@ -376,7 +376,7 @@ static void update_rate(struct impl *impl, uint32_t filled)
+ 
+ 	if (!impl->driving) {
+ 		SPA_FLAG_SET(impl->rate_match->flags, SPA_IO_RATE_MATCH_FLAG_ACTIVE);
+-		impl->rate_match->rate = 1.0f / impl->corr;
++		impl->rate_match->rate = 1.0 / impl->corr;
+ 	}
+ }
+ 
+diff --git a/src/modules/module-protocol-pulse/format.c b/src/modules/module-protocol-pulse/format.c
+index 8ab786b3f7..5626fe2735 100644
+--- a/src/modules/module-protocol-pulse/format.c
++++ b/src/modules/module-protocol-pulse/format.c
+@@ -868,7 +868,7 @@ int format_info_to_spec(const struct format_info *info, struct sample_spec *ss,
+ 	if (spa_json_is_float(val, len)) {
+ 		if (spa_json_parse_float(val, len, &f) <= 0)
+ 			return -EINVAL;
+-		ss->channels = f;
++		ss->channels = (uint8_t)f;
+ 	} else if (spa_json_is_array(val, len)) {
+ 		return -ENOTSUP;
+ 	} else if (spa_json_is_object(val, len)) {
+diff --git a/src/modules/module-protocol-pulse/message.c b/src/modules/module-protocol-pulse/message.c
+index d2251f2eda..dbebc437ea 100644
+--- a/src/modules/module-protocol-pulse/message.c
++++ b/src/modules/module-protocol-pulse/message.c
+@@ -636,7 +636,7 @@ int message_put(struct message *m, ...)
+ 			write_dict(m, va_arg(va, struct spa_dict*), true);
+ 			break;
+ 		case TAG_VOLUME:
+-			write_volume(m, va_arg(va, double));
++			write_volume(m, (float)va_arg(va, double));
+ 			break;
+ 		case TAG_FORMAT_INFO:
+ 			write_format_info(m, va_arg(va, struct format_info*));
+diff --git a/src/modules/module-protocol-pulse/pulse-server.c b/src/modules/module-protocol-pulse/pulse-server.c
+index 9f71060e3e..a2b032f864 100644
+--- a/src/modules/module-protocol-pulse/pulse-server.c
++++ b/src/modules/module-protocol-pulse/pulse-server.c
+@@ -4559,7 +4559,7 @@ static int do_update_stream_sample_rate(struct client *client, uint32_t command,
+ 
+ 	stream->rate = rate;
+ 
+-	corr = (double)rate/(double)stream->ss.rate;
++	corr = (float)rate/(float)stream->ss.rate;
+ 	pw_stream_set_control(stream->stream, SPA_PROP_rate, 1, &corr, NULL);
+ 
+ 	return reply_simple_ack(client, tag);
+diff --git a/src/modules/module-protocol-pulse/volume.c b/src/modules/module-protocol-pulse/volume.c
+index 36b67f6015..b47a1d0267 100644
+--- a/src/modules/module-protocol-pulse/volume.c
++++ b/src/modules/module-protocol-pulse/volume.c
+@@ -79,7 +79,7 @@ int volume_parse_param(const struct spa_pod *param, struct volume_info *info, bo
+ 		{
+ 			float step;
+ 			if (spa_pod_get_float(&prop->value, &step) >= 0)
+-				info->steps = 0x10000u * step;
++				info->steps = (uint32_t)(0x10000u * step);
+ 			break;
+ 		}
+ 		case SPA_PROP_channelMap:
+diff --git a/src/modules/module-pulse-tunnel.c b/src/modules/module-pulse-tunnel.c
+index 9ace594b2e..37b6f6d563 100644
+--- a/src/modules/module-pulse-tunnel.c
++++ b/src/modules/module-pulse-tunnel.c
+@@ -339,7 +339,7 @@ static void update_rate(struct impl *impl, uint32_t filled)
+ 	error = (float)impl->target_latency - (float)(current_latency);
+ 	error = SPA_CLAMP(error, -impl->max_error, impl->max_error);
+ 
+-	corr = spa_dll_update(&impl->dll, error);
++	corr = (float)spa_dll_update(&impl->dll, error);
+ 	pw_log_debug("error:%f corr:%f current:%u target:%u",
+ 			error, corr,
+ 			current_latency, impl->target_latency);
+@@ -853,7 +853,7 @@ do_stream_sync_volumes(struct spa_loop *loop,
+ 	float soft_vols[SPA_AUDIO_MAX_CHANNELS];
+ 
+ 	for (i = 0; i < impl->volume.channels; i++) {
+-		vols[i] = pa_sw_volume_to_linear(impl->volume.values[i]);
++		vols[i] = (float)pa_sw_volume_to_linear(impl->volume.values[i]);
+ 		soft_vols[i] = 1.0f;
+ 	}
+ 
+diff --git a/src/modules/module-raop-sink.c b/src/modules/module-raop-sink.c
+index 70a8a5a2a4..2644ee5142 100644
+--- a/src/modules/module-raop-sink.c
++++ b/src/modules/module-raop-sink.c
+@@ -1639,7 +1639,7 @@ static void stream_props_changed(struct impl *impl, uint32_t id, const struct sp
+ 					soft_vols[i] = 1.0f;
+ 				}
+ 				volume /= n_vols;
+-				volume = SPA_CLAMPF(cbrt(volume) * 30 - 30, VOLUME_MIN, VOLUME_MAX);
++				volume = SPA_CLAMPF(cbrtf(volume) * 30 - 30, VOLUME_MIN, VOLUME_MAX);
+ 				impl->volume = volume;
+ 
+ 				rtsp_send_volume(impl);
+diff --git a/src/modules/module-rtp/audio.c b/src/modules/module-rtp/audio.c
+index 19ab0d58b5..43b74e91d1 100644
+--- a/src/modules/module-rtp/audio.c
++++ b/src/modules/module-rtp/audio.c
+@@ -66,7 +66,7 @@ static void rtp_audio_process_playback(void *data)
+ 			error = (float)target_buffer - (float)avail;
+ 			error = SPA_CLAMP(error, -impl->max_error, impl->max_error);
+ 
+-			corr = spa_dll_update(&impl->dll, error);
++			corr = (float)spa_dll_update(&impl->dll, error);
+ 
+ 			pw_log_trace("avail:%u target:%u error:%f corr:%f", avail,
+ 					target_buffer, error, corr);
+@@ -321,7 +321,7 @@ static void rtp_audio_process_capture(void *data)
+ 		uint32_t rate = pos->clock.rate.denom;
+ 		timestamp = pos->clock.position * impl->rate / rate;
+ 		next_nsec = pos->clock.next_nsec;
+-		quantum = pos->clock.duration * SPA_NSEC_PER_SEC / (rate * pos->clock.rate_diff);
++		quantum = (uint64_t)(pos->clock.duration * SPA_NSEC_PER_SEC / (rate * pos->clock.rate_diff));
+ 	} else {
+ 		timestamp = expected_timestamp;
+ 		next_nsec = 0;
+diff --git a/src/modules/module-rtp/midi.c b/src/modules/module-rtp/midi.c
+index 4d2f701b7d..314f64f57b 100644
+--- a/src/modules/module-rtp/midi.c
++++ b/src/modules/module-rtp/midi.c
+@@ -206,10 +206,10 @@ static int rtp_midi_receive_midi(struct impl *impl, uint8_t *packet, uint32_t ti
+ 		}
+ 		pw_log_trace("%f %f %f %f", t, estimated, diff, impl->corr);
+ 
+-		timestamp = t * impl->rate;
++		timestamp = (uint32_t)(t * impl->rate);
+ 
+-		impl->last_timestamp = ts;
+-		impl->last_time = t;
++		impl->last_timestamp = (float)ts;
++		impl->last_time = (float)t;
+ 	}
+ 
+ 	filled = spa_ringbuffer_get_write_index(&impl->ring, &write);
+@@ -248,7 +248,7 @@ static int rtp_midi_receive_midi(struct impl *impl, uint8_t *packet, uint32_t ti
+ 		else
+ 			offs += parse_varlen(&packet[offs], end - offs, &delta);
+ 
+-		timestamp += delta * impl->corr;
++		timestamp += (uint32_t)(delta * impl->corr);
+ 		spa_pod_builder_control(&b, timestamp, SPA_CONTROL_Midi);
+ 
+ 		size = get_midi_size(&packet[offs], end - offs);
+diff --git a/src/modules/module-rtp/opus.c b/src/modules/module-rtp/opus.c
+index 30c9643a3d..2a5eeaf39b 100644
+--- a/src/modules/module-rtp/opus.c
++++ b/src/modules/module-rtp/opus.c
+@@ -71,7 +71,7 @@ static void rtp_opus_process_playback(void *data)
+ 			error = (float)target_buffer - (float)avail;
+ 			error = SPA_CLAMP(error, -impl->max_error, impl->max_error);
+ 
+-			corr = spa_dll_update(&impl->dll, error);
++			corr = (float)spa_dll_update(&impl->dll, error);
+ 
+ 			pw_log_trace("avail:%u target:%u error:%f corr:%f", avail,
+ 					target_buffer, error, corr);
+diff --git a/src/modules/module-rtp/stream.c b/src/modules/module-rtp/stream.c
+index b9874bce71..a2cfc20128 100644
+--- a/src/modules/module-rtp/stream.c
++++ b/src/modules/module-rtp/stream.c
+@@ -285,7 +285,7 @@ static void parse_audio_info(const struct pw_properties *props, struct spa_audio
+ 
+ static uint32_t msec_to_samples(struct impl *impl, float msec)
+ {
+-	return msec * impl->rate / 1000;
++	return (uint32_t)(msec * impl->rate / 1000);
+ }
+ static float samples_to_msec(struct impl *impl, uint32_t samples)
+ {
+@@ -509,7 +509,7 @@ struct rtp_stream *rtp_stream_new(struct pw_core *core,
+ 	/* We're not expecting odd ptimes, so this modulo should be 0 */
+ 	if (fmodf(impl->target_buffer, ptime != 0)) {
+ 		pw_log_warn("sess.latency.msec should be an integer multiple of rtp.ptime");
+-		impl->target_buffer = (impl->target_buffer / ptime) * impl->psamples;
++		impl->target_buffer = (uint32_t)((impl->target_buffer / ptime) * impl->psamples);
+ 	}
+ 
+ 	pw_properties_setf(props, PW_KEY_NODE_RATE, "1/%d", impl->rate);
+diff --git a/src/modules/module-vban/audio.c b/src/modules/module-vban/audio.c
+index 3a65500d4a..4aa0fae98b 100644
+--- a/src/modules/module-vban/audio.c
++++ b/src/modules/module-vban/audio.c
+@@ -57,7 +57,7 @@ static void vban_audio_process_playback(void *data)
+ 		error = (float)target_buffer - (float)avail;
+ 		error = SPA_CLAMP(error, -impl->max_error, impl->max_error);
+ 
+-		corr = spa_dll_update(&impl->dll, error);
++		corr = (float)spa_dll_update(&impl->dll, error);
+ 
+ 		pw_log_debug("avail:%u target:%u error:%f corr:%f", avail,
+ 				target_buffer, error, corr);
+diff --git a/src/modules/module-vban/stream.c b/src/modules/module-vban/stream.c
+index 88c8d910c3..64fc644b0c 100644
+--- a/src/modules/module-vban/stream.c
++++ b/src/modules/module-vban/stream.c
+@@ -358,8 +358,8 @@ struct vban_stream *vban_stream_new(struct pw_core *core,
+ 	if (!spa_atof(str, &max_ptime))
+ 		max_ptime = DEFAULT_MAX_PTIME;
+ 
+-	min_samples = min_ptime * impl->rate / 1000;
+-	max_samples = SPA_MIN(256, max_ptime * impl->rate / 1000);
++	min_samples = (uint32_t)(min_ptime * impl->rate / 1000);
++	max_samples = SPA_MIN(256u, (uint32_t)(max_ptime * impl->rate / 1000));
+ 
+ 	float ptime = 0;
+ 	if ((str = pw_properties_get(props, "vban.ptime")) != NULL)
+@@ -367,7 +367,7 @@ struct vban_stream *vban_stream_new(struct pw_core *core,
+ 			ptime = 0.0;
+ 
+ 	if (ptime) {
+-		impl->psamples = ptime * impl->rate / 1000;
++		impl->psamples = (uint32_t)(ptime * impl->rate / 1000);
+ 	} else {
+ 		impl->psamples = impl->mtu / impl->stride;
+ 		impl->psamples = SPA_CLAMP(impl->psamples, min_samples, max_samples);
+diff --git a/src/pipewire/stream.c b/src/pipewire/stream.c
+index 974d12b031..41d7ee1a92 100644
+--- a/src/pipewire/stream.c
++++ b/src/pipewire/stream.c
+@@ -1219,11 +1219,11 @@ static int node_event_param(void *object, int seq,
+ 			vals = SPA_POD_BODY(pod);
+ 		else if (spa_pod_is_double(pod)) {
+ 			double *v = SPA_POD_BODY(pod);
+-			dbl[0] = v[0];
++			dbl[0] = (float)v[0];
+ 			if (n_vals > 1)
+-				dbl[1] = v[1];
++				dbl[1] = (float)v[1];
+ 			if (n_vals > 2)
+-				dbl[2] = v[2];
++				dbl[2] = (float)v[2];
+ 			vals = dbl;
+ 		}
+ 		else if (spa_pod_is_bool(pod) && n_vals > 0) {
+@@ -1301,7 +1301,7 @@ static int node_event_param(void *object, int seq,
+ 				if (spa_pod_get_double(&prop->value, &value_d) < 0)
+ 					continue;
+ 				n_values = 1;
+-				value_f = value_d;
++				value_f = (float)value_d;
+ 				values = &value_f;
+ 				break;
+ 			case SPA_TYPE_Bool:
+@@ -2337,7 +2337,7 @@ int pw_stream_get_time_n(struct pw_stream *stream, struct pw_time *time, size_t
+ 	else
+ 		time->queued = (int64_t)(impl->queued.incount - time->queued);
+ 
+-	time->delay += ((impl->latency.min_quantum + impl->latency.max_quantum) / 2) * quantum;
++	time->delay += (int64_t)(((impl->latency.min_quantum + impl->latency.max_quantum) / 2.0f) * quantum);
+ 	time->delay += (impl->latency.min_rate + impl->latency.max_rate) / 2;
+ 	time->delay += ((impl->latency.min_ns + impl->latency.max_ns) / 2) * time->rate.denom / SPA_NSEC_PER_SEC;
+ 
+diff --git a/src/tests/test-endpoint.c b/src/tests/test-endpoint.c
+index fab569c5f7..c6956c2e2e 100644
+--- a/src/tests/test-endpoint.c
++++ b/src/tests/test-endpoint.c
+@@ -215,7 +215,7 @@ endpoint_init(struct endpoint * self)
+ 	self->info.params = param_info;
+ 	self->info.n_params = SPA_N_ELEMENTS (param_info);
+ 
+-	self->props.volume = 0.9;
++	self->props.volume = 0.9f;
+ 	self->props.mute = false;
+ }
+ 
+diff --git a/src/tools/midifile.c b/src/tools/midifile.c
+index 24067a70a2..2ee2be62ac 100644
+--- a/src/tools/midifile.c
++++ b/src/tools/midifile.c
+@@ -433,7 +433,7 @@ int midi_file_write_event(struct midi_file *mf, const struct midi_event *event)
+ 
+ 	tr = &mf->tracks[event->track];
+ 
+-	tick = event->sec * (1000000.0 * mf->info.division) / (double)mf->tempo;
++	tick = (uint32_t)(event->sec * (1000000.0 * mf->info.division) / (double)mf->tempo);
+ 
+ 	CHECK_RES(write_varlen(mf, tr, tick - tr->tick));
+ 	tr->tick = tick;
+diff --git a/src/tools/pw-cat.c b/src/tools/pw-cat.c
+index 7e3c596004..8bbb91300f 100644
+--- a/src/tools/pw-cat.c
++++ b/src/tools/pw-cat.c
+@@ -1069,7 +1069,7 @@ static int midi_play(struct data *d, void *src, unsigned int n_frames, bool *nul
+ 			return res;
+ 		}
+ 
+-		frame = ev.sec * d->position->clock.rate.denom;
++		frame = (uint32_t)(ev.sec * d->position->clock.rate.denom);
+ 		if (frame < first_frame)
+ 			frame = 0;
+ 		else if (frame < last_frame)
+@@ -1573,13 +1573,13 @@ static int setup_properties(struct data *data)
+ 		nom = data->latency_value * data->rate;
+ 		break;
+ 	case unit_msec:
+-		nom = nearbyint((data->latency_value * data->rate) / 1000.0);
++		nom = (unsigned int)nearbyint((data->latency_value * data->rate) / 1000.0);
+ 		break;
+ 	case unit_usec:
+-		nom = nearbyint((data->latency_value * data->rate) / 1000000.0);
++		nom = (unsigned int)nearbyint((data->latency_value * data->rate) / 1000000.0);
+ 		break;
+ 	case unit_nsec:
+-		nom = nearbyint((data->latency_value * data->rate) / 1000000000.0);
++		nom = (unsigned int)nearbyint((data->latency_value * data->rate) / 1000000000.0);
+ 		break;
+ 	case unit_samples:
+ 		nom = data->latency_value;
+@@ -1778,7 +1778,7 @@ int main(int argc, char *argv[])
+ 			break;
+ 
+ 		case OPT_VOLUME:
+-			data.volume = atof(optarg);
++			data.volume = (float)atof(optarg);
+ 			break;
+ 		default:
+ 			goto error_usage;
+diff --git a/src/tools/pw-dump.c b/src/tools/pw-dump.c
+index e09c08e9d1..c52b330cb0 100644
+--- a/src/tools/pw-dump.c
++++ b/src/tools/pw-dump.c
+@@ -279,7 +279,7 @@ static void put_double(struct data *d, const char *key, double val)
+ {
+ 	char buf[128];
+ 	put_fmt(d, key, "%s%s%s", NUMBER,
+-			spa_json_format_float(buf, sizeof(buf), val), NORMAL);
++			spa_json_format_float(buf, sizeof(buf), (float)val), NORMAL);
+ }
+ 
+ static void put_value(struct data *d, const char *key, const char *val)
+diff --git a/src/tools/pw-loopback.c b/src/tools/pw-loopback.c
+index 174617e4eb..7fbebbc510 100644
+--- a/src/tools/pw-loopback.c
++++ b/src/tools/pw-loopback.c
+@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
+ 			data.latency = atoi(optarg) * DEFAULT_RATE / SPA_MSEC_PER_SEC;
+ 			break;
+ 		case 'd':
+-			data.delay = atof(optarg);
++			data.delay = (float)atof(optarg);
+ 			break;
+ 		case 'C':
+ 			pw_properties_set(data.capture_props, PW_KEY_TARGET_OBJECT, optarg);
+diff --git a/src/tools/pw-profiler.c b/src/tools/pw-profiler.c
+index f46681be5c..277c9f9bba 100644
+--- a/src/tools/pw-profiler.c
++++ b/src/tools/pw-profiler.c
+@@ -182,8 +182,8 @@ static void dump_point(struct data *d, struct point *point)
+ 	int64_t d1, d2;
+ 	int64_t delay, period_usecs;
+ 
+-#define CLOCK_AS_USEC(cl,val) (val * (float)SPA_USEC_PER_SEC / (cl)->rate.denom)
+-#define CLOCK_AS_SUSEC(cl,val) (val * (float)SPA_USEC_PER_SEC / ((cl)->rate.denom * (cl)->rate_diff))
++#define CLOCK_AS_USEC(cl,val) (int64_t)(val * (float)SPA_USEC_PER_SEC / (cl)->rate.denom)
++#define CLOCK_AS_SUSEC(cl,val) (int64_t)(val * (float)SPA_USEC_PER_SEC / ((cl)->rate.denom * (cl)->rate_diff))
+ 
+ 	delay = CLOCK_AS_USEC(&point->clock, point->clock.delay);
+ 	period_usecs = CLOCK_AS_SUSEC(&point->clock, point->clock.duration);
+@@ -193,7 +193,7 @@ static void dump_point(struct data *d, struct point *point)
+ 
+ 	if (d1 > period_usecs * 1.3 ||
+ 	    d2 > period_usecs * 1.3)
+-		d1 = d2 = period_usecs * 1.4;
++		d1 = d2 = (int64_t)(period_usecs * 1.4);
+ 
+ 	/* 4 columns for the driver */
+ 	fprintf(d->output, "%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t",
+diff --git a/test/test-spa-json.c b/test/test-spa-json.c
+index 5a74c3f57b..869a204093 100644
+--- a/test/test-spa-json.c
++++ b/test/test-spa-json.c
+@@ -307,7 +307,7 @@ PWTEST(json_parse)
+ 	/* non-null terminated strings OK */
+ 	json = "1.234";
+ 	spa_json_init(&it[0], json, 4);
+-	expect_float(&it[0], 1.23);
++	expect_float(&it[0], 1.23f);
+ 	expect_end(&it[0]);
+ 
+ 	json = "1234";
+diff --git a/test/test-spa-utils.c b/test/test-spa-utils.c
+index 2bd5f76457..06b8f8d174 100644
+--- a/test/test-spa-utils.c
++++ b/test/test-spa-utils.c
+@@ -636,14 +636,14 @@ PWTEST(utils_strtof)
+ 	pwtest_bool_true(spa_atof("0x1", &v));	pwtest_double_eq(v, 1.0f);
+ 
+ 	v = 0xabcd;
+-	pwtest_bool_false(spa_atof("0,00", &v));  pwtest_int_eq(v, 0xabcd);
+-	pwtest_bool_false(spa_atof("fabc", &v));  pwtest_int_eq(v, 0xabcd);
+-	pwtest_bool_false(spa_atof("1.bogus", &v));pwtest_int_eq(v, 0xabcd);
+-	pwtest_bool_false(spa_atof("1.0a", &v));  pwtest_int_eq(v, 0xabcd);
+-	pwtest_bool_false(spa_atof("  ", &v));	  pwtest_int_eq(v, 0xabcd);
+-	pwtest_bool_false(spa_atof(" ", &v));	  pwtest_int_eq(v, 0xabcd);
+-	pwtest_bool_false(spa_atof("", &v));	  pwtest_int_eq(v, 0xabcd);
+-	pwtest_bool_false(spa_atof(NULL, &v));	  pwtest_int_eq(v, 0xabcd);
++	pwtest_bool_false(spa_atof("0,00", &v));  pwtest_int_eq((int)v, 0xabcd);
++	pwtest_bool_false(spa_atof("fabc", &v));  pwtest_int_eq((int)v, 0xabcd);
++	pwtest_bool_false(spa_atof("1.bogus", &v));pwtest_int_eq((int)v, 0xabcd);
++	pwtest_bool_false(spa_atof("1.0a", &v));  pwtest_int_eq((int)v, 0xabcd);
++	pwtest_bool_false(spa_atof("  ", &v));	  pwtest_int_eq((int)v, 0xabcd);
++	pwtest_bool_false(spa_atof(" ", &v));	  pwtest_int_eq((int)v, 0xabcd);
++	pwtest_bool_false(spa_atof("", &v));	  pwtest_int_eq((int)v, 0xabcd);
++	pwtest_bool_false(spa_atof(NULL, &v));	  pwtest_int_eq((int)v, 0xabcd);
+ 
+ 	return PWTEST_PASS;
+ }
+@@ -659,14 +659,14 @@ PWTEST(utils_strtod)
+ 	pwtest_bool_true(spa_atod("0x1", &v));		pwtest_double_eq(v, 1.0);
+ 
+ 	v = 0xabcd;
+-	pwtest_bool_false(spa_atod("0,00", &v));	pwtest_int_eq(v, 0xabcd);
+-	pwtest_bool_false(spa_atod("fabc", &v));	pwtest_int_eq(v, 0xabcd);
+-	pwtest_bool_false(spa_atod("1.bogus", &v));	pwtest_int_eq(v, 0xabcd);
+-	pwtest_bool_false(spa_atod("1.0a", &v));	pwtest_int_eq(v, 0xabcd);
+-	pwtest_bool_false(spa_atod("  ", &v));		pwtest_int_eq(v, 0xabcd);
+-	pwtest_bool_false(spa_atod(" ", &v));		pwtest_int_eq(v, 0xabcd);
+-	pwtest_bool_false(spa_atod("", &v));		pwtest_int_eq(v, 0xabcd);
+-	pwtest_bool_false(spa_atod(NULL, &v));		pwtest_int_eq(v, 0xabcd);
++	pwtest_bool_false(spa_atod("0,00", &v));	pwtest_int_eq((int)v, 0xabcd);
++	pwtest_bool_false(spa_atod("fabc", &v));	pwtest_int_eq((int)v, 0xabcd);
++	pwtest_bool_false(spa_atod("1.bogus", &v));	pwtest_int_eq((int)v, 0xabcd);
++	pwtest_bool_false(spa_atod("1.0a", &v));	pwtest_int_eq((int)v, 0xabcd);
++	pwtest_bool_false(spa_atod("  ", &v));		pwtest_int_eq((int)v, 0xabcd);
++	pwtest_bool_false(spa_atod(" ", &v));		pwtest_int_eq((int)v, 0xabcd);
++	pwtest_bool_false(spa_atod("", &v));		pwtest_int_eq((int)v, 0xabcd);
++	pwtest_bool_false(spa_atod(NULL, &v));		pwtest_int_eq((int)v, 0xabcd);
+ 
+ 	return PWTEST_PASS;
+ }
+-- 
+GitLab
+
