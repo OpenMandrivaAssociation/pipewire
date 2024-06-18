@@ -42,6 +42,7 @@ Source10:	pipewire.sysusers
 
 Patch1:		pipewire-0.3.35-tests-compile.patch
 Patch2:		fix-linkage.patch
+Patch3:		https://gitlab.freedesktop.org/pipewire/pipewire/-/commit/1ae4374ccfbf32381e768bb86030cd732187d9ec.patch
 
 # Upstream patches:
 Patch101:	0001-Build-media-session-from-local-tarbal.patch
