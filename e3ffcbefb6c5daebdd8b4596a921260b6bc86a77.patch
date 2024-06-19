@@ -1,0 +1,25 @@
+From e3ffcbefb6c5daebdd8b4596a921260b6bc86a77 Mon Sep 17 00:00:00 2001
+From: Wim Taymans <wtaymans@redhat.com>
+Date: Tue, 18 Jun 2024 15:44:26 +0200
+Subject: [PATCH] spa: fix volume plugin compilation
+
+---
+ spa/plugins/volume/volume.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/spa/plugins/volume/volume.c b/spa/plugins/volume/volume.c
+index db582ffa59..164e46a6a4 100644
+--- a/spa/plugins/volume/volume.c
++++ b/spa/plugins/volume/volume.c
+@@ -651,7 +651,7 @@ static void do_volume(struct impl *this, struct spa_buffer *dbuf, struct spa_buf
+ 
+ 		n_samples = n_bytes / sizeof(int16_t);
+ 		for (i = 0; i < n_samples; i++)
+-			dst[i] = src[i] * volume;
++			dst[i] = (int16_t)(src[i] * volume);
+ 
+ 		sindex += n_bytes;
+ 		dindex += n_bytes;
+-- 
+GitLab
+
