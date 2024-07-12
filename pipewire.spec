@@ -29,8 +29,8 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	1.2.0
-Release:	2
+Version:	1.2.1
+Release:	1
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -45,9 +45,6 @@ Patch2:		fix-linkage.patch
 
 # Upstream patches:
 Patch101:    0001-Build-media-session-from-local-tarbal.patch
-#
-Patch102:    0001-impl-node-fix-required-state-for-async-driver-nodes.patch
-Patch103:    0001-context-Fix-node-collect-with-groups-and-sync-enable.patch 
 
 BuildRequires:	doxygen
 BuildRequires:	gettext
