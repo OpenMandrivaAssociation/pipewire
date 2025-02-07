@@ -29,8 +29,8 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	1.2.7
-Release:	2
+Version:	1.3.82
+Release:	1
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -83,6 +83,7 @@ BuildRequires:	pkgconfig(libffado)
 BuildRequires:	pkgconfig(libfreeaptx)
 BuildRequires:	pkgconfig(libopenaptx)
 BuildRequires:	pkgconfig(libavcodec)
+BuildRequires:	pkgconfig(libebur128)
 BuildRequires:	pkgconfig(libpulse)
 BuildRequires:	pkgconfig(libusb-1.0)
 BuildRequires:	pkgconfig(lc3)
@@ -350,6 +351,7 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 	-Dlibcamera=disabled \
 	-Dlibmysofa=disabled \
  	-Dlibffado=disabled \
+  	-Debur128=disabled \
 	-Droc=disabled \
 	-Dffmpeg=enabled \
 	-Dvolume=enabled \
@@ -462,8 +464,8 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_datadir}/pipewire/pipewire.conf.avail/10-rates.conf
 %{_datadir}/pipewire/pipewire.conf.avail/20-upmix.conf
 %{_datadir}/pipewire/client.conf.avail/20-upmix.conf
-%{_datadir}/pipewire/client-rt.conf.avail/20-upmix.conf
-%{_datadir}/pipewire/client-rt.conf
+#{_datadir}/pipewire/client-rt.conf.avail/20-upmix.conf
+#{_datadir}/pipewire/client-rt.conf
 %{_datadir}/pipewire/jack.conf
 %{_datadir}/pipewire/pipewire-aes67.conf
 %{_datadir}/pipewire/pipewire-vulkan.conf
