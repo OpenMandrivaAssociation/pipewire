@@ -351,6 +351,7 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 	-Dlibcamera=disabled \
 	-Dlibmysofa=disabled \
  	-Dlibffado=disabled \
+  	-Debur128-disabled \
 	-Droc=disabled \
 	-Dffmpeg=enabled \
 	-Dvolume=enabled \
