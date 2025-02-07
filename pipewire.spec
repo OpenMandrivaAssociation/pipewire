@@ -464,8 +464,8 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_datadir}/pipewire/pipewire.conf.avail/10-rates.conf
 %{_datadir}/pipewire/pipewire.conf.avail/20-upmix.conf
 %{_datadir}/pipewire/client.conf.avail/20-upmix.conf
-%{_datadir}/pipewire/client-rt.conf.avail/20-upmix.conf
-%{_datadir}/pipewire/client-rt.conf
+#{_datadir}/pipewire/client-rt.conf.avail/20-upmix.conf
+#{_datadir}/pipewire/client-rt.conf
 %{_datadir}/pipewire/jack.conf
 %{_datadir}/pipewire/pipewire-aes67.conf
 %{_datadir}/pipewire/pipewire-vulkan.conf
