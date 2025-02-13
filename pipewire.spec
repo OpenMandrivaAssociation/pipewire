@@ -16,7 +16,7 @@
 
 %define spa_api 0.2
 %define api 0.3
-%define git_media_session 20231126
+%define git_media_session 20250213
 %define media_session_ver master
 %define major 0
 %define oldlibname %mklibname pipewire 0.3 0
@@ -30,7 +30,7 @@
 Name:		pipewire
 Summary:	Media Sharing Server
 Version:	1.3.82
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -42,6 +42,7 @@ Source10:	pipewire.sysusers
 
 Patch1:		pipewire-0.3.35-tests-compile.patch
 Patch2:		fix-linkage.patch
+Patch3:		pipewire-dont-run-for-system-users.patch
 
 # Upstream patches:
 Patch101:    0001-Build-media-session-from-local-tarbal.patch

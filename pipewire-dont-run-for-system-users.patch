@@ -1,0 +1,34 @@
+diff -up pipewire-1.3.82/src/daemon/systemd/user/filter-chain.service.in.omv~ pipewire-1.3.82/src/daemon/systemd/user/filter-chain.service.in
+--- pipewire-1.3.82/src/daemon/systemd/user/filter-chain.service.in.omv~	2025-02-13 16:32:16.018563242 +0100
++++ pipewire-1.3.82/src/daemon/systemd/user/filter-chain.service.in	2025-02-13 16:32:32.046365463 +0100
+@@ -1,5 +1,6 @@
+ [Unit]
+ Description=PipeWire filter chain daemon
++ConditionUser=!@system
+ 
+ After=pipewire.service pipewire-session-manager.service
+ BindsTo=pipewire.service
+diff -up pipewire-1.3.82/src/daemon/systemd/user/pipewire-pulse.service.in.omv~ pipewire-1.3.82/src/daemon/systemd/user/pipewire-pulse.service.in
+--- pipewire-1.3.82/src/daemon/systemd/user/pipewire-pulse.service.in.omv~	2025-02-13 16:31:51.375537341 +0100
++++ pipewire-1.3.82/src/daemon/systemd/user/pipewire-pulse.service.in	2025-02-13 16:32:09.666207669 +0100
+@@ -15,6 +15,8 @@ Description=PipeWire PulseAudio
+ # socket-service relationship, see systemd.socket(5).
+ Requires=pipewire-pulse.socket
+ ConditionUser=!root
++ConditionUser=!sddm
++ConditionUser=!@system
+ Wants=pipewire.service pipewire-session-manager.service
+ After=pipewire.service pipewire-session-manager.service
+ Conflicts=pulseaudio.service
+diff -up pipewire-1.3.82/src/daemon/systemd/user/pipewire.service.in.omv~ pipewire-1.3.82/src/daemon/systemd/user/pipewire.service.in
+--- pipewire-1.3.82/src/daemon/systemd/user/pipewire.service.in.omv~	2025-02-13 16:23:03.568936848 +0100
++++ pipewire-1.3.82/src/daemon/systemd/user/pipewire.service.in	2025-02-13 16:28:59.893717793 +0100
+@@ -1,5 +1,8 @@
+ [Unit]
+ Description=PipeWire Multimedia Service
++ConditionUser=!root
++ConditionUser=!sddm
++ConditionUser=!@system
+ 
+ # We require pipewire.socket to be active before starting the daemon, because
+ # while it is possible to use the service without the socket, it is not clear
