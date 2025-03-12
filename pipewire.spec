@@ -30,7 +30,7 @@
 Name:		pipewire
 Summary:	Media Sharing Server
 Version:	1.4.0
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -46,6 +46,7 @@ Patch3:		pipewire-dont-run-for-system-users.patch
 
 # Upstream patches:
 Patch101:    0001-Build-media-session-from-local-tarbal.patch
+Patch102:    audioconvert-configure-resample-channels-correctly.patch
 
 BuildRequires:	doxygen
 BuildRequires:	gettext
