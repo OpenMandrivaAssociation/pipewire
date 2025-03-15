@@ -46,7 +46,6 @@ Patch3:		pipewire-dont-run-for-system-users.patch
 
 # Upstream patches:
 Patch101:    0001-Build-media-session-from-local-tarbal.patch
-Patch102:    audioconvert-configure-resample-channels-correctly.patch
 
 BuildRequires:	doxygen
 BuildRequires:	gettext
