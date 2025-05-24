@@ -29,7 +29,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	1.4.1
+Version:	1.4.3
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -422,7 +422,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 
 #                 Attention! Achtung! Uwaga! Attenzione!                  #
 ###########################################################################
-# PipeWire can replace (and probably will) PulseAudio and become default  #
+# 	 PipeWire replaced  PulseAudio and become default  	  	  #
 #       It is currently enabled, to deactivate it togle ON switch         #
 #            Don't do this without consulting with OMV Team.              #
 ###########################################################################
@@ -464,6 +464,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_datadir}/pipewire/client.conf
 %{_datadir}/pipewire/pipewire.conf.avail/10-rates.conf
 %{_datadir}/pipewire/pipewire.conf.avail/20-upmix.conf
+%{_datadir}/pipewire/pipewire.conf.avail/50-raop.conf
 %{_datadir}/pipewire/client.conf.avail/20-upmix.conf
 #{_datadir}/pipewire/client-rt.conf.avail/20-upmix.conf
 #{_datadir}/pipewire/client-rt.conf
