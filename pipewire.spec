@@ -29,7 +29,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	1.4.4
+Version:	1.4.5
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
