@@ -11,6 +11,8 @@
 %ifarch %{x86_64}
 %bcond_without compat32
 %endif
+# Can be turned off to avoid circular build dependency
+%bcond_with openal
 
 %global optflags %{optflags} -O3
 
@@ -112,7 +114,9 @@ BuildRequires:	xmltoman
 BuildRequires:	pkgconfig(xfixes)
 BuildRequires:	systemd-rpm-macros
 # Tools
+%if %{with openal}
 BuildRequires:	openal
+%endif
 BuildRequires:	pulseaudio-utils
 
 %if %{with compat32}
