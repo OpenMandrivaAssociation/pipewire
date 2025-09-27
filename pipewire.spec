@@ -125,7 +125,7 @@ BuildRequires:	atomic-devel
 BuildRequires:	libx11-xcb1
 BuildRequires:	devel(libasound)
 BuildRequires:	devel(libbluetooth)
-BuildRequires:	devel(libsystemd)
+BuildRequires:	devel(libcap)
 BuildRequires:	devel(libglib-2.0)
 BuildRequires:	devel(libgio-2.0)
 BuildRequires:	devel(libdbus-1)
