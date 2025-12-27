@@ -18,7 +18,7 @@
 
 %define spa_api 0.2
 %define api 0.3
-%define git_media_session 20250213
+%define git_media_session 20251022
 %define media_session_ver master
 %define major 0
 %define oldlibname %mklibname pipewire 0.3 0
@@ -31,8 +31,8 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	1.4.9
-Release:	2
+Version:	1.5.84
+Release:	1
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
