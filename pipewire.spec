@@ -39,7 +39,7 @@ URL:		https://pipewire.org/
 Source0:	https://gitlab.freedesktop.org/pipewire/pipewire/-/archive/%{version}/%{name}-%{version}.tar.bz2
 # Mirror
 #Source0:	https://github.com/PipeWire/pipewire/archive/%{version}/%{name}-%{version}.tar.gz
-Source4:	https://gitlab.freedesktop.org/pipewire/media-session/-/archive/%{media_session_ver}/media-session-%{media_session_ver}.tar.bz2#/media-session-%{git_media_session}.tar.bz2
+Source4:	https://gitlab.freedesktop.org/pipewire/media-session/-/archive/%{media_session_ver}/media-session-%{media_session_ver}/media-session-%{git_media_session}.tar.bz2
 Source10:	pipewire.sysusers
 
 Patch1:		pipewire-0.3.35-tests-compile.patch
@@ -324,7 +324,7 @@ PipeWire media server.
 %prep
 %autosetup -T -b0 -p1
 mkdir subprojects/packagefiles
-cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz2
+cp %{SOURCE4} subprojects/packagefiles/media-session-%{git_media_session}.tar.bz2
 
 %if %{with compat32}
 %meson32 \
