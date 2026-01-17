@@ -176,6 +176,7 @@ BuildRequires:	devel(libudev)
 BuildRequires:	devel(libSDL2-2.0)
 BuildRequires:	devel(libcrypto)
 BuildRequires:	devel(libssl)
+BuildRequires:	devel(libzstd)
 %endif
 
 Requires:	rtkit
