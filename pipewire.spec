@@ -376,7 +376,6 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 	-Dgstreamer=enabled \
  	-Dselinux=disabled \
   	-Dsnap=disabled \
-	-Dsystemd-user-service=enabled \
 	-Dlibsystemd=enabled \            
     -Dsystemd-user-service=enabled \
 	-Djack=enabled \
