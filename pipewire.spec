@@ -103,11 +103,12 @@ BuildRequires:	pkgconfig(jack)
 BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	pkgconfig(sndfile)
 BuildRequires:	pkgconfig(sox)
+BuildRequires:	pkgconfig(spandsp)
 BuildRequires:	pkgconfig(speexdsp)
 BuildRequires:	pkgconfig(ModemManager)
 BuildRequires:	pkgconfig(ncurses)
 BuildRequires:	pkgconfig(readline)
-BuildRequires:	pkgconfig(webrtc-audio-processing-1)
+BuildRequires:	pkgconfig(webrtc-audio-processing-2)
 BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	vulkan-headers
 BuildRequires:	xmltoman
@@ -339,7 +340,7 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 	-Dgstreamer=enabled \
  	-Dselinux=disabled \
   	-Dsnap=disabled \
-	-Dsystemd=disabled \
+	-Dlibsystemd=disabled \
 	-Dsystemd-user-service=disabled \
 	-Djack=enabled \
 	-Dpipewire-alsa=enabled \
@@ -375,8 +376,9 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 	-Dgstreamer=enabled \
  	-Dselinux=disabled \
   	-Dsnap=disabled \
-	-Dsystemd=enabled \
 	-Dsystemd-user-service=enabled \
+	-Dlibsystemd=enabled \            
+    -Dsystemd-user-service=enabled \
 	-Djack=enabled \
 	-Dpipewire-alsa=enabled \
 	-Dpipewire-jack=enabled \
