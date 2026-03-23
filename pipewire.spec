@@ -66,6 +66,7 @@ BuildRequires:	pkgconfig(bluez)
 BuildRequires:	python3dist(docutils)
 BuildRequires:	pkgconfig(libudev)
 BuildRequires:	pkgconfig(dbus-1)
+BuildRequires:	pkgconfig(fftw3f)
 BuildRequires:	pkgconfig(glib-2.0) >= 2.32
 BuildRequires:	pkgconfig(gio-unix-2.0) >= 2.32
 BuildRequires:	pkgconfig(gstreamer-1.0) >= 1.10.0
