@@ -348,6 +348,7 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 	-Dpipewire-alsa=enabled \
 	-Dpipewire-jack=enabled \
 	-Dbluez5-codec-ldac=disabled \
+	-Dbluez5-codec-ldac-dec=disabled \
 	-Dlibpulse=enabled \
 	-Dvulkan=enabled \
 	-Dbluez5=enabled \
@@ -386,6 +387,7 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 	-Dlibpulse=enabled \
 	-Dvulkan=enabled \
 	-Dbluez5=enabled \
+	-Dbluez5-codec-ldac-dec=disabled \
  	-Dbluez5-codec-lc3=enabled \
 	-Dbluez5-codec-lc3plus=disabled \
 	-Dbluez5-codec-aac=disabled \
