@@ -377,6 +377,7 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 	-Droc=disabled \
 	-Dffmpeg=enabled \
 	-Dvolume=enabled \
+	-Donnxruntime=disabled \
 	-Dsession-managers=media-session \
 	--buildtype=release
 %endif
@@ -390,7 +391,7 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 	-Dgstreamer=enabled \
  	-Dselinux=disabled \
   	-Dsnap=disabled \
-	-Dlibsystemd=enabled \            
+	-Dlibsystemd=enabled \
     -Dsystemd-user-service=enabled \
 	-Djack=enabled \
 	-Dpipewire-alsa=enabled \
@@ -404,6 +405,7 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 	-Dbluez5-codec-aac=disabled \
 	-Dbluez5-codec-aptx=enabled \
 	-Decho-cancel-webrtc=enabled \
+	-Donnxruntime=enabled \
 %ifnarch %{ix86}
 	-Dlibcamera=enabled \
 %else
