@@ -3,6 +3,8 @@
 #  1 = yes
 %define enable_by_default 1
 
+%global optflags %{optflags} -Wno-error -Wno-implicit-function-declaration
+
 %ifarch %{ix86}
 %define _disable_ld_no_undefined 1
 %define _disable_lto 1
