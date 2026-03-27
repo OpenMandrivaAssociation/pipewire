@@ -318,7 +318,7 @@ This package contains the PipeWire spa plugin to connect to a JACK server.
 Summary:        PipeWire media server ONNX filter-chain support            
 License:        MIT            
 BuildRequires:  pkgconfig(libonnxruntime)            
-Recommends:     %{name }= %{EVRD}
+Recommends:     %{name} = %{EVRD}
 
 %description module-filter-chain-onnx            
 This package contains the ONNX support for PipeWire filter-chain.
