@@ -412,7 +412,6 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 %endif
 	-Droc=enabled \
 	-Dffmpeg=enabled \
-	-Donnxruntime=enabled \
 	-Dvolume=enabled \
 	-Dsession-managers=media-session \
 	--buildtype=release
