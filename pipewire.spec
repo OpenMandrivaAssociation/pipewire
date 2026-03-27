@@ -375,7 +375,6 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
  	-Dlibffado=disabled \
   	-Debur128=disabled \
 	-Droc=disabled \
-	-Donnxruntime=disabled \
 	-Dffmpeg=enabled \
 	-Dvolume=enabled \
 	-Dsession-managers=media-session \
