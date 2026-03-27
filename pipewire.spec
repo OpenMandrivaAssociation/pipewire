@@ -352,6 +352,7 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 	-Dlibpulse=enabled \
 	-Dvulkan=enabled \
 	-Dbluez5=enabled \
+	-Dbluez5-plc-spandsp=disabled \
  	-Dbluez5-codec-lc3=disabled \
 	-Dbluez5-codec-lc3plus=disabled \
 	-Dbluez5-codec-aac=disabled \
