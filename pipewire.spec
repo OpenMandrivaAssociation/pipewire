@@ -314,6 +314,16 @@ Recommends:	%{name} = %{EVRD}
 This package contains the PipeWire spa plugin to connect to a JACK server.
 
 #------------------------------------------------
+%package module-filter-chain-onnx            
+Summary:        PipeWire media server ONNX filter-chain support            
+License:        MIT            
+BuildRequires:  pkgconfig(libonnxruntime)            
+Recommends:     %{name }= %{EVRD}
+
+%description module-filter-chain-onnx            
+This package contains the ONNX support for PipeWire filter-chain.
+
+#------------------------------------------------
 
 %package media-session
 Summary:	PipeWire Media Session
@@ -365,6 +375,7 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
  	-Dlibffado=disabled \
   	-Debur128=disabled \
 	-Droc=disabled \
+	-Donnxruntime=disabled \
 	-Dffmpeg=enabled \
 	-Dvolume=enabled \
 	-Dsession-managers=media-session \
@@ -401,6 +412,7 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 %endif
 	-Droc=enabled \
 	-Dffmpeg=enabled \
+	-Donnxruntime=enabled \
 	-Dvolume=enabled \
 	-Dsession-managers=media-session \
 	--buildtype=release
@@ -595,6 +607,9 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 
 %files plugin-jack
 %{_libdir}/spa-%{spa_api}/jack/
+
+%files module-filter-chain-onnx            
+%{_libdir}/spa-%{spa_api}/filter-graph/libspa-filter-graph-plugin-onnx.so
 
 #FIXME  No idea why this lang won't work. Let's use dirty workaround.
 #files media-session -f media-session.lang
