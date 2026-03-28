@@ -3,6 +3,9 @@
 #  1 = yes
 %define enable_by_default 1
 
+%global optflags %{optflags} -Wno-error -Wno-implicit-function-declaration
+%global optflags %{optflags} -Wno-int-conversion
+
 %ifarch %{ix86}
 %define _disable_ld_no_undefined 1
 %define _disable_lto 1
@@ -18,7 +21,7 @@
 
 %define spa_api 0.2
 %define api 0.3
-%define git_media_session 20250213
+%define git_media_session 20251026
 %define media_session_ver master
 %define major 0
 %define oldlibname %mklibname pipewire 0.3 0
@@ -31,7 +34,7 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	1.4.10
+Version:	1.6.2
 Release:	1
 License:	LGPLv2+
 Group:		System/Servers
@@ -49,6 +52,8 @@ Patch3:		pipewire-dont-run-for-system-users.patch
 # Upstream patches:
 Patch101:    0001-Build-media-session-from-local-tarbal.patch
 
+Patch102:    0001-acp-fix-Werror-discarded-qualifiers-error.patch
+
 BuildRequires:	doxygen
 BuildRequires:	gettext
 %ifarch %{ix86}
@@ -61,11 +66,13 @@ BuildRequires:	pkgconfig(roc) >= 0.3.0
 BuildRequires:	openfec-devel
 BuildRequires:	pkgconfig(libpcap)
 BuildRequires:	pkgconfig(libcap)
+BuildRequires:	pkgconfig(libtiff-4)
 BuildRequires:	pkgconfig(avahi-client)
 BuildRequires:	pkgconfig(bluez)
 BuildRequires:	python3dist(docutils)
 BuildRequires:	pkgconfig(libudev)
 BuildRequires:	pkgconfig(dbus-1)
+BuildRequires:	pkgconfig(fftw3f)
 BuildRequires:	pkgconfig(glib-2.0) >= 2.32
 BuildRequires:	pkgconfig(gio-unix-2.0) >= 2.32
 BuildRequires:	pkgconfig(gstreamer-1.0) >= 1.10.0
@@ -103,11 +110,12 @@ BuildRequires:	pkgconfig(jack)
 BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	pkgconfig(sndfile)
 BuildRequires:	pkgconfig(sox)
+BuildRequires:	pkgconfig(spandsp)
 BuildRequires:	pkgconfig(speexdsp)
 BuildRequires:	pkgconfig(ModemManager)
 BuildRequires:	pkgconfig(ncurses)
 BuildRequires:	pkgconfig(readline)
-BuildRequires:	pkgconfig(webrtc-audio-processing-1)
+BuildRequires:	pkgconfig(webrtc-audio-processing-2)
 BuildRequires:	pkgconfig(vulkan)
 BuildRequires:	vulkan-headers
 BuildRequires:	xmltoman
@@ -132,6 +140,7 @@ BuildRequires:	devel(libdbus-1)
 BuildRequires:	devel(libgstreamer-1.0)
 BuildRequires:	devel(libjack)
 BuildRequires:	devel(libdrm)
+BuildRequires:	devel(libfftw3f)
 BuildRequires:	devel(libreadline)
 BuildRequires:	devel(libncurses)
 BuildRequires:	devel(libncursesw)
@@ -311,6 +320,16 @@ Recommends:	%{name} = %{EVRD}
 This package contains the PipeWire spa plugin to connect to a JACK server.
 
 #------------------------------------------------
+%package module-filter-chain-onnx            
+Summary:        PipeWire media server ONNX filter-chain support            
+License:        MIT            
+BuildRequires:  pkgconfig(libonnxruntime)            
+Recommends:     %{name} = %{EVRD}
+
+%description module-filter-chain-onnx            
+This package contains the ONNX support for PipeWire filter-chain.
+
+#------------------------------------------------
 
 %package media-session
 Summary:	PipeWire Media Session
@@ -329,6 +348,7 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 
 %if %{with compat32}
 %meson32 \
+	-Dc_link_args="-latomic" \
 	-Dalsa=enabled \
 	-Dudev=disabled \
 	-Dudevrulesdir="%{_udevrulesdir}" \
@@ -339,15 +359,17 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 	-Dgstreamer=enabled \
  	-Dselinux=disabled \
   	-Dsnap=disabled \
-	-Dsystemd=disabled \
+	-Dlibsystemd=disabled \
 	-Dsystemd-user-service=disabled \
 	-Djack=enabled \
 	-Dpipewire-alsa=enabled \
 	-Dpipewire-jack=enabled \
 	-Dbluez5-codec-ldac=disabled \
+	-Dbluez5-codec-ldac-dec=disabled \
 	-Dlibpulse=enabled \
 	-Dvulkan=enabled \
 	-Dbluez5=enabled \
+	-Dbluez5-plc-spandsp=disabled \
  	-Dbluez5-codec-lc3=disabled \
 	-Dbluez5-codec-lc3plus=disabled \
 	-Dbluez5-codec-aac=disabled \
@@ -362,6 +384,7 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 	-Droc=disabled \
 	-Dffmpeg=enabled \
 	-Dvolume=enabled \
+	-Donnxruntime=disabled \
 	-Dsession-managers=media-session \
 	--buildtype=release
 %endif
@@ -375,19 +398,21 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 	-Dgstreamer=enabled \
  	-Dselinux=disabled \
   	-Dsnap=disabled \
-	-Dsystemd=enabled \
-	-Dsystemd-user-service=enabled \
+	-Dlibsystemd=enabled \
+    -Dsystemd-user-service=enabled \
 	-Djack=enabled \
 	-Dpipewire-alsa=enabled \
 	-Dpipewire-jack=enabled \
 	-Dlibpulse=enabled \
 	-Dvulkan=enabled \
 	-Dbluez5=enabled \
+	-Dbluez5-codec-ldac-dec=disabled \
  	-Dbluez5-codec-lc3=enabled \
 	-Dbluez5-codec-lc3plus=disabled \
 	-Dbluez5-codec-aac=disabled \
 	-Dbluez5-codec-aptx=enabled \
 	-Decho-cancel-webrtc=enabled \
+	-Donnxruntime=enabled \
 %ifnarch %{ix86}
 	-Dlibcamera=enabled \
 %else
@@ -571,6 +596,9 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_bindir}/pw-top
 %{_bindir}/pw-dump
 %{_bindir}/pw-v4l2
+%{_bindir}/pw-midi2play
+%{_bindir}/pw-midi2record
+%{_bindir}/pw-sysex
 %{_bindir}/spa-acp-tool
 %{_bindir}/spa-resample
 %doc %{_mandir}/man1/*.1*
@@ -589,6 +617,9 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 
 %files plugin-jack
 %{_libdir}/spa-%{spa_api}/jack/
+
+%files module-filter-chain-onnx            
+%{_libdir}/spa-%{spa_api}/filter-graph/libspa-filter-graph-plugin-onnx.so
 
 #FIXME  No idea why this lang won't work. Let's use dirty workaround.
 #files media-session -f media-session.lang
