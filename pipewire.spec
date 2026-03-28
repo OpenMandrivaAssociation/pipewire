@@ -596,6 +596,9 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_bindir}/pw-top
 %{_bindir}/pw-dump
 %{_bindir}/pw-v4l2
+%{_bindir}/pw-midi2play
+%{_bindir}/pw-midi2record
+%{_bindir}/pw-sysex
 %{_bindir}/spa-acp-tool
 %{_bindir}/spa-resample
 %doc %{_mandir}/man1/*.1*
