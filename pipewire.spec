@@ -21,7 +21,7 @@
 
 %define spa_api 0.2
 %define api 0.3
-%define git_media_session 20250213
+%define git_media_session 20251026
 %define media_session_ver master
 %define major 0
 %define oldlibname %mklibname pipewire 0.3 0
