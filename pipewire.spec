@@ -66,6 +66,7 @@ BuildRequires:	pkgconfig(roc) >= 0.3.0
 BuildRequires:	openfec-devel
 BuildRequires:	pkgconfig(libpcap)
 BuildRequires:	pkgconfig(libcap)
+BuildRequires:	pkgconfig(libtiff-4)
 BuildRequires:	pkgconfig(avahi-client)
 BuildRequires:	pkgconfig(bluez)
 BuildRequires:	python3dist(docutils)
