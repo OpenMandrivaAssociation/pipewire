@@ -347,6 +347,7 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 
 %if %{with compat32}
 %meson32 \
+	-Dc_link_args="-latomic" \
 	-Dalsa=enabled \
 	-Dudev=disabled \
 	-Dudevrulesdir="%{_udevrulesdir}" \
