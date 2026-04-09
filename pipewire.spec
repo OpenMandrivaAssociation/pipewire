@@ -52,8 +52,6 @@ Patch3:		pipewire-dont-run-for-system-users.patch
 # Upstream patches:
 Patch101:    0001-Build-media-session-from-local-tarbal.patch
 
-Patch102:    0001-acp-fix-Werror-discarded-qualifiers-error.patch
-
 BuildRequires:	doxygen
 BuildRequires:	gettext
 %ifarch %{ix86}
