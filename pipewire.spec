@@ -2,6 +2,13 @@
 #  0 = no
 #  1 = yes
 %define enable_by_default 1
+# PipeWire is a core package. Please exercise extreme caution when updating and always test that the new build works - we don't want to disrupt audio users.
+# If you wish to update, please consult the PipeWire package maintainers with your PR.
+# Keep in core sync.
+
+#TODO
+# luez5-codec-ldac-dec/bluez5-codec-lc3plus/bluez5-backend-native-mm(modemmanager)/
+# find a way for bluez5-codec-aac
 
 %global optflags %{optflags} -Wno-error -Wno-implicit-function-declaration
 %global optflags %{optflags} -Wno-int-conversion
@@ -34,8 +41,8 @@
 
 Name:		pipewire
 Summary:	Media Sharing Server
-Version:	1.6.4
-Release:	2
+Version:	1.6.6
+Release:	1
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -60,7 +67,7 @@ BuildRequires:	gcc
 BuildRequires:	graphviz
 BuildRequires:	meson
 BuildRequires:	atomic-devel
-BuildRequires:	pkgconfig(roc) >= 0.3.0
+BuildRequires:	pkgconfig(roc) >= 0.4.0
 BuildRequires:	openfec-devel
 BuildRequires:	pkgconfig(libpcap)
 BuildRequires:	pkgconfig(libcap)
@@ -416,6 +423,8 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 %else
 	-Dlibcamera=disabled \
 %endif
+	-Dlibcanberra=enabled \
+	-Dlibmysofa=enabled \
 	-Droc=enabled \
 	-Dffmpeg=enabled \
 	-Dvolume=enabled \
