@@ -42,7 +42,7 @@
 Name:		pipewire
 Summary:	Media Sharing Server
 Version:	1.6.6
-Release:	2
+Release:	3
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -523,6 +523,7 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %dir %{_libdir}/%{name}-%{api}/
 %{_libdir}/%{name}-%{api}/libpipewire-module-*.so
 %{_libdir}/spa-%{spa_api}
+%exclude %{_libdir}/spa-%{spa_api}/filter-graph/libspa-filter-graph-plugin-onnx.so
 %{_libdir}/%{name}-%{api}/v4l2/libpw-v4l2.so
 %{_datadir}/spa-%{spa_api}/bluez5/bluez-hardware.conf
 #{_libdir}/spa-%{spa_api}/avb/
