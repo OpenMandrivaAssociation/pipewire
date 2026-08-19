@@ -190,6 +190,7 @@ BuildRequires:	devel(libudev)
 BuildRequires:	devel(libSDL2-2.0)
 BuildRequires:	devel(libcrypto)
 BuildRequires:	devel(libssl)
+BuildRequires:	devel(libvulkan)
 BuildRequires:	devel(libzstd)
 %endif
 
@@ -353,7 +354,7 @@ cp %{SOURCE4} subprojects/packagefiles/media-session-%{media_session_ver}.tar.bz
 
 %if %{with compat32}
 %meson32 \
-	-Dc_link_args="-latomic" \
+	-Dc_link_args="-latomic -L%{_prefix}/lib" \
 	-Dalsa=enabled \
 	-Dudev=disabled \
 	-Dudevrulesdir="%{_udevrulesdir}" \
@@ -509,13 +510,9 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_datadir}/pipewire/jack.conf
 %{_datadir}/pipewire/pipewire-aes67.conf
 %{_datadir}/pipewire/pipewire-vulkan.conf
-%dir %{_datadir}/pipewire/media-session.d
-%{_datadir}/pipewire/media-session.d/*.conf
-%{_datadir}/pipewire/media-session.d/with-audio
 %{_userunitdir}/%{name}.*
 %{_bindir}/%{name}
 %{_bindir}/pipewire-avb
-%{_bindir}/%{name}-media-session
 %{_bindir}/pipewire-aes67
 %{_bindir}/pipewire-vulkan
 %{_sysusersdir}/%{name}.conf
@@ -533,7 +530,6 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %{_datadir}/alsa-card-profile/mixer/paths/*
 %{_datadir}/alsa-card-profile/mixer/profile-sets/
 %{_datadir}/locale/*/LC_MESSAGES/pipewire.mo
-%{_userunitdir}/pipewire-media-session.service
 %{_userunitdir}/filter-chain.service
 %{_udevrulesdir}/90-pipewire-alsa.rules
 %{_datadir}/pipewire/filter-chain/*.conf
@@ -629,7 +625,9 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %files module-filter-chain-onnx            
 %{_libdir}/spa-%{spa_api}/filter-graph/libspa-filter-graph-plugin-onnx.so
 
-#FIXME  No idea why this lang won't work. Let's use dirty workaround.
-#files media-session -f media-session.lang
-%files media-session
-%{_datadir}/locale/*/LC_MESSAGES/media-session.mo
+%files media-session -f media-session.lang
+%{_bindir}/%{name}-media-session
+%dir %{_datadir}/pipewire/media-session.d
+%{_datadir}/pipewire/media-session.d/*.conf
+%{_datadir}/pipewire/media-session.d/with-audio
+%{_userunitdir}/pipewire-media-session.service
