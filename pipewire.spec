@@ -42,7 +42,7 @@
 Name:		pipewire
 Summary:	Media Sharing Server
 Version:	1.6.8
-Release:	3
+Release:	4
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -197,7 +197,9 @@ BuildRequires:	devel(libzstd)
 Requires:	rtkit
 Requires(pre):	systemd
 
-Requires: ((%{name}-media-session = %{EVRD}) or wireplumber)
+# Prefer wireplumber; media-session is the other supported choice.
+# Both packages may be installed; the units Conflicts= so only one runs.
+Requires:	(wireplumber or (%{name}-media-session = %{EVRD}))
 %systemd_ordering
 
 %description
@@ -339,6 +341,7 @@ This package contains the ONNX support for PipeWire filter-chain.
 
 %package media-session
 Summary:	PipeWire Media Session
+Group:		System/Servers
 License:	MIT
 Recommends:	%{name}%{?_isa} = %{EVRD}
 
@@ -447,6 +450,10 @@ rm -rf %{buildroot}%{_includedir}/*
 
 %meson_install
 
+# Mirror wireplumber.service Conflicts= so the two units cannot be active together.
+sed -i '/^BindsTo=pipewire.service/a Conflicts=wireplumber.service' \
+	%{buildroot}%{_userunitdir}/pipewire-media-session.service
+
 # Switches that enable certain config fragments
 touch %{buildroot}%{_datadir}/pipewire/media-session.d/with-audio
 touch %{buildroot}%{_datadir}/pipewire/media-session.d/with-alsa
@@ -474,8 +481,6 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %systemd_user_post pipewire-pulse.service
 %systemd_user_post pipewire-pulse.socket
 
-%systemd_user_post pipewire-media-session.service
-
 %preun pulse
 %systemd_user_preun pipewire.service
 %systemd_user_preun pipewire.socket
@@ -483,17 +488,22 @@ install -D -p -m 0644 %{S:10} %{buildroot}%{_sysusersdir}/%{name}.conf
 %systemd_user_preun pipewire-pulse.service
 %systemd_user_preun pipewire-pulse.socket
 
-%systemd_user_preun pipewire-media-session.service
-
 %postun pulse
 %systemd_user_postun pipewire.service
 %systemd_user_postun pipewire.socket
 
 %systemd_user_postun pipewire-pulse.service
 %systemd_user_postun pipewire-pulse.socket
-
-%systemd_user_postun pipewire-media-session.service
 %endif
+
+%post media-session
+%systemd_user_post pipewire-media-session.service
+
+%preun media-session
+%systemd_user_preun pipewire-media-session.service
+
+%postun media-session
+%systemd_user_postun pipewire-media-session.service
 
 %files
 %license LICENSE
