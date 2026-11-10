@@ -42,7 +42,7 @@
 Name:		pipewire
 Summary:	Media Sharing Server
 Version:	1.6.11
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Servers
 URL:		https://pipewire.org/
@@ -57,7 +57,8 @@ Patch2:		fix-linkage.patch
 Patch3:		pipewire-dont-run-for-system-users.patch
 
 # Upstream patches:
-Patch101:    0001-Build-media-session-from-local-tarbal.patch
+Patch101:	0001-Build-media-session-from-local-tarbal.patch
+Patch102:	0001-spa-libcamera-device-0.8-compatibility.patch
 
 BuildRequires:	doxygen
 BuildRequires:	gettext
